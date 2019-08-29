@@ -19,17 +19,53 @@ import (
 
 const separator string = "---"
 
-func ConvertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
-	ingressRoute := &v1alpha1.IngressRoute{ObjectMeta: v1.ObjectMeta{Name: ingress.Name, Namespace: ingress.Namespace}}
+const (
+	ruleTypePath            = "Path"
+	ruleTypePathPrefix      = "PathPrefix"
+	ruleTypePathStrip       = "PathStrip"
+	ruleTypePathPrefixStrip = "PathPrefixStrip"
+	ruleTypeAddPrefix       = "AddPrefix"
+)
 
-	for _, rule := range ingress.Spec.Rules {
+// ConvertIngress converts an *extensionsv1beta1.Ingress to a slice of runtime.Object (IngressRoute and Middlewares)
+func ConvertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
+	ingressRoute := &v1alpha1.IngressRoute{ObjectMeta: v1.ObjectMeta{Name: ingress.Name, Namespace: ingress.Namespace, Annotations: map[string]string{}}}
+
+	ingressRoute.Annotations[annotationKubernetesIngressClass] = ingress.Annotations[annotationKubernetesIngressClass]
+
+	// TODO Handle compatibility mapping
+	// if entrypoints, ok := ingress.Annotations[compatibilityMapping[annotationKubernetesFrontendEntryPoints]]; ok {
+	// 	ingressRoute.Spec.EntryPoints = strings.Split(entrypoints, ",")
+	// }
+
+	if entrypoints, ok := ingress.Annotations[annotationKubernetesFrontendEntryPoints]; ok {
+		ingressRoute.Spec.EntryPoints = strings.Split(entrypoints, ",")
+	}
+
+	ingressRoute.Spec.Routes = createRoutesFromRules(ingress.Spec.Rules, ingress.Annotations[annotationKubernetesRuleType])
+
+	return []runtime.Object{ingressRoute}
+}
+
+func createRoutesFromRules(rules []extensionsv1beta1.IngressRule, ruleType string) []v1alpha1.Route {
+	// TOTO handle ruleType withMiddleware
+	switch ruleType {
+	case ruleTypePath, ruleTypePathPrefix:
+	case ruleTypeAddPrefix, ruleTypePathStrip, ruleTypePathPrefixStrip:
+		ruleType = ruleTypePathPrefix
+	default:
+		ruleType = ruleTypePathPrefix
+	}
+
+	var routes []v1alpha1.Route
+	for _, rule := range rules {
 		for _, path := range rule.HTTP.Paths {
 			var rules []string
 			if len(rule.Host) > 0 {
 				rules = append(rules, fmt.Sprintf("Host(`%s`)", rule.Host))
 			}
 			if len(path.Path) > 0 {
-				rules = append(rules, fmt.Sprintf("PathPrefix(`%s`)", path.Path))
+				rules = append(rules, fmt.Sprintf("%s(`%s`)", ruleType, path.Path))
 			}
 
 			if len(rules) > 0 {
@@ -45,28 +81,28 @@ func ConvertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 						},
 					},
 				}
-				ingressRoute.Spec.Routes = append(ingressRoute.Spec.Routes, route)
+				routes = append(routes, route)
 			}
 		}
 	}
-
-	return []runtime.Object{ingressRoute}
+	return routes
 }
 
-func Convert(src, dstDir string) error {
-	info, err := os.Stat(src)
+// Convert converts all ingress in a srcDir into a dstDir
+func Convert(srcDir, dstDir string) error {
+	info, err := os.Stat(srcDir)
 	if err != nil {
 		return err
 	}
 
 	if info.IsDir() {
 		dir := info.Name()
-		infos, err := ioutil.ReadDir(src)
+		infos, err := ioutil.ReadDir(srcDir)
 		if err != nil {
 			return err
 		}
 		for _, info := range infos {
-			newSrc := path.Join(src, info.Name())
+			newSrc := path.Join(srcDir, info.Name())
 			newDst := path.Join(dstDir, dir)
 			err := Convert(newSrc, newDst)
 			if err != nil {
@@ -75,8 +111,8 @@ func Convert(src, dstDir string) error {
 		}
 	} else {
 		filename := info.Name()
-		srcPath := filepath.Dir(src)
-		err := ConvertFile(srcPath, dstDir, filename)
+		srcPath := filepath.Dir(srcDir)
+		err := convertFile(srcPath, dstDir, filename)
 		if err != nil {
 			return err
 		}
@@ -84,7 +120,7 @@ func Convert(src, dstDir string) error {
 	return nil
 }
 
-func ConvertFile(srcDir, dstDir, filename string) error {
+func convertFile(srcDir, dstDir, filename string) error {
 	inputFile := path.Join(srcDir, filename)
 	outputFile := path.Join(dstDir, filename)
 
@@ -104,7 +140,7 @@ func ConvertFile(srcDir, dstDir, filename string) error {
 		if file == "\n" || file == "" {
 			continue
 		}
-		object, err := MustParseYaml([]byte(file))
+		object, err := mustParseYaml([]byte(file))
 		if err != nil {
 			ymlBytes = append(ymlBytes, file)
 			continue
@@ -116,14 +152,14 @@ func ConvertFile(srcDir, dstDir, filename string) error {
 		}
 		objects := ConvertIngress(ingress)
 		for _, object := range objects {
-			ymlBytes = append(ymlBytes, MustEncodeYaml(object, v1alpha1.GroupName+"/v1alpha1"))
+			ymlBytes = append(ymlBytes, mustEncodeYaml(object, v1alpha1.GroupName+"/v1alpha1"))
 		}
 	}
 
 	return ioutil.WriteFile(outputFile, []byte(strings.Join(ymlBytes, separator)), 0666)
 }
 
-func MustEncodeYaml(object runtime.Object, groupName string) string {
+func mustEncodeYaml(object runtime.Object, groupName string) string {
 	info, ok := runtime.SerializerInfoForMediaType(scheme.Codecs.SupportedMediaTypes(), "application/yaml")
 	if !ok {
 		panic("oops")
@@ -144,8 +180,8 @@ func MustEncodeYaml(object runtime.Object, groupName string) string {
 	return buffer.String()
 }
 
-// MustParseYaml parses a YAML to objects.
-func MustParseYaml(content []byte) (runtime.Object, error) {
+// mustParseYaml parses a YAML to objects.
+func mustParseYaml(content []byte) (runtime.Object, error) {
 	decode := scheme.Codecs.UniversalDeserializer().Decode
 	obj, _, err := decode(content, nil, nil)
 	if err != nil {

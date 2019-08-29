@@ -14,43 +14,100 @@ import (
 )
 
 func TestIngresses(t *testing.T) {
-	bytes, err := ioutil.ReadFile("./fixtures/ingress.yml")
-	require.NoError(t, err)
-
-	object, err := MustParseYaml(bytes)
-	require.NoError(t, err)
-
-	objects := ConvertIngress(object.(*v1beta1.Ingress))
-
-	expectedRoute := v1alpha1.IngressRouteSpec{
-		Routes: []v1alpha1.Route{
-			{
-				Match: "Host(`traefik.tchouk`) && PathPrefix(`/bar`)",
-				Kind:  "Rule",
-				Services: []v1alpha1.Service{
-					{
-						Name: "service1",
-						Port: 80,
+	testCases := []struct {
+		desc           string
+		ingressFile    string
+		expectedRoutes map[string]v1alpha1.IngressRouteSpec
+	}{
+		{
+			desc: "Simple ingress",
+			ingressFile: "./fixtures/ingress.yml",
+			expectedRoutes: map[string]v1alpha1.IngressRouteSpec{
+				"testing.test": {
+					EntryPoints: []string{"web"},
+					Routes: []v1alpha1.Route{
+						{
+							Match: "Host(`traefik.tchouk`) && PathPrefix(`/bar`)",
+							Kind:  "Rule",
+							Services: []v1alpha1.Service{
+								{
+									Name: "service1",
+									Port: 80,
+								},
+							},
+						},
+						{
+							Match: "Host(`traefik.tchouk`) && PathPrefix(`/foo`)",
+							Kind:  "Rule",
+							Services: []v1alpha1.Service{
+								{
+									Name: "service1",
+									Port: 80,
+								},
+							},
+						},
 					},
 				},
 			},
-			{
-				Match: "Host(`traefik.tchouk`) && PathPrefix(`/foo`)",
-				Kind:  "Rule",
-				Services: []v1alpha1.Service{
-					{
-						Name: "service1",
-						Port: 80,
+		},
+		{
+			desc: "Simple ingress",
+			ingressFile: "./fixtures/ingress_with_matcher.yml",
+			expectedRoutes: map[string]v1alpha1.IngressRouteSpec{
+				"testing.test": {
+					EntryPoints: []string{"web"},
+					Routes: []v1alpha1.Route{
+						{
+							Match: "Host(`traefik.tchouk`) && Path(`/bar`)",
+							Kind:  "Rule",
+							Services: []v1alpha1.Service{
+								{
+									Name: "service1",
+									Port: 80,
+								},
+							},
+						},
+						{
+							Match: "Host(`traefik.tchouk`) && Path(`/foo`)",
+							Kind:  "Rule",
+							Services: []v1alpha1.Service{
+								{
+									Name: "service1",
+									Port: 80,
+								},
+							},
+						},
 					},
 				},
 			},
 		},
 	}
 
+	for _, test := range testCases {
+		test := test
+		t.Run(test.desc, func(t *testing.T) {
+			t.Parallel()
+			bytes, err := ioutil.ReadFile(test.ingressFile)
+			require.NoError(t, err)
+
+			objectIngress, err := mustParseYaml(bytes)
+			require.NoError(t, err)
+
+			objects := ConvertIngress(objectIngress.(*v1beta1.Ingress))
+
+			for _, object := range objects {
+				switch o := object.(type) {
+				case *v1alpha1.IngressRoute:
+					key := o.Namespace + "." + o.Name
+					require.Contains(t, test.expectedRoutes, key)
+					assert.Equal(t, test.expectedRoutes[key], o.Spec)
+				default:
+				}
+			}
+		})
+	}
 
 
-
-		assert.Equal(t, expectedRoute, objects[0].(*v1alpha1.IngressRoute).Spec)
 }
 
 func TestConvertFile(t *testing.T) {
@@ -58,18 +115,19 @@ func TestConvertFile(t *testing.T) {
 	require.NoError(t, err)
 	defer os.RemoveAll(tempDir)
 
-	err = ConvertFile("./fixtures", tempDir, "ingress_and_service.yml")
+	err = convertFile("./fixtures", tempDir, "ingress_and_service.yml")
 	require.NoError(t, err)
 
 	fileContent, err := ioutil.ReadFile(tempDir + "/ingress_and_service.yml")
+	require.NoError(t, err)
 	files := strings.Split(string(fileContent), "---")
 	require.Len(t, files, 2)
 
-	object, err := MustParseYaml([]byte(files[0]))
+	object, err := mustParseYaml([]byte(files[0]))
 	require.NoError(t, err)
 	require.IsType(t, &v1alpha1.IngressRoute{}, object)
 
-	object, err = MustParseYaml([]byte(files[1]))
+	object, err = mustParseYaml([]byte(files[1]))
 	require.NoError(t, err)
 	require.IsType(t, &corev1.Service{}, object)
 

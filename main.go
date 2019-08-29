@@ -9,23 +9,23 @@ import (
 )
 
 type config struct {
-	input string
+	input  string
 	output string
 }
 
 func main() {
 
-	var config config
-	flag.StringVar(&config.input, "input", "", "input")
-	flag.StringVar(&config.output, "output", "", "output")
+	var cfg config
+	flag.StringVar(&cfg.input, "input", "", "input")
+	flag.StringVar(&cfg.output, "output", "", "output")
 
 	flag.Parse()
 
-	if len(config.input) == 0 || len(config.output) == 0 {
+	if len(cfg.input) == 0 || len(cfg.output) == 0 {
 		log.Fatal("You must specify an input and an ouput")
 	}
 
-	info, err := os.Stat(config.output)
+	info, err := os.Stat(cfg.output)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,9 +34,8 @@ func main() {
 		log.Fatalf("output must be a directory")
 	}
 
-	err= ingress.Convert(config.input, config.output)
+	err = ingress.Convert(cfg.input, cfg.output)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
-
