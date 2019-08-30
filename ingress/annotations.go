@@ -28,8 +28,8 @@ const (
 	// annotationKubernetesWhiteListSourceRange            = "ingress.kubernetes.io/whitelist-source-range"
 	// annotationKubernetesWhiteListUseXForwardedFor       = "ingress.kubernetes.io/whitelist-x-forwarded-for"
 
-	// Not possible yet
-	annotationKubernetesPreserveHost                    = "ingress.kubernetes.io/preserve-host"
+	// FIXME Not possible yet
+	// annotationKubernetesPreserveHost                    = "ingress.kubernetes.io/preserve-host"
 
 	// TODO PassTLSCertMiddleware
 	annotationKubernetesPassTLSCert                     = "ingress.kubernetes.io/pass-tls-cert" // Deprecated
@@ -102,12 +102,11 @@ const (
 	// annotationKubernetesReferrerPolicy          = "ingress.kubernetes.io/referrer-policy"
 	// annotationKubernetesIsDevelopment           = "ingress.kubernetes.io/is-development"
 
-	// TODO Scheme ?
-	// annotationKubernetesProtocol                = "ingress.kubernetes.io/protocol"
+	annotationKubernetesProtocol                = "ingress.kubernetes.io/protocol"
 )
 
 var compatibilityMapping = map[string]string{
-	annotationKubernetesPreserveHost:             "traefik.frontend.passHostHeader",
+	// annotationKubernetesPreserveHost:             "traefik.frontend.passHostHeader",
 	annotationKubernetesPassTLSCert:              "traefik.frontend.passTLSCert",
 	annotationKubernetesFrontendEntryPoints:      "traefik.frontend.entryPoints",
 	annotationKubernetesPriority:                 "traefik.frontend.priority",

@@ -55,6 +55,38 @@ func TestIngresses(t *testing.T) {
 			},
 		},
 		{
+			desc: "Ingress with protocol",
+			ingressFile: "./fixtures/ingress_with_protocol.yml",
+			expectedRoutes: map[string]v1alpha1.IngressRouteSpec{
+				"testing.test": {
+					Routes: []v1alpha1.Route{
+						{
+							Match: "Host(`traefik.tchouk`) && PathPrefix(`/bar`)",
+							Kind:  "Rule",
+							Services: []v1alpha1.Service{
+								{
+									Name: "service1",
+									Port: 80,
+									Scheme: "h2c",
+								},
+							},
+						},
+						{
+							Match: "Host(`traefik.tchouk`) && PathPrefix(`/foo`)",
+							Kind:  "Rule",
+							Services: []v1alpha1.Service{
+								{
+									Name: "service1",
+									Port: 80,
+									Scheme: "h2c",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
 			desc: "Ingress with matcher",
 			ingressFile: "./fixtures/ingress_with_matcher.yml",
 			expectedRoutes: map[string]v1alpha1.IngressRouteSpec{

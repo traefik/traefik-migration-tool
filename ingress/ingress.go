@@ -96,6 +96,7 @@ func createRoutesFromRules(namespace string, rules []extensionsv1beta1.IngressRu
 							Name: path.Backend.ServiceName,
 							// TODO pas de port en string dans ingressRoute ?
 							Port: path.Backend.ServicePort.IntVal,
+							Scheme: getStringValue(annotations, annotationKubernetesProtocol, ""),
 						},
 					},
 				}
