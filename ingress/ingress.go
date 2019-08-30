@@ -9,7 +9,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/containous/traefik/v2/pkg/config/dynamic"
 	"github.com/containous/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
+	"github.com/sirupsen/logrus"
 	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -42,17 +44,26 @@ func ConvertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 		ingressRoute.Spec.EntryPoints = strings.Split(entrypoints, ",")
 	}
 
-	ingressRoute.Spec.Routes = createRoutesFromRules(ingress.Spec.Rules, ingress.Annotations[annotationKubernetesRuleType])
+	var middlewares []*v1alpha1.Middleware
+	ingressRoute.Spec.Routes, middlewares = createRoutesFromRules(ingress.Namespace, ingress.Spec.Rules, ingress.Annotations[annotationKubernetesRuleType])
 
-	return []runtime.Object{ingressRoute}
+	var objects []runtime.Object
+	for _, middleware := range middlewares {
+		objects = append(objects, middleware)
+	}
+
+	return append(objects, ingressRoute)
 }
 
-func createRoutesFromRules(rules []extensionsv1beta1.IngressRule, ruleType string) []v1alpha1.Route {
-	// TOTO handle ruleType withMiddleware
+func createRoutesFromRules(namespace string, rules []extensionsv1beta1.IngressRule, ruleType string) ([]v1alpha1.Route, []*v1alpha1.Middleware) {
+	var middlewares []*v1alpha1.Middleware
+	var modifierType string
+	// TODO handle ruleType withMiddleware
 	switch ruleType {
 	case ruleTypePath, ruleTypePathPrefix:
-	case ruleTypeAddPrefix, ruleTypePathStrip, ruleTypePathPrefixStrip:
+	case ruleTypePathStrip, ruleTypePathPrefixStrip:
 		ruleType = ruleTypePathPrefix
+		modifierType = "StripPrefix"
 	default:
 		ruleType = ruleTypePathPrefix
 	}
@@ -61,11 +72,24 @@ func createRoutesFromRules(rules []extensionsv1beta1.IngressRule, ruleType strin
 	for _, rule := range rules {
 		for _, path := range rule.HTTP.Paths {
 			var rules []string
+			middlewareName := rule.Host + path.Path
 			if len(rule.Host) > 0 {
 				rules = append(rules, fmt.Sprintf("Host(`%s`)", rule.Host))
 			}
 			if len(path.Path) > 0 {
 				rules = append(rules, fmt.Sprintf("%s(`%s`)", ruleType, path.Path))
+				if modifierType == "StripPrefix" {
+					middlewares = append(middlewares, &v1alpha1.Middleware{
+						ObjectMeta: v1.ObjectMeta{
+							Name:      middlewareName,
+							Namespace: namespace,
+						},
+						Spec: dynamic.Middleware{
+							StripPrefix: &dynamic.StripPrefix{Prefixes: []string{path.Path}},
+						},
+					})
+				}
+
 			}
 
 			if len(rules) > 0 {
@@ -81,11 +105,19 @@ func createRoutesFromRules(rules []extensionsv1beta1.IngressRule, ruleType strin
 						},
 					},
 				}
+				if modifierType != "" {
+					route.Middlewares = []v1alpha1.MiddlewareRef{
+						{
+							Name: middlewareName,
+							Namespace:namespace,
+						},
+					}
+				}
 				routes = append(routes, route)
 			}
 		}
 	}
-	return routes
+	return routes, middlewares
 }
 
 // Convert converts all ingress in a srcDir into a dstDir
@@ -129,7 +161,7 @@ func convertFile(srcDir, dstDir, filename string) error {
 		return err
 	}
 
-	err = os.MkdirAll(filepath.Dir(outputFile), 0777)
+	err = os.MkdirAll(dstDir, 0777)
 	if err != nil {
 		return err
 	}
@@ -142,11 +174,13 @@ func convertFile(srcDir, dstDir, filename string) error {
 		}
 		object, err := mustParseYaml([]byte(file))
 		if err != nil {
+			logrus.Debugf("err while reading yaml: %v", err)
 			ymlBytes = append(ymlBytes, file)
 			continue
 		}
 		ingress, ok := object.(*extensionsv1beta1.Ingress)
 		if !ok {
+			logrus.Debugf("object is not an ingress ignore it: %T", object)
 			ymlBytes = append(ymlBytes, file)
 			continue
 		}

@@ -20,6 +20,7 @@ replace (
 require (
 	github.com/containous/traefik/v2 v2.0.0-rc1
 	github.com/google/martian v2.1.0+incompatible
+	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.3.0
 	k8s.io/api v0.0.0-20190718183219-b59d8169aab5
 	k8s.io/apimachinery v0.0.0-20190612205821-1799e75a0719
