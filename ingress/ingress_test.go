@@ -37,6 +37,7 @@ func TestIngresses(t *testing.T) {
 									Port: 80,
 								},
 							},
+							Priority:10,
 						},
 						{
 							Match: "Host(`traefik.tchouk`) && PathPrefix(`/foo`)",
@@ -47,6 +48,7 @@ func TestIngresses(t *testing.T) {
 									Port: 80,
 								},
 							},
+							Priority:10,
 						},
 					},
 				},

@@ -5,6 +5,7 @@ metadata:
   namespace: testing
   annotations:
     ingress.kubernetes.io/frontend-entry-points: "web"
+    ingress.kubernetes.io/priority: "10"
 spec:
   rules:
   - host: traefik.tchouk

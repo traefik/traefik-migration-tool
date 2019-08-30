@@ -33,19 +33,12 @@ const (
 func ConvertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 	ingressRoute := &v1alpha1.IngressRoute{ObjectMeta: v1.ObjectMeta{Name: ingress.Name, Namespace: ingress.Namespace, Annotations: map[string]string{}}}
 
-	ingressRoute.Annotations[annotationKubernetesIngressClass] = ingress.Annotations[annotationKubernetesIngressClass]
+	ingressRoute.Annotations[annotationKubernetesIngressClass] = getStringValue(ingress.Annotations, annotationKubernetesIngressClass, "")
 
-	// TODO Handle compatibility mapping
-	// if entrypoints, ok := ingress.Annotations[compatibilityMapping[annotationKubernetesFrontendEntryPoints]]; ok {
-	// 	ingressRoute.Spec.EntryPoints = strings.Split(entrypoints, ",")
-	// }
-
-	if entrypoints, ok := ingress.Annotations[annotationKubernetesFrontendEntryPoints]; ok {
-		ingressRoute.Spec.EntryPoints = strings.Split(entrypoints, ",")
-	}
+	ingressRoute.Spec.EntryPoints = getSliceStringValue(ingress.Annotations, annotationKubernetesFrontendEntryPoints)
 
 	var middlewares []*v1alpha1.Middleware
-	ingressRoute.Spec.Routes, middlewares = createRoutesFromRules(ingress.Namespace, ingress.Spec.Rules, ingress.Annotations[annotationKubernetesRuleType])
+	ingressRoute.Spec.Routes, middlewares = createRoutesFromRules(ingress.Namespace, ingress.Spec.Rules, ingress.Annotations)
 
 	var objects []runtime.Object
 	for _, middleware := range middlewares {
@@ -55,7 +48,8 @@ func ConvertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 	return append(objects, ingressRoute)
 }
 
-func createRoutesFromRules(namespace string, rules []extensionsv1beta1.IngressRule, ruleType string) ([]v1alpha1.Route, []*v1alpha1.Middleware) {
+func createRoutesFromRules(namespace string, rules []extensionsv1beta1.IngressRule, annotations map[string]string) ([]v1alpha1.Route, []*v1alpha1.Middleware) {
+	ruleType := getStringValue(annotations, annotationKubernetesRuleType, ruleTypePathPrefix)
 	var middlewares []*v1alpha1.Middleware
 	var modifierType string
 	// TODO handle ruleType withMiddleware
@@ -96,7 +90,7 @@ func createRoutesFromRules(namespace string, rules []extensionsv1beta1.IngressRu
 				route := v1alpha1.Route{
 					Match:    strings.Join(rules, " && "),
 					Kind:     "Rule",
-					Priority: 0,
+					Priority: getIntValue(annotations, annotationKubernetesPriority, 0),
 					Services: []v1alpha1.Service{
 						{
 							Name: path.Backend.ServiceName,
@@ -108,8 +102,8 @@ func createRoutesFromRules(namespace string, rules []extensionsv1beta1.IngressRu
 				if modifierType != "" {
 					route.Middlewares = []v1alpha1.MiddlewareRef{
 						{
-							Name: middlewareName,
-							Namespace:namespace,
+							Name:      middlewareName,
+							Namespace: namespace,
 						},
 					}
 				}
