@@ -1,12 +1,14 @@
 package ingress
 
 import (
+	"flag"
+	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
-	"github.com/containous/traefik/v2/pkg/config/dynamic"
 	"github.com/containous/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -14,201 +16,79 @@ import (
 	"k8s.io/api/extensions/v1beta1"
 )
 
+var updateExpected = flag.Bool("update_expected", false, "Update expected files in testdata")
+
 func TestIngresses(t *testing.T) {
 	testCases := []struct {
-		desc           string
-		ingressFile    string
-		expectedRoutes map[string]v1alpha1.IngressRouteSpec
-		expectedMiddlewares map[string]dynamic.Middleware
+		ingressFile string
+		objectCount int
 	}{
 		{
-			desc: "Simple ingress",
-			ingressFile: "./fixtures/ingress.yml",
-			expectedRoutes: map[string]v1alpha1.IngressRouteSpec{
-				"testing.test": {
-					EntryPoints: []string{"web"},
-					Routes: []v1alpha1.Route{
-						{
-							Match: "Host(`traefik.tchouk`) && PathPrefix(`/bar`)",
-							Kind:  "Rule",
-							Services: []v1alpha1.Service{
-								{
-									Name: "service1",
-									Port: 80,
-								},
-							},
-							Priority:10,
-							Middlewares:make([]v1alpha1.MiddlewareRef, 0, 1),
-						},
-						{
-							Match: "Host(`traefik.tchouk`) && PathPrefix(`/foo`)",
-							Kind:  "Rule",
-							Services: []v1alpha1.Service{
-								{
-									Name: "service1",
-									Port: 80,
-								},
-							},
-							Priority:10,
-							Middlewares:make([]v1alpha1.MiddlewareRef, 0, 1),
-						},
-					},
-				},
-			},
+			ingressFile: "ingress.yml",
+			objectCount: 1,
 		},
 		{
-			desc: "Ingress with protocol",
-			ingressFile: "./fixtures/ingress_with_protocol.yml",
-			expectedRoutes: map[string]v1alpha1.IngressRouteSpec{
-				"testing.test": {
-					EntryPoints: make([]string, 0, 1),
-					Routes: []v1alpha1.Route{
-						{
-							Match: "Host(`traefik.tchouk`) && PathPrefix(`/bar`)",
-							Kind:  "Rule",
-							Services: []v1alpha1.Service{
-								{
-									Name: "service1",
-									Port: 80,
-									Scheme: "h2c",
-								},
-							},
-							Middlewares:make([]v1alpha1.MiddlewareRef, 0, 1),
-						},
-						{
-							Match: "Host(`traefik.tchouk`) && PathPrefix(`/foo`)",
-							Kind:  "Rule",
-							Services: []v1alpha1.Service{
-								{
-									Name: "service1",
-									Port: 80,
-									Scheme: "h2c",
-								},
-							},
-							Middlewares:make([]v1alpha1.MiddlewareRef, 0, 1),
-						},
-					},
-				},
-			},
+			ingressFile: "ingress_with_protocol.yml",
+			objectCount: 1,
 		},
 		{
-			desc: "Ingress with matcher",
-			ingressFile: "./fixtures/ingress_with_matcher.yml",
-			expectedRoutes: map[string]v1alpha1.IngressRouteSpec{
-				"testing.test": {
-					EntryPoints: []string{"web"},
-					Routes: []v1alpha1.Route{
-						{
-							Match: "Host(`traefik.tchouk`) && Path(`/bar`)",
-							Kind:  "Rule",
-							Services: []v1alpha1.Service{
-								{
-									Name: "service1",
-									Port: 80,
-								},
-							},
-							Middlewares:make([]v1alpha1.MiddlewareRef, 0, 1),
-						},
-						{
-							Match: "Host(`traefik.tchouk`) && Path(`/foo`)",
-							Kind:  "Rule",
-							Services: []v1alpha1.Service{
-								{
-									Name: "service1",
-									Port: 80,
-								},
-							},
-							Middlewares:make([]v1alpha1.MiddlewareRef, 0, 1),
-						},
-					},
-				},
-			},
+			ingressFile: "ingress_with_matcher.yml",
+			objectCount: 1,
 		},
 		{
-			desc: "Ingress with matcher and modifier",
-			ingressFile: "./fixtures/ingress_with_matcher_modifier.yml",
-			expectedMiddlewares: map[string]dynamic.Middleware{
-				"testing.traefik.tchouk/bar": {StripPrefix: &dynamic.StripPrefix{Prefixes: []string{"/bar"}}},
-				"testing.traefik.tchouk/foo": {StripPrefix: &dynamic.StripPrefix{Prefixes: []string{"/foo"}}},
-			},
-			expectedRoutes: map[string]v1alpha1.IngressRouteSpec{
-				"testing.test": {
-					EntryPoints: []string{"web"},
-					Routes: []v1alpha1.Route{
-						{
-							Match: "Host(`traefik.tchouk`) && PathPrefix(`/bar`)",
-							Kind:  "Rule",
-							Services: []v1alpha1.Service{
-								{
-									Name: "service1",
-									Port: 80,
-								},
-							},
-							Middlewares:[]v1alpha1.MiddlewareRef{
-								{
-									Name:      "traefik.tchouk/bar",
-									Namespace: "testing",
-								},
-							},
-						},
-						{
-							Match: "Host(`traefik.tchouk`) && PathPrefix(`/foo`)",
-							Kind:  "Rule",
-							Services: []v1alpha1.Service{
-								{
-									Name: "service1",
-									Port: 80,
-								},
-							},
-							Middlewares:[]v1alpha1.MiddlewareRef{
-								{
-									Name:      "traefik.tchouk/foo",
-									Namespace: "testing",
-								},
-							},
-						},
-					},
-				},
-			},
+			ingressFile: "ingress_with_matcher_modifier.yml",
+			objectCount: 3,
 		},
+		{
+			ingressFile: "ingress_with_headers_annotations.yml",
+			objectCount: 2,
+		},
+	}
+
+	if *updateExpected {
+		outputDir := filepath.Join("fixtures", "output")
+		require.NoError(t, os.RemoveAll(outputDir))
+		require.NoError(t, os.MkdirAll(outputDir, 0755))
 	}
 
 	for _, test := range testCases {
-		test := test
-		t.Run(test.desc, func(t *testing.T) {
-			t.Parallel()
-			bytes, err := ioutil.ReadFile(test.ingressFile)
+		t.Run(test.ingressFile, func(t *testing.T) {
+			bytes, err := ioutil.ReadFile(filepath.Join("fixtures", test.ingressFile))
 			require.NoError(t, err)
 
-			objectIngress, err := mustParseYaml(bytes)
+			objectIngress, err := parseYaml(bytes)
 			require.NoError(t, err)
 
-			objects := ConvertIngress(objectIngress.(*v1beta1.Ingress))
+			objects := convertIngress(objectIngress.(*v1beta1.Ingress))
 
-			require.Len(t, objects, len(test.expectedRoutes)+len(test.expectedMiddlewares))
-			for _, object := range objects {
-				switch o := object.(type) {
-				case *v1alpha1.IngressRoute:
-					key := o.Namespace + "." + o.Name
-					require.Contains(t, test.expectedRoutes, key)
-					assert.Equal(t, test.expectedRoutes[key], o.Spec)
-				case *v1alpha1.Middleware:
-					key := o.Namespace + "." + o.Name
-					require.Contains(t, test.expectedMiddlewares, key)
-					assert.Equal(t, test.expectedMiddlewares[key], o.Spec)
-				default:
+			if !*updateExpected {
+				require.Len(t, objects, test.objectCount)
+			}
+
+			for i, object := range objects {
+				s, err := encodeYaml(object, v1alpha1.GroupName+groupSuffix)
+				require.NoError(t, err)
+
+				filename := fmt.Sprintf("%s_%.2d.yml", strings.TrimSuffix(filepath.Base(test.ingressFile), filepath.Ext(test.ingressFile)), i+1)
+				fixtureFile := filepath.Join("fixtures", "output", filename)
+
+				if *updateExpected {
+					require.NoError(t, ioutil.WriteFile(fixtureFile, []byte(s), 0666))
 				}
+
+				file, err := ioutil.ReadFile(fixtureFile)
+				require.NoError(t, err)
+
+				assert.YAMLEq(t, string(file), s)
 			}
 		})
 	}
-
-
 }
 
 func TestConvertFile(t *testing.T) {
 	tempDir, err := ioutil.TempDir("", "convert")
 	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	err = convertFile("./fixtures", tempDir, "ingress_and_service.yml")
 	require.NoError(t, err)
@@ -218,11 +98,11 @@ func TestConvertFile(t *testing.T) {
 	files := strings.Split(string(fileContent), "---")
 	require.Len(t, files, 2)
 
-	object, err := mustParseYaml([]byte(files[0]))
+	object, err := parseYaml([]byte(files[0]))
 	require.NoError(t, err)
 	require.IsType(t, &v1alpha1.IngressRoute{}, object)
 
-	object, err = mustParseYaml([]byte(files[1]))
+	object, err = parseYaml([]byte(files[1]))
 	require.NoError(t, err)
 	require.IsType(t, &corev1.Service{}, object)
 

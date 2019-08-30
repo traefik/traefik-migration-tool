@@ -1,22 +1,28 @@
-.PHONY: check test build fmt imports
+.PHONY: check clean test build package package-snapshot
 
 export GO111MODULE=on
 
-GOFILES := $(shell git ls-files '*.go')
+TAG_NAME := $(shell git tag -l --contains HEAD)
+SHA := $(shell git rev-parse HEAD)
+VERSION := $(if $(TAG_NAME),$(TAG_NAME),$(SHA))
 
 default: check test build
 
 test:
 	go test -v -cover ./...
 
-build:
-	go build -v 
+clean:
+	rm -rf dist/
+
+build: clean
+	@echo Version: $(VERSION)
+	go build -v -ldflags '-X "main.Version=${VERSION}" -X "main.ShortCommit=${SHA}"' .
 
 check:
 	golangci-lint run
 
-fmt:
-	@gofmt -s -l -w $(GOFILES)
+package:
+	goreleaser --skip-publish --skip-validate --rm-dist
 
-imports:
-	@goimports -w $(GOFILES)
+package-snapshot:
+	goreleaser --skip-publish --skip-validate --rm-dist --snapshot

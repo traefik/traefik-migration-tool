@@ -36,7 +36,16 @@
   exclude-use-default = false
   max-per-linter = 0
   max-same-issues = 0
-  exclude = [ ]
+  exclude = []
   [[issues.exclude-rules]]
     path = "annotations.go"
     text = "`(compatibilityMapping)` is a global variable"
+
+  [[issues.exclude-rules]]
+    path = "ingress_test.go"
+    text = "`(updateExpected)` is a global variable"
+
+  [[issues.exclude-rules]]
+    path = "main.go"
+    text = "`(Version|ShortCommit|Date)` is a global variable"
+

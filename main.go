@@ -2,11 +2,16 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 
 	"github.com/containous/traefik-migration/ingress"
 )
+
+var Version = "dev"
+var ShortCommit = ""
+var Date = ""
 
 type config struct {
 	input  string
@@ -14,6 +19,7 @@ type config struct {
 }
 
 func main() {
+	fmt.Printf("Traefik Migration: %s - %s - %s\n", Version, Date, ShortCommit)
 
 	var cfg config
 	flag.StringVar(&cfg.input, "input", "", "input")
@@ -42,7 +48,6 @@ func main() {
 			log.Fatalf("output must be a directory")
 		}
 	}
-
 
 	err = ingress.Convert(cfg.input, cfg.output)
 	if err != nil {

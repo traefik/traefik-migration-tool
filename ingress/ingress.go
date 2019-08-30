@@ -1,26 +1,23 @@
 package ingress
 
 import (
-	"bytes"
-	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/containous/traefik/v2/pkg/config/dynamic"
 	"github.com/containous/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
-	"github.com/mitchellh/hashstructure"
-	"github.com/sirupsen/logrus"
 	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/kubernetes/scheme"
 )
 
-const separator string = "---"
+const separator = "---"
+
+const groupSuffix = "/v1alpha1"
 
 const (
 	ruleTypePath            = "Path"
@@ -29,149 +26,6 @@ const (
 	ruleTypePathPrefixStrip = "PathPrefixStrip"
 	ruleTypeAddPrefix       = "AddPrefix"
 )
-
-func headerMiddleware(annotations map[string]string) *dynamic.Middleware {
-	headers := &dynamic.Headers{
-		CustomRequestHeaders:    getMapValue(annotations, annotationKubernetesCustomRequestHeaders),
-		CustomResponseHeaders:   getMapValue(annotations, annotationKubernetesCustomResponseHeaders),
-		AllowedHosts:            getSliceStringValue(annotations, annotationKubernetesAllowedHosts),
-		HostsProxyHeaders:       getSliceStringValue(annotations, annotationKubernetesProxyHeaders),
-		SSLForceHost:            getBoolValue(annotations, annotationKubernetesSSLForceHost, false),
-		SSLRedirect:             getBoolValue(annotations, annotationKubernetesSSLRedirect, false),
-		SSLTemporaryRedirect:    getBoolValue(annotations, annotationKubernetesSSLTemporaryRedirect, false),
-		SSLHost:                 getStringValue(annotations, annotationKubernetesSSLHost, ""),
-		SSLProxyHeaders:         getMapValue(annotations, annotationKubernetesSSLProxyHeaders),
-		STSSeconds:              getInt64Value(annotations, annotationKubernetesHSTSMaxAge, 0),
-		STSIncludeSubdomains:    getBoolValue(annotations, annotationKubernetesHSTSIncludeSubdomains, false),
-		STSPreload:              getBoolValue(annotations, annotationKubernetesHSTSPreload, false),
-		ForceSTSHeader:          getBoolValue(annotations, annotationKubernetesForceHSTSHeader, false),
-		FrameDeny:               getBoolValue(annotations, annotationKubernetesFrameDeny, false),
-		CustomFrameOptionsValue: getStringValue(annotations, annotationKubernetesCustomFrameOptionsValue, ""),
-		ContentTypeNosniff:      getBoolValue(annotations, annotationKubernetesContentTypeNosniff, false),
-		BrowserXSSFilter:        getBoolValue(annotations, annotationKubernetesBrowserXSSFilter, false),
-		CustomBrowserXSSValue:   getStringValue(annotations, annotationKubernetesCustomBrowserXSSValue, ""),
-		ContentSecurityPolicy:   getStringValue(annotations, annotationKubernetesContentSecurityPolicy, ""),
-		PublicKey:               getStringValue(annotations, annotationKubernetesPublicKey, ""),
-		ReferrerPolicy:          getStringValue(annotations, annotationKubernetesReferrerPolicy, ""),
-		IsDevelopment:           getBoolValue(annotations, annotationKubernetesIsDevelopment, false),
-	}
-
-	if headers.HasCustomHeadersDefined() || headers.HasCorsHeadersDefined() || headers.HasSecureHeadersDefined() {
-		return &dynamic.Middleware{
-			Headers: headers,
-		}
-	}
-	return nil
-}
-
-// ConvertIngress converts an *extensionsv1beta1.Ingress to a slice of runtime.Object (IngressRoute and Middlewares)
-func ConvertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
-	ingressRoute := &v1alpha1.IngressRoute{ObjectMeta: v1.ObjectMeta{Name: ingress.Name, Namespace: ingress.Namespace, Annotations: map[string]string{}}}
-
-	ingressClass := getStringValue(ingress.Annotations, annotationKubernetesIngressClass, "")
-	if len(ingressClass) > 0 {
-		ingressRoute.Annotations[annotationKubernetesIngressClass] = ingressClass
-	}
-
-	ingressRoute.Spec.EntryPoints = getSliceStringValue(ingress.Annotations, annotationKubernetesFrontendEntryPoints)
-
-	var middlewares []*v1alpha1.Middleware
-
-	headerMiddleware := headerMiddleware(ingress.Annotations)
-	if headerMiddleware != nil {
-		hash, err := hashstructure.Hash(headerMiddleware, nil)
-		if err != nil {
-			logrus.Fatal(err)
-		}
-
-		middlewares = append(middlewares, &v1alpha1.Middleware{
-			Spec:       *headerMiddleware,
-			ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%d", "headers", hash), Namespace: ingress.Namespace},
-		})
-	}
-
-	ingressRoute.Spec.Routes, middlewares = createRoutesFromRules(ingress.Namespace, ingress.Spec.Rules, ingress.Annotations)
-
-	var objects []runtime.Object
-	for _, middleware := range middlewares {
-		objects = append(objects, middleware)
-	}
-
-	return append(objects, ingressRoute)
-}
-
-func createRoutesFromRules(namespace string, rules []extensionsv1beta1.IngressRule, annotations map[string]string, previousMiddlewares []*v1alpha1.Middleware) ([]v1alpha1.Route, []*v1alpha1.Middleware) {
-	ruleType := getStringValue(annotations, annotationKubernetesRuleType, ruleTypePathPrefix)
-	var middlewares []*v1alpha1.Middleware
-	var modifierType string
-
-	switch ruleType {
-	case ruleTypePath, ruleTypePathPrefix:
-	case ruleTypePathStrip, ruleTypePathPrefixStrip:
-		ruleType = ruleTypePathPrefix
-		modifierType = "StripPrefix"
-	default:
-		ruleType = ruleTypePathPrefix
-	}
-
-	var routes []v1alpha1.Route
-	for _, rule := range rules {
-		for _, path := range rule.HTTP.Paths {
-			var rules []string
-			middlewareName := rule.Host + path.Path
-			if len(rule.Host) > 0 {
-				rules = append(rules, fmt.Sprintf("Host(`%s`)", rule.Host))
-			}
-			if len(path.Path) > 0 {
-				rules = append(rules, fmt.Sprintf("%s(`%s`)", ruleType, path.Path))
-				if modifierType == "StripPrefix" {
-					middlewares = append(middlewares, &v1alpha1.Middleware{
-						ObjectMeta: v1.ObjectMeta{
-							Name:      middlewareName,
-							Namespace: namespace,
-						},
-						Spec: dynamic.Middleware{
-							StripPrefix: &dynamic.StripPrefix{Prefixes: []string{path.Path}},
-						},
-					})
-				}
-			}
-
-			if len(rules) > 0 {
-				route := v1alpha1.Route{
-					Match:    strings.Join(rules, " && "),
-					Kind:     "Rule",
-					Priority: getIntValue(annotations, annotationKubernetesPriority, 0),
-					Services: []v1alpha1.Service{
-						{
-							Name: path.Backend.ServiceName,
-							// TODO pas de port en string dans ingressRoute ?
-							Port:   path.Backend.ServicePort.IntVal,
-							Scheme: getStringValue(annotations, annotationKubernetesProtocol, ""),
-						},
-					},
-					Middlewares: make([]v1alpha1.MiddlewareRef, 0, 1),
-				}
-
-				if modifierType != "" {
-					route.Middlewares = append(route.Middlewares, v1alpha1.MiddlewareRef{
-							Name:      middlewareName,
-							Namespace: namespace,
-						})
-				}
-
-				for _, middleware := range previousMiddlewares {
-					route.Middlewares = append(route.Middlewares, v1alpha1.MiddlewareRef{
-						Name:      middleware.Name,
-						Namespace: middleware.Namespace,
-					})
-				}
-				routes = append(routes, route)
-			}
-		}
-	}
-	return routes, middlewares
-}
 
 // Convert converts all ingress in a src into a dstDir
 func Convert(src, dstDir string) error {
@@ -205,8 +59,7 @@ func Convert(src, dstDir string) error {
 }
 
 func convertFile(srcDir, dstDir, filename string) error {
-	inputFile := filepath.Join(srcDir, filename)
-	bytes, err := ioutil.ReadFile(inputFile)
+	content, err := ioutil.ReadFile(filepath.Join(srcDir, filename))
 	if err != nil {
 		return err
 	}
@@ -216,27 +69,30 @@ func convertFile(srcDir, dstDir, filename string) error {
 		return err
 	}
 
-	files := strings.Split(string(bytes), separator)
+	files := strings.Split(string(content), separator)
 	var ymlBytes []string
 	for _, file := range files {
 		if file == "\n" || file == "" {
 			continue
 		}
-		object, err := mustParseYaml([]byte(file))
+
+		object, err := parseYaml([]byte(file))
 		if err != nil {
-			logrus.Debugf("err while reading yaml: %v", err)
+			log.Printf("err while reading yaml: %v", err)
 			ymlBytes = append(ymlBytes, file)
 			continue
 		}
+
 		ingress, ok := object.(*extensionsv1beta1.Ingress)
 		if !ok {
-			logrus.Debugf("object is not an ingress ignore it: %T", object)
+			log.Printf("object is not an ingress ignore it: %T", object)
 			ymlBytes = append(ymlBytes, file)
 			continue
 		}
-		objects := ConvertIngress(ingress)
+
+		objects := convertIngress(ingress)
 		for _, object := range objects {
-			yml, err := mustEncodeYaml(object, v1alpha1.GroupName+"/v1alpha1")
+			yml, err := encodeYaml(object, v1alpha1.GroupName+groupSuffix)
 			if err != nil {
 				return err
 			}
@@ -247,35 +103,117 @@ func convertFile(srcDir, dstDir, filename string) error {
 	return ioutil.WriteFile(filepath.Join(dstDir, filename), []byte(strings.Join(ymlBytes, separator+"\n")), 0666)
 }
 
-func mustEncodeYaml(object runtime.Object, groupName string) (string, error) {
-	info, ok := runtime.SerializerInfoForMediaType(scheme.Codecs.SupportedMediaTypes(), "application/yaml")
-	if !ok {
-		return "", errors.New("unsupported media type application/yaml")
+// convertIngress converts an *extensionsv1beta1.Ingress to a slice of runtime.Object (IngressRoute and Middlewares)
+func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
+	ingressRoute := &v1alpha1.IngressRoute{
+		ObjectMeta: v1.ObjectMeta{Name: ingress.Name, Namespace: ingress.Namespace, Annotations: map[string]string{}},
+		Spec: v1alpha1.IngressRouteSpec{
+			EntryPoints: getSliceStringValue(ingress.Annotations, annotationKubernetesFrontendEntryPoints),
+		},
 	}
 
-	gv, err := schema.ParseGroupVersion(groupName)
-	if err != nil {
-		return "", err
+	ingressClass := getStringValue(ingress.Annotations, annotationKubernetesIngressClass, "")
+	if len(ingressClass) > 0 {
+		ingressRoute.Annotations[annotationKubernetesIngressClass] = ingressClass
 	}
 
-	buffer := bytes.NewBuffer([]byte{})
+	var middlewares []*v1alpha1.Middleware
 
-	v1alpha1.AddToScheme(scheme.Scheme)
-	err = scheme.Codecs.EncoderForVersion(info.Serializer, gv).Encode(object, buffer)
-	if err != nil {
-		return "", err
-
+	// Headers middleware
+	headers := getHeadersMiddleware(ingress)
+	if headers != nil {
+		middlewares = append(middlewares, headers)
 	}
-	return buffer.String(), nil
+
+	var miRefs []v1alpha1.MiddlewareRef
+	for _, middleware := range middlewares {
+		miRefs = append(miRefs, v1alpha1.MiddlewareRef{
+			Name:      middleware.Name,
+			Namespace: middleware.Namespace,
+		})
+	}
+
+	routes, mi := createRoutesFromRules(ingress.Namespace, ingress.Spec.Rules, ingress.Annotations, miRefs)
+
+	ingressRoute.Spec.Routes = routes
+
+	middlewares = append(middlewares, mi...)
+
+	objects := []runtime.Object{ingressRoute}
+	for _, middleware := range middlewares {
+		objects = append(objects, middleware)
+	}
+
+	return objects
 }
 
-// mustParseYaml parses a YAML to objects.
-func mustParseYaml(content []byte) (runtime.Object, error) {
-	decode := scheme.Codecs.UniversalDeserializer().Decode
-	obj, _, err := decode(content, nil, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error while decoding YAML object. Err was: %s", err)
+func createRoutesFromRules(namespace string, rules []extensionsv1beta1.IngressRule, annotations map[string]string, middlewareRefs []v1alpha1.MiddlewareRef) ([]v1alpha1.Route, []*v1alpha1.Middleware) {
+
+	ruleType := getStringValue(annotations, annotationKubernetesRuleType, ruleTypePathPrefix)
+
+	var modifierType string
+	switch ruleType {
+	case ruleTypePath, ruleTypePathPrefix:
+	case ruleTypePathStrip, ruleTypePathPrefixStrip:
+		// FIXME
+		ruleType = ruleTypePathPrefix
+		modifierType = "StripPrefix"
+	default:
+		ruleType = ruleTypePathPrefix
 	}
 
-	return obj, nil
+	var mi []*v1alpha1.Middleware
+
+	var routes []v1alpha1.Route
+
+	for _, rule := range rules {
+		for _, path := range rule.HTTP.Paths {
+			var miRefs = make([]v1alpha1.MiddlewareRef, 0, 1)
+
+			miRefs = append(miRefs, middlewareRefs...)
+
+			var rules []string
+			middlewareName := rule.Host + path.Path
+
+			if len(rule.Host) > 0 {
+				rules = append(rules, fmt.Sprintf("Host(`%s`)", rule.Host))
+			}
+
+			if len(path.Path) > 0 {
+				rules = append(rules, fmt.Sprintf("%s(`%s`)", ruleType, path.Path))
+
+				if modifierType == "StripPrefix" {
+					mi = append(mi, &v1alpha1.Middleware{
+						ObjectMeta: v1.ObjectMeta{Name: middlewareName, Namespace: namespace},
+						Spec: dynamic.Middleware{
+							StripPrefix: &dynamic.StripPrefix{Prefixes: []string{path.Path}},
+						},
+					})
+
+					miRefs = append(miRefs, v1alpha1.MiddlewareRef{
+						Name:      middlewareName,
+						Namespace: namespace,
+					})
+				}
+			}
+
+			if len(rules) > 0 {
+				route := v1alpha1.Route{
+					Match:    strings.Join(rules, " && "),
+					Kind:     "Rule",
+					Priority: getIntValue(annotations, annotationKubernetesPriority, 0),
+					Services: []v1alpha1.Service{{
+						Name: path.Backend.ServiceName,
+						// TODO pas de port en string dans ingressRoute ?
+						Port:   path.Backend.ServicePort.IntVal,
+						Scheme: getStringValue(annotations, annotationKubernetesProtocol, ""),
+					}},
+					Middlewares: miRefs,
+				}
+
+				routes = append(routes, route)
+			}
+		}
+	}
+	return routes, mi
 }

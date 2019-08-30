@@ -1,0 +1,25 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  creationTimestamp: null
+  name: test
+  namespace: testing
+spec:
+  entryPoints: []
+  routes:
+  - kind: Rule
+    match: Host(`traefik.tchouk`) && PathPrefix(`/bar`)
+    middlewares: []
+    priority: 0
+    services:
+    - name: service1
+      port: 80
+      scheme: h2c
+  - kind: Rule
+    match: Host(`traefik.tchouk`) && PathPrefix(`/foo`)
+    middlewares: []
+    priority: 0
+    services:
+    - name: service1
+      port: 80
+      scheme: h2c

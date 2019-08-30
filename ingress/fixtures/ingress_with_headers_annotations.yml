@@ -1,0 +1,42 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    ingress.kubernetes.io/allowed-hosts: foo, fii, fuu
+    ingress.kubernetes.io/browser-xss-filter: "true"
+    ingress.kubernetes.io/content-security-policy: foo
+    ingress.kubernetes.io/content-type-nosniff: "true"
+    ingress.kubernetes.io/custom-browser-xss-value: foo
+    ingress.kubernetes.io/custom-frame-options-value: foo
+    ingress.kubernetes.io/custom-request-headers: 'Access-Control-Allow-Methods:POST,GET,OPTIONS
+      || Content-type: application/json; charset=utf-8'
+    ingress.kubernetes.io/custom-response-headers: 'Access-Control-Allow-Methods:POST,GET,OPTIONS
+      || Content-type: application/json; charset=utf-8'
+    ingress.kubernetes.io/force-hsts: "true"
+    ingress.kubernetes.io/frame-deny: "true"
+    ingress.kubernetes.io/hsts-include-subdomains: "true"
+    ingress.kubernetes.io/hsts-max-age: "666"
+    ingress.kubernetes.io/hsts-preload: "true"
+    ingress.kubernetes.io/is-development: "true"
+    ingress.kubernetes.io/proxy-headers: foo, fii, fuu
+    ingress.kubernetes.io/public-key: foo
+    ingress.kubernetes.io/referrer-policy: foo
+    ingress.kubernetes.io/ssl-force-host: "true"
+    ingress.kubernetes.io/ssl-host: foo
+    ingress.kubernetes.io/ssl-proxy-headers: 'Access-Control-Allow-Methods:POST,GET,OPTIONS
+      || Content-type: application/json; charset=utf-8'
+    ingress.kubernetes.io/ssl-redirect: "true"
+    ingress.kubernetes.io/ssl-temporary-redirect: "true"
+    kubernetes.io/ingress.class: traefik
+  namespace: testing
+
+spec:
+  rules:
+  - host: custom-headers
+    http:
+      paths:
+      - backend:
+          serviceName: service1
+          servicePort: 80
+        path: /customheaders
+

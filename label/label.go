@@ -2,22 +2,20 @@ package label
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
-
-	log "github.com/sirupsen/logrus"
 )
 
 const (
-	Prefix                                         = "traefik."
+	Prefix = "traefik."
 )
 
 const (
 	mapEntrySeparator = "||"
 	mapValueSeparator = ":"
 )
-
 
 // GetStringValue get string value associated to a label
 func GetStringValue(labels map[string]string, labelName string, defaultValue string) string {
@@ -35,7 +33,7 @@ func GetBoolValue(labels map[string]string, labelName string, defaultValue bool)
 		if err == nil {
 			return v
 		}
-		log.Errorf("Unable to parse %q: %q, falling back to %v. %v", labelName, rawValue, defaultValue, err)
+		log.Printf("Unable to parse %q: %q, falling back to %v. %v", labelName, rawValue, defaultValue, err)
 	}
 	return defaultValue
 }
@@ -47,7 +45,7 @@ func GetIntValue(labels map[string]string, labelName string, defaultValue int) i
 		if err == nil {
 			return value
 		}
-		log.Errorf("Unable to parse %q: %q, falling back to %v. %v", labelName, rawValue, defaultValue, err)
+		log.Printf("Unable to parse %q: %q, falling back to %v. %v", labelName, rawValue, defaultValue, err)
 	}
 	return defaultValue
 }
@@ -59,20 +57,20 @@ func GetInt64Value(labels map[string]string, labelName string, defaultValue int6
 		if err == nil {
 			return value
 		}
-		log.Errorf("Unable to parse %q: %q, falling back to %v. %v", labelName, rawValue, defaultValue, err)
+		log.Printf("Unable to parse %q: %q, falling back to %v. %v", labelName, rawValue, defaultValue, err)
 	}
 	return defaultValue
 }
 
 // GetSliceStringValue get a slice of string associated to a label
 func GetSliceStringValue(labels map[string]string, labelName string) []string {
-	value := make([]string,0, 1)
+	value := make([]string, 0, 1)
 
 	if values, ok := labels[labelName]; ok {
 		value = SplitAndTrimString(values, ",")
 
 		if len(value) == 0 {
-			log.Debugf("Could not load %q.", labelName)
+			log.Printf("Could not load %q.", labelName)
 		}
 	}
 	return value
@@ -85,14 +83,14 @@ func ParseMapValue(labelName, values string) map[string]string {
 	for _, parts := range strings.Split(values, mapEntrySeparator) {
 		pair := strings.SplitN(parts, mapValueSeparator, 2)
 		if len(pair) != 2 {
-			log.Warnf("Could not load %q: %q, skipping...", labelName, parts)
+			log.Printf("Could not load %q: %q, skipping...", labelName, parts)
 		} else {
 			mapValue[http.CanonicalHeaderKey(strings.TrimSpace(pair[0]))] = strings.TrimSpace(pair[1])
 		}
 	}
 
 	if len(mapValue) == 0 {
-		log.Errorf("Could not load %q, skipping...", labelName)
+		log.Printf("Could not load %q, skipping...", labelName)
 		return nil
 	}
 	return mapValue
@@ -103,7 +101,7 @@ func GetMapValue(labels map[string]string, labelName string) map[string]string {
 	if values, ok := labels[labelName]; ok {
 
 		if len(values) == 0 {
-			log.Errorf("Missing value for %q, skipping...", labelName)
+			log.Printf("Missing value for %q, skipping...", labelName)
 			return nil
 		}
 
@@ -187,4 +185,3 @@ func GetFuncSliceString(labelName string) func(map[string]string) []string {
 		return GetSliceStringValue(labels, labelName)
 	}
 }
-

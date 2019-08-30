@@ -1,0 +1,42 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  creationTimestamp: null
+  name: headers-4656452034294353894
+  namespace: testing
+spec:
+  headers:
+    allowedHosts:
+    - foo
+    - fii
+    - fuu
+    browserXssFilter: true
+    contentSecurityPolicy: foo
+    contentTypeNosniff: true
+    customBrowserXSSValue: foo
+    customFrameOptionsValue: foo
+    customRequestHeaders:
+      Access-Control-Allow-Methods: POST,GET,OPTIONS
+      Content-Type: application/json; charset=utf-8
+    customResponseHeaders:
+      Access-Control-Allow-Methods: POST,GET,OPTIONS
+      Content-Type: application/json; charset=utf-8
+    forceSTSHeader: true
+    frameDeny: true
+    hostsProxyHeaders:
+    - foo
+    - fii
+    - fuu
+    isDevelopment: true
+    publicKey: foo
+    referrerPolicy: foo
+    sslForceHost: true
+    sslHost: foo
+    sslProxyHeaders:
+      Access-Control-Allow-Methods: POST,GET,OPTIONS
+      Content-Type: application/json; charset=utf-8
+    sslRedirect: true
+    sslTemporaryRedirect: true
+    stsIncludeSubdomains: true
+    stsPreload: true
+    stsSeconds: 666
