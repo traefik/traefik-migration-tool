@@ -38,6 +38,7 @@ func TestIngresses(t *testing.T) {
 								},
 							},
 							Priority:10,
+							Middlewares:make([]v1alpha1.MiddlewareRef, 0, 1),
 						},
 						{
 							Match: "Host(`traefik.tchouk`) && PathPrefix(`/foo`)",
@@ -49,6 +50,7 @@ func TestIngresses(t *testing.T) {
 								},
 							},
 							Priority:10,
+							Middlewares:make([]v1alpha1.MiddlewareRef, 0, 1),
 						},
 					},
 				},
@@ -59,6 +61,7 @@ func TestIngresses(t *testing.T) {
 			ingressFile: "./fixtures/ingress_with_protocol.yml",
 			expectedRoutes: map[string]v1alpha1.IngressRouteSpec{
 				"testing.test": {
+					EntryPoints: make([]string, 0, 1),
 					Routes: []v1alpha1.Route{
 						{
 							Match: "Host(`traefik.tchouk`) && PathPrefix(`/bar`)",
@@ -70,6 +73,7 @@ func TestIngresses(t *testing.T) {
 									Scheme: "h2c",
 								},
 							},
+							Middlewares:make([]v1alpha1.MiddlewareRef, 0, 1),
 						},
 						{
 							Match: "Host(`traefik.tchouk`) && PathPrefix(`/foo`)",
@@ -81,6 +85,7 @@ func TestIngresses(t *testing.T) {
 									Scheme: "h2c",
 								},
 							},
+							Middlewares:make([]v1alpha1.MiddlewareRef, 0, 1),
 						},
 					},
 				},
@@ -102,6 +107,7 @@ func TestIngresses(t *testing.T) {
 									Port: 80,
 								},
 							},
+							Middlewares:make([]v1alpha1.MiddlewareRef, 0, 1),
 						},
 						{
 							Match: "Host(`traefik.tchouk`) && Path(`/foo`)",
@@ -112,6 +118,7 @@ func TestIngresses(t *testing.T) {
 									Port: 80,
 								},
 							},
+							Middlewares:make([]v1alpha1.MiddlewareRef, 0, 1),
 						},
 					},
 				},
@@ -199,7 +206,7 @@ func TestIngresses(t *testing.T) {
 }
 
 func TestConvertFile(t *testing.T) {
-	tempDir, err := ioutil.TempDir(os.TempDir(), "convert")
+	tempDir, err := ioutil.TempDir("", "convert")
 	require.NoError(t, err)
 	defer os.RemoveAll(tempDir)
 

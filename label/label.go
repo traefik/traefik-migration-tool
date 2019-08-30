@@ -66,7 +66,7 @@ func GetInt64Value(labels map[string]string, labelName string, defaultValue int6
 
 // GetSliceStringValue get a slice of string associated to a label
 func GetSliceStringValue(labels map[string]string, labelName string) []string {
-	var value []string
+	value := make([]string,0, 1)
 
 	if values, ok := labels[labelName]; ok {
 		value = SplitAndTrimString(values, ",")

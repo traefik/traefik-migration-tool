@@ -3,7 +3,7 @@ package ingress
 import (
 	"strconv"
 
-	"github.com/containous/ingresstocrd/label"
+	"github.com/containous/traefik-migration/label"
 )
 
 const (
@@ -30,6 +30,9 @@ const (
 
 	// FIXME Not possible yet
 	// annotationKubernetesPreserveHost                    = "ingress.kubernetes.io/preserve-host"
+	// annotationKubernetesSessionCookieName               = "ingress.kubernetes.io/session-cookie-name"
+	// annotationKubernetesAffinity                        = "ingress.kubernetes.io/affinity"
+	// annotationKubernetesResponseForwardingFlushInterval = "ingress.kubernetes.io/responseforwarding-flushinterval"
 
 	// TODO PassTLSCertMiddleware
 	annotationKubernetesPassTLSCert                     = "ingress.kubernetes.io/pass-tls-cert" // Deprecated
@@ -43,10 +46,9 @@ const (
 
 	// TODO ??
 	// annotationKubernetesLoadBalancerMethod              = "ingress.kubernetes.io/load-balancer-method"
-	// annotationKubernetesAffinity                        = "ingress.kubernetes.io/affinity"
+	// annotationKubernetesServiceWeights                  = "ingress.kubernetes.io/service-weights"
+	// annotationKubernetesAppRoot                         = "ingress.kubernetes.io/app-root"
 
-	// TODO Sticky not possible until we handle it in IngressRoute
-	// annotationKubernetesSessionCookieName               = "ingress.kubernetes.io/session-cookie-name"
 
 	annotationKubernetesRuleType                        = "ingress.kubernetes.io/rule-type"
 
@@ -69,38 +71,32 @@ const (
 	// TODO BufferingMiddleware
 	// annotationKubernetesBuffering                       = "ingress.kubernetes.io/buffering"
 
-	// TODO Not possible yet
-	// annotationKubernetesResponseForwardingFlushInterval = "ingress.kubernetes.io/responseforwarding-flushinterval"
-
-	annotationKubernetesAppRoot                         = "ingress.kubernetes.io/app-root"
-	annotationKubernetesServiceWeights                  = "ingress.kubernetes.io/service-weights"
-
 	// TODO Modifiers Middlewares
 	annotationKubernetesRequestModifier                 = "ingress.kubernetes.io/request-modifier"
 
 	// TODO CustomHeadersMiddleware
-	// annotationKubernetesSSLForceHost            = "ingress.kubernetes.io/ssl-force-host"
-	// annotationKubernetesSSLRedirect             = "ingress.kubernetes.io/ssl-redirect"
-	// annotationKubernetesHSTSMaxAge              = "ingress.kubernetes.io/hsts-max-age"
-	// annotationKubernetesHSTSIncludeSubdomains   = "ingress.kubernetes.io/hsts-include-subdomains"
-	// annotationKubernetesCustomRequestHeaders    = "ingress.kubernetes.io/custom-request-headers"
-	// annotationKubernetesCustomResponseHeaders   = "ingress.kubernetes.io/custom-response-headers"
-	// annotationKubernetesAllowedHosts            = "ingress.kubernetes.io/allowed-hosts"
-	// annotationKubernetesProxyHeaders            = "ingress.kubernetes.io/proxy-headers"
-	// annotationKubernetesSSLTemporaryRedirect    = "ingress.kubernetes.io/ssl-temporary-redirect"
-	// annotationKubernetesSSLHost                 = "ingress.kubernetes.io/ssl-host"
-	// annotationKubernetesSSLProxyHeaders         = "ingress.kubernetes.io/ssl-proxy-headers"
-	// annotationKubernetesHSTSPreload             = "ingress.kubernetes.io/hsts-preload"
-	// annotationKubernetesForceHSTSHeader         = "ingress.kubernetes.io/force-hsts"
-	// annotationKubernetesFrameDeny               = "ingress.kubernetes.io/frame-deny"
-	// annotationKubernetesCustomFrameOptionsValue = "ingress.kubernetes.io/custom-frame-options-value"
-	// annotationKubernetesContentTypeNosniff      = "ingress.kubernetes.io/content-type-nosniff"
-	// annotationKubernetesBrowserXSSFilter        = "ingress.kubernetes.io/browser-xss-filter"
-	// annotationKubernetesCustomBrowserXSSValue   = "ingress.kubernetes.io/custom-browser-xss-value"
-	// annotationKubernetesContentSecurityPolicy   = "ingress.kubernetes.io/content-security-policy"
-	// annotationKubernetesPublicKey               = "ingress.kubernetes.io/public-key"
-	// annotationKubernetesReferrerPolicy          = "ingress.kubernetes.io/referrer-policy"
-	// annotationKubernetesIsDevelopment           = "ingress.kubernetes.io/is-development"
+	annotationKubernetesSSLForceHost            = "ingress.kubernetes.io/ssl-force-host"
+	annotationKubernetesSSLRedirect             = "ingress.kubernetes.io/ssl-redirect"
+	annotationKubernetesHSTSMaxAge              = "ingress.kubernetes.io/hsts-max-age"
+	annotationKubernetesHSTSIncludeSubdomains   = "ingress.kubernetes.io/hsts-include-subdomains"
+	annotationKubernetesCustomRequestHeaders    = "ingress.kubernetes.io/custom-request-headers"
+	annotationKubernetesCustomResponseHeaders   = "ingress.kubernetes.io/custom-response-headers"
+	annotationKubernetesAllowedHosts            = "ingress.kubernetes.io/allowed-hosts"
+	annotationKubernetesProxyHeaders            = "ingress.kubernetes.io/proxy-headers"
+	annotationKubernetesSSLTemporaryRedirect    = "ingress.kubernetes.io/ssl-temporary-redirect"
+	annotationKubernetesSSLHost                 = "ingress.kubernetes.io/ssl-host"
+	annotationKubernetesSSLProxyHeaders         = "ingress.kubernetes.io/ssl-proxy-headers"
+	annotationKubernetesHSTSPreload             = "ingress.kubernetes.io/hsts-preload"
+	annotationKubernetesForceHSTSHeader         = "ingress.kubernetes.io/force-hsts"
+	annotationKubernetesFrameDeny               = "ingress.kubernetes.io/frame-deny"
+	annotationKubernetesCustomFrameOptionsValue = "ingress.kubernetes.io/custom-frame-options-value"
+	annotationKubernetesContentTypeNosniff      = "ingress.kubernetes.io/content-type-nosniff"
+	annotationKubernetesBrowserXSSFilter        = "ingress.kubernetes.io/browser-xss-filter"
+	annotationKubernetesCustomBrowserXSSValue   = "ingress.kubernetes.io/custom-browser-xss-value"
+	annotationKubernetesContentSecurityPolicy   = "ingress.kubernetes.io/content-security-policy"
+	annotationKubernetesPublicKey               = "ingress.kubernetes.io/public-key"
+	annotationKubernetesReferrerPolicy          = "ingress.kubernetes.io/referrer-policy"
+	annotationKubernetesIsDevelopment           = "ingress.kubernetes.io/is-development"
 
 	annotationKubernetesProtocol                = "ingress.kubernetes.io/protocol"
 )

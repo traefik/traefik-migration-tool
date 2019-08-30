@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/containous/ingresstocrd/ingress"
+	"github.com/containous/traefik-migration/ingress"
 )
 
 type config struct {
@@ -17,22 +17,32 @@ func main() {
 
 	var cfg config
 	flag.StringVar(&cfg.input, "input", "", "input")
-	flag.StringVar(&cfg.output, "output", "", "output")
+	flag.StringVar(&cfg.output, "output", "", "output dir")
 
 	flag.Parse()
 
 	if len(cfg.input) == 0 || len(cfg.output) == 0 {
-		log.Fatal("You must specify an input and an ouput")
+		flag.Usage()
+		log.Fatal("You must specify an input and an output")
 	}
 
 	info, err := os.Stat(cfg.output)
 	if err != nil {
-		log.Fatal(err)
+		if !os.IsNotExist(err) {
+			flag.Usage()
+			log.Fatal(err)
+		}
+		err = os.MkdirAll(cfg.output, 0755)
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		if !info.IsDir() {
+			flag.Usage()
+			log.Fatalf("output must be a directory")
+		}
 	}
 
-	if !info.IsDir() {
-		log.Fatalf("output must be a directory")
-	}
 
 	err = ingress.Convert(cfg.input, cfg.output)
 	if err != nil {
