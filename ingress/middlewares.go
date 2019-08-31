@@ -2,7 +2,6 @@ package ingress
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/containous/traefik/v2/pkg/config/dynamic"
 	"github.com/containous/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
@@ -43,7 +42,7 @@ func getHeadersMiddleware(ingress *extensionsv1beta1.Ingress) *v1alpha1.Middlewa
 
 	hash, err := hashstructure.Hash(headers, nil)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	return &v1alpha1.Middleware{

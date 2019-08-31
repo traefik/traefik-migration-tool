@@ -91,6 +91,7 @@ func convertFile(srcDir, dstDir, filename string) error {
 		}
 
 		objects := convertIngress(ingress)
+
 		for _, object := range objects {
 			yml, err := encodeYaml(object, v1alpha1.GroupName+groupSuffix)
 			if err != nil {
@@ -133,7 +134,7 @@ func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 		})
 	}
 
-	routes, mi := createRoutesFromRules(ingress.Namespace, ingress.Spec.Rules, ingress.Annotations, miRefs)
+	routes, mi := createRoutes(ingress.Namespace, ingress.Spec.Rules, ingress.Annotations, miRefs)
 
 	ingressRoute.Spec.Routes = routes
 
@@ -147,7 +148,7 @@ func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 	return objects
 }
 
-func createRoutesFromRules(namespace string, rules []extensionsv1beta1.IngressRule, annotations map[string]string, middlewareRefs []v1alpha1.MiddlewareRef) ([]v1alpha1.Route, []*v1alpha1.Middleware) {
+func createRoutes(namespace string, rules []extensionsv1beta1.IngressRule, annotations map[string]string, middlewareRefs []v1alpha1.MiddlewareRef) ([]v1alpha1.Route, []*v1alpha1.Middleware) {
 
 	ruleType := getStringValue(annotations, annotationKubernetesRuleType, ruleTypePathPrefix)
 

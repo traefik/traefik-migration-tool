@@ -3,6 +3,7 @@ package ingress
 import (
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -12,13 +13,12 @@ import (
 	"github.com/containous/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 )
 
 var updateExpected = flag.Bool("update_expected", false, "Update expected files in testdata")
 
-func TestIngresses(t *testing.T) {
+func Test_convertIngress(t *testing.T) {
 	testCases := []struct {
 		ingressFile string
 		objectCount int
@@ -45,8 +45,8 @@ func TestIngresses(t *testing.T) {
 		},
 	}
 
+	outputDir := filepath.Join("fixtures", "output_convertIngress")
 	if *updateExpected {
-		outputDir := filepath.Join("fixtures", "output")
 		require.NoError(t, os.RemoveAll(outputDir))
 		require.NoError(t, os.MkdirAll(outputDir, 0755))
 	}
@@ -70,7 +70,7 @@ func TestIngresses(t *testing.T) {
 				require.NoError(t, err)
 
 				filename := fmt.Sprintf("%s_%.2d.yml", strings.TrimSuffix(filepath.Base(test.ingressFile), filepath.Ext(test.ingressFile)), i+1)
-				fixtureFile := filepath.Join("fixtures", "output", filename)
+				fixtureFile := filepath.Join(outputDir, filename)
 
 				if *updateExpected {
 					require.NoError(t, ioutil.WriteFile(fixtureFile, []byte(s), 0666))
@@ -85,25 +85,66 @@ func TestIngresses(t *testing.T) {
 	}
 }
 
-func TestConvertFile(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "convert")
+func Test_convertFile(t *testing.T) {
+	tempDir, err := ioutil.TempDir("", "traefik-migration")
 	require.NoError(t, err)
 	defer func() { _ = os.RemoveAll(tempDir) }()
 
-	err = convertFile(filepath.Join("fixtures", "input"), tempDir, "ingress_and_service.yml")
-	require.NoError(t, err)
+	testCases := []struct {
+		ingressFile string
+		objectCount int
+	}{
+		{
+			ingressFile: "ingress.yml",
+			objectCount: 1,
+		},
+		{
+			ingressFile: "ingress_with_protocol.yml",
+			objectCount: 1,
+		},
+		{
+			ingressFile: "ingress_with_matcher.yml",
+			objectCount: 1,
+		},
+		{
+			ingressFile: "ingress_with_matcher_modifier.yml",
+			objectCount: 3,
+		},
+		{
+			ingressFile: "ingress_with_headers_annotations.yml",
+			objectCount: 2,
+		},
+	}
 
-	fileContent, err := ioutil.ReadFile(tempDir + "/ingress_and_service.yml")
-	require.NoError(t, err)
-	files := strings.Split(string(fileContent), "---")
-	require.Len(t, files, 2)
+	fixturesDir := filepath.Join("fixtures", "output_convertFile")
+	if *updateExpected {
+		require.NoError(t, os.RemoveAll(fixturesDir))
+		require.NoError(t, os.MkdirAll(fixturesDir, 0755))
+	}
 
-	object, err := parseYaml([]byte(files[0]))
-	require.NoError(t, err)
-	require.IsType(t, &v1alpha1.IngressRoute{}, object)
+	for _, test := range testCases {
+		t.Run(test.ingressFile, func(t *testing.T) {
+			err := convertFile(filepath.Join("fixtures", "input"), tempDir, test.ingressFile)
+			require.NoError(t, err)
 
-	object, err = parseYaml([]byte(files[1]))
-	require.NoError(t, err)
-	require.IsType(t, &corev1.Service{}, object)
+			require.FileExists(t, filepath.Join(tempDir, test.ingressFile))
 
+			if *updateExpected {
+				src, err := os.Open(filepath.Join(tempDir, test.ingressFile))
+				require.NoError(t, err)
+				dst, err := os.Create(filepath.Join(fixturesDir, test.ingressFile))
+				require.NoError(t, err)
+				_, err = io.Copy(dst, src)
+				require.NoError(t, err)
+			}
+
+			fixture, err := ioutil.ReadFile(filepath.Join(fixturesDir, test.ingressFile))
+			require.NoError(t, err)
+
+			output, err := ioutil.ReadFile(filepath.Join(tempDir, test.ingressFile))
+			require.NoError(t, err)
+
+			assert.YAMLEq(t, string(fixture), string(output))
+		})
+	}
 }
