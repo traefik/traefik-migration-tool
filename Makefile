@@ -1,4 +1,4 @@
-.PHONY: check clean test build package package-snapshot
+.PHONY: check clean test build package package-snapshot docs
 
 export GO111MODULE=on
 
@@ -20,6 +20,9 @@ build: clean
 
 check:
 	golangci-lint run
+
+doc:
+	go run . doc
 
 package:
 	goreleaser --skip-publish --skip-validate --rm-dist

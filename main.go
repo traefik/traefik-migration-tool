@@ -24,8 +24,6 @@ type config struct {
 func main() {
 	log.SetFlags(log.Lshortfile)
 
-	fmt.Printf("Traefik Migration: %s - %s - %s\n", Version, Date, ShortCommit)
-
 	var cfg config
 
 	rootCmd := &cobra.Command{
@@ -34,6 +32,8 @@ func main() {
 		Long:    `A tool to migrate 'Ingress' to Traefik 'IngressRoute' resources.`,
 		Version: Version,
 		PreRunE: func(_ *cobra.Command, _ []string) error {
+			fmt.Printf("Traefik Migration: %s - %s - %s\n", Version, Date, ShortCommit)
+
 			if len(cfg.input) == 0 || len(cfg.output) == 0 {
 				return errors.New("input and output flags are requires")
 			}
