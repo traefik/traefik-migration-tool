@@ -53,7 +53,7 @@ func TestIngresses(t *testing.T) {
 
 	for _, test := range testCases {
 		t.Run(test.ingressFile, func(t *testing.T) {
-			bytes, err := ioutil.ReadFile(filepath.Join("fixtures", test.ingressFile))
+			bytes, err := ioutil.ReadFile(filepath.Join("fixtures", "input", test.ingressFile))
 			require.NoError(t, err)
 
 			objectIngress, err := parseYaml(bytes)
@@ -90,7 +90,7 @@ func TestConvertFile(t *testing.T) {
 	require.NoError(t, err)
 	defer func() { _ = os.RemoveAll(tempDir) }()
 
-	err = convertFile("./fixtures", tempDir, "ingress_and_service.yml")
+	err = convertFile(filepath.Join("fixtures", "input"), tempDir, "ingress_and_service.yml")
 	require.NoError(t, err)
 
 	fileContent, err := ioutil.ReadFile(tempDir + "/ingress_and_service.yml")

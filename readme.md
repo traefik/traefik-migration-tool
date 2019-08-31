@@ -1,14 +1,8 @@
 # traefik-migration
 
-traefik-migration is a tool to migrate ingress to traefik IngressRoute resources.
+traefik-migration is a tool to migrate `Ingress` to Traefik `IngressRoute` resources.
 
 ## Usage
 
-```bash
-$ ./traefik-migration 
-Usage of ./traefik-migration:
-  -input string
-    	input
-  -output string
-    	output
-```
+- [traefik-migration](docs/traefik-migration.md)
+
