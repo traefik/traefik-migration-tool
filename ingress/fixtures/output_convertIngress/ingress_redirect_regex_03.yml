@@ -1,0 +1,11 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  creationTimestamp: null
+  name: redirect-12592111946377067483
+  namespace: testing
+spec:
+  redirectRegex:
+    permanent: true
+    regex: foo
+    replacement: bar

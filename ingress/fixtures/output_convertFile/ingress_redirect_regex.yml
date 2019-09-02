@@ -1,0 +1,51 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  creationTimestamp: null
+  name: test
+  namespace: testing
+spec:
+  entryPoints: []
+  routes:
+  - kind: Rule
+    match: Host(`traefik.tchouk`) && PathPrefix(`/`)
+    middlewares:
+    - name: redirect-12592111946377067483
+      namespace: testing
+    priority: 0
+    services:
+    - name: service1
+      port: 80
+  - kind: Rule
+    match: Host(`traefik.tchouk`) && PathPrefix(`/bar`)
+    middlewares:
+    - name: redirect-12592111946377067483
+      namespace: testing
+    priority: 0
+    services:
+    - name: service1
+      port: 80
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  creationTimestamp: null
+  name: redirect-12592111946377067483
+  namespace: testing
+spec:
+  redirectRegex:
+    permanent: true
+    regex: foo
+    replacement: bar
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  creationTimestamp: null
+  name: redirect-12592111946377067483
+  namespace: testing
+spec:
+  redirectRegex:
+    permanent: true
+    regex: foo
+    replacement: bar

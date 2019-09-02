@@ -269,3 +269,59 @@ type TLSCLientCertificateDNInfos struct {
 	SerialNumber    bool `description:"Add SerialNumber info in header" json:"serialNumber"`
 	DomainComponent bool `description:"Add Domain Component info in header" json:"domainComponent"`
 }
+
+func getFrontendRedirect(namespace string, annotations map[string]string, baseName, path string) *v1alpha1.Middleware {
+	permanent := getBoolValue(annotations, annotationKubernetesRedirectPermanent, false)
+
+	if appRoot := getStringValue(annotations, annotationKubernetesAppRoot, ""); appRoot != "" && (path == "/" || path == "") {
+		regex := fmt.Sprintf("%s$", baseName)
+		if path == "" {
+			regex = fmt.Sprintf("%s/$", baseName)
+		}
+		return getRedirectMiddleware(namespace, regex, fmt.Sprintf("%s/%s", strings.TrimRight(baseName, "/"), strings.TrimLeft(appRoot, "/")), permanent)
+	}
+
+	redirectEntryPoint := getStringValue(annotations, annotationKubernetesRedirectEntryPoint, "")
+	if len(redirectEntryPoint) > 0 {
+		log.Printf("EntryPoint redirect is not possible in v2")
+		return nil
+	}
+
+	redirectRegex, err := getStringSafeValue(annotations, annotationKubernetesRedirectRegex, "")
+	if err != nil {
+		log.Printf("Skipping Redirect on Ingress due to invalid regex: %s", redirectRegex)
+		return nil
+	}
+
+	redirectReplacement, err := getStringSafeValue(annotations, annotationKubernetesRedirectReplacement, "")
+	if err != nil {
+		log.Printf("Skipping Redirect on Ingress due to invalid replacement: %q", redirectRegex)
+		return nil
+	}
+
+	if len(redirectRegex) > 0 && len(redirectReplacement) > 0 {
+		return getRedirectMiddleware(namespace, redirectRegex, redirectReplacement, permanent)
+	}
+
+	return nil
+}
+
+func getRedirectMiddleware(namespace string, regex string, replacement string, permanent bool) *v1alpha1.Middleware {
+	middleware := dynamic.Middleware{
+		RedirectRegex: &dynamic.RedirectRegex{
+			Regex:       regex,
+			Replacement: replacement,
+			Permanent:   permanent,
+		},
+	}
+
+	hash, err := hashstructure.Hash(middleware, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	return &v1alpha1.Middleware{
+		ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%d", "redirect", hash), Namespace: namespace},
+		Spec:       middleware,
+	}
+}

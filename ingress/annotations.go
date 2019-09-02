@@ -42,42 +42,35 @@ const (
 	annotationKubernetesWhiteListSourceRange      = "ingress.kubernetes.io/whitelist-source-range"
 	annotationKubernetesWhiteListUseXForwardedFor = "ingress.kubernetes.io/whitelist-x-forwarded-for"
 
-	// TODO AuthMiddleware
+	// AuthMiddleware
 	annotationKubernetesAuthType = "ingress.kubernetes.io/auth-type"
-	// annotationKubernetesAuthSecret                      = "ingress.kubernetes.io/auth-secret"
 	annotationKubernetesAuthHeaderField            = "ingress.kubernetes.io/auth-header-field"
 	annotationKubernetesAuthForwardResponseHeaders = "ingress.kubernetes.io/auth-response-headers"
 	annotationKubernetesAuthRemoveHeader           = "ingress.kubernetes.io/auth-remove-header"
 	annotationKubernetesAuthForwardURL             = "ingress.kubernetes.io/auth-url"
 	annotationKubernetesAuthForwardTrustHeaders    = "ingress.kubernetes.io/auth-trust-headers"
+	// TODO Handle auth secrets
+	// annotationKubernetesAuthSecret                      = "ingress.kubernetes.io/auth-secret"
 	// annotationKubernetesAuthForwardTLSSecret            = "ingress.kubernetes.io/auth-tls-secret"
 	// annotationKubernetesAuthForwardTLSInsecure          = "ingress.kubernetes.io/auth-tls-insecure"
 
-	// TODO PassTLSCertMiddleware
+	// PassTLSCertMiddleware
 	annotationKubernetesPassTLSCert       = "ingress.kubernetes.io/pass-tls-cert" // Deprecated
 	annotationKubernetesPassTLSClientCert = "ingress.kubernetes.io/pass-client-tls-cert"
 
-	// TODO CircuitBreakMiddleware
-	// annotationKubernetesCircuitBreakerExpression        = "ingress.kubernetes.io/circuit-breaker-expression"
-
 	// TODO RedirectMiddleware
-	// annotationKubernetesRedirectEntryPoint              = "ingress.kubernetes.io/redirect-entry-point"
-	// annotationKubernetesRedirectPermanent               = "ingress.kubernetes.io/redirect-permanent"
-	// annotationKubernetesRedirectRegex                   = "ingress.kubernetes.io/redirect-regex"
-	// annotationKubernetesRedirectReplacement             = "ingress.kubernetes.io/redirect-replacement"
+	annotationKubernetesAppRoot                         = "ingress.kubernetes.io/app-root"
+	annotationKubernetesRedirectEntryPoint              = "ingress.kubernetes.io/redirect-entry-point"
+	annotationKubernetesRedirectPermanent               = "ingress.kubernetes.io/redirect-permanent"
+	annotationKubernetesRedirectRegex                   = "ingress.kubernetes.io/redirect-regex"
+	annotationKubernetesRedirectReplacement             = "ingress.kubernetes.io/redirect-replacement"
 
-	// TODO InFlightReqMiddleware
-	// annotationKubernetesMaxConnAmount                   = "ingress.kubernetes.io/max-conn-amount"
-	// annotationKubernetesMaxConnExtractorFunc            = "ingress.kubernetes.io/max-conn-extractor-func"
 
 	// TODO RateLimitMiddleware
 	// annotationKubernetesRateLimit                       = "ingress.kubernetes.io/rate-limit"
 
 	// TODO ErrorPagesMiddleware
 	// annotationKubernetesErrorPages                      = "ingress.kubernetes.io/error-pages"
-
-	// TODO BufferingMiddleware
-	// annotationKubernetesBuffering                       = "ingress.kubernetes.io/buffering"
 
 	// TODO Modifiers Middlewares
 	annotationKubernetesRequestModifier = "ingress.kubernetes.io/request-modifier"
@@ -86,13 +79,24 @@ const (
 	// annotationKubernetesPreserveHost                    = "ingress.kubernetes.io/preserve-host"
 	// annotationKubernetesSessionCookieName               = "ingress.kubernetes.io/session-cookie-name"
 	// annotationKubernetesAffinity                        = "ingress.kubernetes.io/affinity"
+
+	// TODO service annotation
+
+	// TODO BufferingMiddleware
+	// annotationKubernetesBuffering                       = "ingress.kubernetes.io/buffering"
+	// TODO CircuitBreakMiddleware
+	// annotationKubernetesCircuitBreakerExpression        = "ingress.kubernetes.io/circuit-breaker-expression"
+	// TODO InFlightReqMiddleware
+	// annotationKubernetesMaxConnAmount                   = "ingress.kubernetes.io/max-conn-amount"
+	// annotationKubernetesMaxConnExtractorFunc            = "ingress.kubernetes.io/max-conn-extractor-func"
+
 	// annotationKubernetesResponseForwardingFlushInterval = "ingress.kubernetes.io/responseforwarding-flushinterval"
+	// annotationKubernetesLoadBalancerMethod              = "ingress.kubernetes.io/load-balancer-method"
+
 
 	// TODO ??
 	// annotationKubernetesAuthRealm                       = "ingress.kubernetes.io/auth-realm"
-	// annotationKubernetesLoadBalancerMethod              = "ingress.kubernetes.io/load-balancer-method"
 	// annotationKubernetesServiceWeights                  = "ingress.kubernetes.io/service-weights"
-	// annotationKubernetesAppRoot                         = "ingress.kubernetes.io/app-root"
 
 	// FIXME global backend
 )

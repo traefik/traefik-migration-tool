@@ -234,6 +234,15 @@ func createRoutes(namespace string, rules []extensionsv1beta1.IngressRule, annot
 				}
 			}
 
+			redirect := getFrontendRedirect(namespace, annotations, rule.Host+path.Path, path.Path)
+			if redirect != nil {
+				mi = append(mi, redirect)
+				miRefs = append(miRefs, v1alpha1.MiddlewareRef{
+					Name:      redirect.Name,
+					Namespace: namespace,
+				})
+			}
+
 			if len(rules) > 0 {
 				route := v1alpha1.Route{
 					Match:    strings.Join(rules, " && "),

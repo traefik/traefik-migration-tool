@@ -1,0 +1,10 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  creationTimestamp: null
+  name: redirect-13920797489431468629
+  namespace: testing
+spec:
+  redirectRegex:
+    regex: traefik.tchouk/$
+    replacement: traefik.tchouk/index.html
