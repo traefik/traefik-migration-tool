@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/containous/traefik/v2 v2.0.0-rc1
+	github.com/go-acme/lego/v3 v3.0.2
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/spf13/cobra v0.0.5
 	github.com/stretchr/testify v1.4.0

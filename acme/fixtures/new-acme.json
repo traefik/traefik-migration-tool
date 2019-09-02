@@ -1,0 +1,26 @@
+{
+  "Account": {
+    "Email": "test@example.com",
+    "Registration": {
+      "body": {
+        "status": "valid",
+        "contact": [
+          "mailto:test@example.com"
+        ]
+      },
+      "uri": "https://acme-v02.api.letsencrypt.org/acme/acct/00000001"
+    },
+    "PrivateKey": "UHJpdmF0ZUtleQ==",
+    "KeyType": "4096"
+  },
+  "Certificates": [
+    {
+      "domain": {
+        "main": "test.example.com"
+      },
+      "certificate": "Q2VydGlmaWNhdGU=",
+      "key": "Q2VydGlmaWNhdGUgS2V5",
+      "Store": "default"
+    }
+  ]
+}

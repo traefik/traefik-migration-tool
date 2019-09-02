@@ -7,6 +7,7 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/containous/traefik-migration/acme"
 	"github.com/containous/traefik-migration/ingress"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
@@ -24,26 +25,32 @@ type config struct {
 func main() {
 	log.SetFlags(log.Lshortfile)
 
-	var cfg config
-
 	rootCmd := &cobra.Command{
 		Use:     "traefik-migration",
-		Short:   "A tool to migrate 'Ingress' to Traefik 'IngressRoute' resources.",
-		Long:    `A tool to migrate 'Ingress' to Traefik 'IngressRoute' resources.`,
+		Short:   "A tool to migrate from Traefik v1 to Traefik v2.",
+		Long:    `A tool to migrate from Traefik v1 to Traefik v2.`,
 		Version: Version,
+	}
+
+	var ingressCfg config
+
+	ingressCmd := &cobra.Command{
+		Use:   "ingress",
+		Short: "Migrate 'Ingress' to Traefik 'IngressRoute' resources.",
+		Long:  "Migrate 'Ingress' to Traefik 'IngressRoute' resources.",
 		PreRunE: func(_ *cobra.Command, _ []string) error {
 			fmt.Printf("Traefik Migration: %s - %s - %s\n", Version, Date, ShortCommit)
 
-			if len(cfg.input) == 0 || len(cfg.output) == 0 {
+			if len(ingressCfg.input) == 0 || len(ingressCfg.output) == 0 {
 				return errors.New("input and output flags are requires")
 			}
 
-			info, err := os.Stat(cfg.output)
+			info, err := os.Stat(ingressCfg.output)
 			if err != nil {
 				if !os.IsNotExist(err) {
 					return err
 				}
-				err = os.MkdirAll(cfg.output, 0755)
+				err = os.MkdirAll(ingressCfg.output, 0755)
 				if err != nil {
 					return err
 				}
@@ -56,13 +63,30 @@ func main() {
 			return nil
 		},
 		RunE: func(_ *cobra.Command, _ []string) error {
-			return ingress.Convert(cfg.input, cfg.output)
+			return ingress.Convert(ingressCfg.input, ingressCfg.output)
 		},
 	}
 
-	flags := rootCmd.Flags()
-	flags.StringVar(&cfg.input, "input", "", "Input directory")
-	flags.StringVar(&cfg.output, "output", "./output", "Output directory")
+	ingressCmd.Flags().StringVar(&ingressCfg.input, "input", "", "Input directory.")
+	ingressCmd.Flags().StringVar(&ingressCfg.output, "output", "./output", "Output directory.")
+
+	rootCmd.AddCommand(ingressCmd)
+
+	acmeCfg := config{}
+
+	acmeCmd := &cobra.Command{
+		Use:   "acme",
+		Short: "Migrate acme.json file from Traefik v1 to Traefik v2.",
+		Long:  "Migrate acme.json file from Traefik v1 to Traefik v2.",
+		RunE: func(_ *cobra.Command, _ []string) error {
+			return acme.Convert(acmeCfg.input, acmeCfg.output)
+		},
+	}
+
+	acmeCmd.Flags().StringVar(&acmeCfg.input, "input", "./acme.json", "Path to the acme.json file from Traefik v1.")
+	acmeCmd.Flags().StringVar(&acmeCfg.output, "output", "./acme-new.json", "Path to the acme.json file for Traefik v2.")
+
+	rootCmd.AddCommand(acmeCmd)
 
 	docCmd := &cobra.Command{
 		Use:    "doc",
