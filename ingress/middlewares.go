@@ -8,6 +8,7 @@ import (
 	"github.com/containous/traefik/v2/pkg/config/dynamic"
 	"github.com/containous/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
 	"github.com/mitchellh/hashstructure"
+	"gopkg.in/yaml.v2"
 	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -166,7 +167,6 @@ func getWhiteList(i *extensionsv1beta1.Ingress) *v1alpha1.Middleware {
 		middleware.IPWhiteList.IPStrategy = &dynamic.IPStrategy{}
 	}
 
-
 	hash, err := hashstructure.Hash(middleware, nil)
 	if err != nil {
 		panic(err)
@@ -178,14 +178,94 @@ func getWhiteList(i *extensionsv1beta1.Ingress) *v1alpha1.Middleware {
 	}
 }
 
-func createMiddleware(namespace string, middleware dynamic.Middleware) *v1alpha1.Middleware {
+func getPassTLSClientCert(i *extensionsv1beta1.Ingress) *v1alpha1.Middleware {
+	var passTLSClientCert *TLSClientHeaders
+
+	passRaw := getStringValue(i.Annotations, annotationKubernetesPassTLSClientCert, "")
+	if len(passRaw) == 0 {
+		return nil
+	}
+
+	passTLSClientCert = &TLSClientHeaders{}
+	err := yaml.Unmarshal([]byte(passRaw), passTLSClientCert)
+	if err != nil {
+		log.Println(err)
+	}
+
+	middleware := dynamic.Middleware{
+		PassTLSClientCert: passTLSClientCert.getPassTLSCert(),
+	}
+
 	hash, err := hashstructure.Hash(middleware, nil)
 	if err != nil {
 		panic(err)
 	}
 
 	return &v1alpha1.Middleware{
-		ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%d", "headers", hash), Namespace: namespace},
+		ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%d", "passtlscert", hash), Namespace: i.Namespace},
 		Spec:       middleware,
 	}
+}
+
+// TLSClientHeaders holds the TLS client cert headers configuration.
+type TLSClientHeaders struct {
+	PEM   bool                       `description:"Enable header with escaped client pem" json:"pem"`
+	Infos *TLSClientCertificateInfos `description:"Enable header with configured client cert infos" json:"infos,omitempty"`
+}
+
+func (t *TLSClientHeaders) getPassTLSCert() *dynamic.PassTLSClientCert {
+	passTLS := &dynamic.PassTLSClientCert{
+		PEM:  t.PEM,
+	}
+	if t.Infos != nil {
+		passTLS.Info = &dynamic.TLSClientCertificateInfo{
+			NotAfter:  t.Infos.NotAfter,
+			NotBefore: t.Infos.NotBefore,
+			Sans:      t.Infos.Sans,
+		}
+		if t.Infos.Issuer != nil {
+			passTLS.Info.Issuer = &dynamic.TLSCLientCertificateDNInfo{
+				Country:         t.Infos.Issuer.Country,
+				Province:        t.Infos.Issuer.Province,
+				Locality:        t.Infos.Issuer.Locality,
+				Organization:    t.Infos.Issuer.Organization,
+				CommonName:      t.Infos.Issuer.CommonName,
+				SerialNumber:    t.Infos.Issuer.SerialNumber,
+				DomainComponent: t.Infos.Issuer.DomainComponent,
+			}
+			if t.Infos.Subject != nil {
+				passTLS.Info.Subject = &dynamic.TLSCLientCertificateDNInfo{
+					Country:         t.Infos.Subject.Country,
+					Province:        t.Infos.Subject.Province,
+					Locality:        t.Infos.Subject.Locality,
+					Organization:    t.Infos.Subject.Organization,
+					CommonName:      t.Infos.Subject.CommonName,
+					SerialNumber:    t.Infos.Subject.SerialNumber,
+					DomainComponent: t.Infos.Subject.DomainComponent,
+				}
+			}
+		}
+	}
+	return passTLS
+}
+
+// TLSClientCertificateInfos holds the client TLS certificate infos configuration
+type TLSClientCertificateInfos struct {
+	NotAfter  bool                         `description:"Add NotAfter info in header" json:"notAfter"`
+	NotBefore bool                         `description:"Add NotBefore info in header" json:"notBefore"`
+	Sans      bool                         `description:"Add Sans info in header" json:"sans"`
+	Subject   *TLSCLientCertificateDNInfos `description:"Add Subject info in header" json:"subject,omitempty"`
+	Issuer    *TLSCLientCertificateDNInfos `description:"Add Issuer info in header" json:"issuer,omitempty"`
+}
+
+// TLSCLientCertificateDNInfos holds the client TLS certificate distinguished name infos configuration
+// cf https://tools.ietf.org/html/rfc3739
+type TLSCLientCertificateDNInfos struct {
+	Country         bool `description:"Add Country info in header" json:"country"`
+	Province        bool `description:"Add Province info in header" json:"province"`
+	Locality        bool `description:"Add Locality info in header" json:"locality"`
+	Organization    bool `description:"Add Organization info in header" json:"organization"`
+	CommonName      bool `description:"Add CommonName info in header" json:"commonName"`
+	SerialNumber    bool `description:"Add SerialNumber info in header" json:"serialNumber"`
+	DomainComponent bool `description:"Add Domain Component info in header" json:"domainComponent"`
 }

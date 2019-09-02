@@ -1,0 +1,29 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  creationTimestamp: null
+  name: passtlscert-4127068307018728221
+  namespace: testing
+spec:
+  passTLSClientCert:
+    info:
+      issuer:
+        commonName: true
+        country: true
+        domainComponent: true
+        locality: true
+        organization: true
+        province: true
+        serialNumber: true
+      notAfter: true
+      notBefore: true
+      sans: true
+      subject:
+        commonName: true
+        country: true
+        domainComponent: true
+        locality: true
+        organization: true
+        province: true
+        serialNumber: true
+    pem: true

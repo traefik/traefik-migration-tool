@@ -12,7 +12,7 @@ const (
 	annotationKubernetesIngressClass        = "kubernetes.io/ingress.class"
 	annotationKubernetesFrontendEntryPoints = "ingress.kubernetes.io/frontend-entry-points"
 	annotationKubernetesPriority            = "ingress.kubernetes.io/priority"
-	annotationKubernetesRewriteTarget           = "ingress.kubernetes.io/rewrite-target"
+	annotationKubernetesRewriteTarget       = "ingress.kubernetes.io/rewrite-target"
 
 	// CustomHeadersMiddleware
 	annotationKubernetesSSLForceHost            = "ingress.kubernetes.io/ssl-force-host"
@@ -38,6 +38,10 @@ const (
 	annotationKubernetesReferrerPolicy          = "ingress.kubernetes.io/referrer-policy"
 	annotationKubernetesIsDevelopment           = "ingress.kubernetes.io/is-development"
 
+	// WhitelistMiddleware
+	annotationKubernetesWhiteListSourceRange      = "ingress.kubernetes.io/whitelist-source-range"
+	annotationKubernetesWhiteListUseXForwardedFor = "ingress.kubernetes.io/whitelist-x-forwarded-for"
+
 	// TODO AuthMiddleware
 	annotationKubernetesAuthType = "ingress.kubernetes.io/auth-type"
 	// annotationKubernetesAuthSecret                      = "ingress.kubernetes.io/auth-secret"
@@ -48,10 +52,6 @@ const (
 	annotationKubernetesAuthForwardTrustHeaders    = "ingress.kubernetes.io/auth-trust-headers"
 	// annotationKubernetesAuthForwardTLSSecret            = "ingress.kubernetes.io/auth-tls-secret"
 	// annotationKubernetesAuthForwardTLSInsecure          = "ingress.kubernetes.io/auth-tls-insecure"
-
-	// TODO whitelistMiddleware
-	annotationKubernetesWhiteListSourceRange            = "ingress.kubernetes.io/whitelist-source-range"
-	annotationKubernetesWhiteListUseXForwardedFor       = "ingress.kubernetes.io/whitelist-x-forwarded-for"
 
 	// TODO PassTLSCertMiddleware
 	annotationKubernetesPassTLSCert       = "ingress.kubernetes.io/pass-tls-cert" // Deprecated

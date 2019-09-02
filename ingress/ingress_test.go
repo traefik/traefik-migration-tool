@@ -55,6 +55,10 @@ func Test_convertIngress(t *testing.T) {
 			ingressFile: "ingress_with_whitelist_xforwarded.yml",
 			objectCount: 2,
 		},
+		{
+			ingressFile: "ingress_with_passtlscert.yml",
+			objectCount: 2,
+		},
 	}
 
 	outputDir := filepath.Join("fixtures", "output_convertIngress")
@@ -136,6 +140,10 @@ func Test_convertFile(t *testing.T) {
 		},
 		{
 			ingressFile: "ingress_with_whitelist_xforwarded.yml",
+			objectCount: 2,
+		},
+		{
+			ingressFile: "ingress_with_passtlscert.yml",
 			objectCount: 2,
 		},
 	}

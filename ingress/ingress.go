@@ -138,6 +138,12 @@ func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 		middlewares = append(middlewares, whiteList)
 	}
 
+	// PassTLSCert middleware
+	passTLSCert := getPassTLSClientCert(ingress)
+	if passTLSCert != nil {
+		middlewares = append(middlewares, passTLSCert)
+	}
+
 	var miRefs []v1alpha1.MiddlewareRef
 	for _, middleware := range middlewares {
 		miRefs = append(miRefs, v1alpha1.MiddlewareRef{

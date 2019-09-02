@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    ingress.kubernetes.io/pass-client-tls-cert: |2
+
+      pem: true
+      infos:
+        notafter: true
+        notbefore: true
+        sans: true
+        subject:
+          country: true
+          province: true
+          locality: true
+          organization: true
+          commonname: true
+          serialnumber: true
+          domaincomponent: true
+        issuer:
+          country: true
+          province: true
+          locality: true
+          organization: true
+          commonname: true
+          serialnumber: true
+          domaincomponent: true
+    ingress.kubernetes.io/pass-tls-cert: "true"
+    kubernetes.io/ingress.class: traefik
+  namespace: testing
+spec:
+  rules:
+    - host: other
+      http:
+        paths:
+          - backend:
+              serviceName: service1
+              servicePort: 80
+            path: /sslstuff

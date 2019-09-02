@@ -1,0 +1,49 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: traefik
+  creationTimestamp: null
+  namespace: testing
+spec:
+  entryPoints: []
+  routes:
+  - kind: Rule
+    match: Host(`other`) && PathPrefix(`/sslstuff`)
+    middlewares:
+    - name: passtlscert-4127068307018728221
+      namespace: testing
+    priority: 0
+    services:
+    - name: service1
+      port: 80
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  creationTimestamp: null
+  name: passtlscert-4127068307018728221
+  namespace: testing
+spec:
+  passTLSClientCert:
+    info:
+      issuer:
+        commonName: true
+        country: true
+        domainComponent: true
+        locality: true
+        organization: true
+        province: true
+        serialNumber: true
+      notAfter: true
+      notBefore: true
+      sans: true
+      subject:
+        commonName: true
+        country: true
+        domainComponent: true
+        locality: true
+        organization: true
+        province: true
+        serialNumber: true
+    pem: true

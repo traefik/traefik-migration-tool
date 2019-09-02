@@ -7,6 +7,7 @@ require (
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/spf13/cobra v0.0.5
 	github.com/stretchr/testify v1.4.0
+	gopkg.in/yaml.v2 v2.2.2
 	k8s.io/api v0.0.0-20190718183219-b59d8169aab5
 	k8s.io/apimachinery v0.0.0-20190612205821-1799e75a0719
 	k8s.io/client-go v0.0.0-20190718183610-8e956561bbf5
