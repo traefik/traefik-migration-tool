@@ -2,6 +2,8 @@ package ingress
 
 import (
 	"fmt"
+	"log"
+	"strings"
 
 	"github.com/containous/traefik/v2/pkg/config/dynamic"
 	"github.com/containous/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
@@ -49,4 +51,103 @@ func getHeadersMiddleware(ingress *extensionsv1beta1.Ingress) *v1alpha1.Middlewa
 		ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%d", "headers", hash), Namespace: ingress.Namespace},
 		Spec:       dynamic.Middleware{Headers: headers},
 	}
+}
+
+
+func getAuthMiddleware(ingress *extensionsv1beta1.Ingress) *v1alpha1.Middleware{
+	authType := getStringValue(ingress.Annotations, annotationKubernetesAuthType, "")
+	if len(authType) == 0 {
+		return nil
+	}
+
+	middleware := dynamic.Middleware{}
+
+	switch strings.ToLower(authType) {
+	case "basic":
+		basic := getBasicAuthConfig(ingress.Annotations)
+		middleware.BasicAuth = basic
+	case "digest":
+		digest := getDigestAuthConfig(ingress.Annotations)
+		middleware.DigestAuth = digest
+	case "forward":
+		forward, err := getForwardAuthConfig(ingress.Annotations)
+		if err != nil {
+			log.Println(err)
+			return nil
+		}
+		middleware.ForwardAuth = forward
+	default:
+		return nil
+	}
+
+	hash, err := hashstructure.Hash(middleware, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	return &v1alpha1.Middleware{
+		ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%d", "auth", hash), Namespace: ingress.Namespace},
+		Spec:       middleware,
+	}
+}
+
+func getBasicAuthConfig(annotations map[string]string) *dynamic.BasicAuth {
+
+	// TODO handle secret
+	// credentials, err := getAuthCredentials(i, k8sClient)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	return &dynamic.BasicAuth{
+		// Users:        credentials,
+		RemoveHeader: getBoolValue(annotations, annotationKubernetesAuthRemoveHeader, false),
+		HeaderField: getStringValue(annotations, annotationKubernetesAuthHeaderField, ""),
+	}
+}
+
+func getDigestAuthConfig(annotations map[string]string) *dynamic.DigestAuth {
+
+
+	// TODO handle secret
+	// credentials, err := getAuthCredentials(i, k8sClient)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	return &dynamic.DigestAuth{
+		// Users: credentials,
+		RemoveHeader: getBoolValue(annotations, annotationKubernetesAuthRemoveHeader, false),
+		HeaderField: getStringValue(annotations, annotationKubernetesAuthHeaderField, ""),
+	}
+}
+
+func getForwardAuthConfig(annotations map[string]string) (*dynamic.ForwardAuth, error) {
+	authURL := getStringValue(annotations, annotationKubernetesAuthForwardURL, "")
+	if len(authURL) == 0 {
+		return nil, fmt.Errorf("forward authentication requires a url")
+	}
+
+	forwardAuth := &dynamic.ForwardAuth{
+		Address:             authURL,
+		TrustForwardHeader:  getBoolValue(annotations, annotationKubernetesAuthForwardTrustHeaders, false),
+		AuthResponseHeaders: getSliceStringValue(annotations, annotationKubernetesAuthForwardResponseHeaders),
+	}
+
+	// TODO handle secret
+	// authSecretName := getStringValue(annotations, annotationKubernetesAuthForwardTLSSecret, "")
+	// if len(authSecretName) > 0 {
+	// 	authSecretCert, authSecretKey, err := loadAuthTLSSecret(i.Namespace, authSecretName, k8sClient)
+	// 	if err != nil {
+	// 		return nil, fmt.Errorf("failed to load auth secret: %s", err)
+	// 	}
+	//
+	// 	forwardAuth.TLS = &types.ClientTLS{
+	// 		Cert:               authSecretCert,
+	// 		Key:                authSecretKey,
+	// 		InsecureSkipVerify: getBoolValue(annotations, annotationKubernetesAuthForwardTLSInsecure, false),
+	// 	}
+	// }
+
+	return forwardAuth, nil
 }

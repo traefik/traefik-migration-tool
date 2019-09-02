@@ -39,15 +39,15 @@ const (
 
 	// TODO AuthMiddleware
 	// annotationKubernetesAuthRealm                       = "ingress.kubernetes.io/auth-realm"
-	// annotationKubernetesAuthType                        = "ingress.kubernetes.io/auth-type"
+	annotationKubernetesAuthType                        = "ingress.kubernetes.io/auth-type"
 	// annotationKubernetesAuthSecret                      = "ingress.kubernetes.io/auth-secret"
-	// annotationKubernetesAuthHeaderField                 = "ingress.kubernetes.io/auth-header-field"
-	// annotationKubernetesAuthForwardResponseHeaders      = "ingress.kubernetes.io/auth-response-headers"
-	// annotationKubernetesAuthRemoveHeader                = "ingress.kubernetes.io/auth-remove-header"
-	// annotationKubernetesAuthForwardURL                  = "ingress.kubernetes.io/auth-url"
-	// annotationKubernetesAuthForwardTrustHeaders         = "ingress.kubernetes.io/auth-trust-headers"
+	annotationKubernetesAuthHeaderField                 = "ingress.kubernetes.io/auth-header-field"
+	annotationKubernetesAuthForwardResponseHeaders      = "ingress.kubernetes.io/auth-response-headers"
+	annotationKubernetesAuthRemoveHeader                = "ingress.kubernetes.io/auth-remove-header"
+	annotationKubernetesAuthForwardURL                  = "ingress.kubernetes.io/auth-url"
+	annotationKubernetesAuthForwardTrustHeaders         = "ingress.kubernetes.io/auth-trust-headers"
 	// annotationKubernetesAuthForwardTLSSecret            = "ingress.kubernetes.io/auth-tls-secret"
-	// annotationKubernetesAuthForwardTLSInsecure          = "ingress.kubernetes.io/auth-tls-insecure"
+	annotationKubernetesAuthForwardTLSInsecure          = "ingress.kubernetes.io/auth-tls-insecure"
 
 	// TODO ReplacePathRegexMiddleware
 	// annotationKubernetesRewriteTarget                   = "ingress.kubernetes.io/rewrite-target"

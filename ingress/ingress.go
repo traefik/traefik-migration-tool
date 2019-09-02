@@ -126,6 +126,12 @@ func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 		middlewares = append(middlewares, headers)
 	}
 
+	// Auth middleware
+	auth := getAuthMiddleware(ingress)
+	if auth != nil {
+		middlewares = append(middlewares, auth)
+	}
+
 	var miRefs []v1alpha1.MiddlewareRef
 	for _, middleware := range middlewares {
 		miRefs = append(miRefs, v1alpha1.MiddlewareRef{
