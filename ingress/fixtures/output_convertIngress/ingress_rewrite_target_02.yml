@@ -1,0 +1,10 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  creationTimestamp: null
+  name: replace-path-rewrite/api
+  namespace: testing
+spec:
+  replacePathRegex:
+    regex: ^/api(.*)
+    replacement: $1

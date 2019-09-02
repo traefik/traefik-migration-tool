@@ -43,6 +43,10 @@ func Test_convertIngress(t *testing.T) {
 			ingressFile: "ingress_with_headers_annotations.yml",
 			objectCount: 2,
 		},
+		{
+			ingressFile: "ingress_rewrite_target.yml",
+			objectCount: 2,
+		},
 	}
 
 	outputDir := filepath.Join("fixtures", "output_convertIngress")
@@ -112,6 +116,10 @@ func Test_convertFile(t *testing.T) {
 		},
 		{
 			ingressFile: "ingress_with_headers_annotations.yml",
+			objectCount: 2,
+		},
+		{
+			ingressFile: "ingress_rewrite_target.yml",
 			objectCount: 2,
 		},
 	}

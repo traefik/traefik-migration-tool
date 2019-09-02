@@ -38,7 +38,6 @@ const (
 	annotationKubernetesIsDevelopment           = "ingress.kubernetes.io/is-development"
 
 	// TODO AuthMiddleware
-	// annotationKubernetesAuthRealm                       = "ingress.kubernetes.io/auth-realm"
 	annotationKubernetesAuthType                        = "ingress.kubernetes.io/auth-type"
 	// annotationKubernetesAuthSecret                      = "ingress.kubernetes.io/auth-secret"
 	annotationKubernetesAuthHeaderField                 = "ingress.kubernetes.io/auth-header-field"
@@ -47,10 +46,10 @@ const (
 	annotationKubernetesAuthForwardURL                  = "ingress.kubernetes.io/auth-url"
 	annotationKubernetesAuthForwardTrustHeaders         = "ingress.kubernetes.io/auth-trust-headers"
 	// annotationKubernetesAuthForwardTLSSecret            = "ingress.kubernetes.io/auth-tls-secret"
-	annotationKubernetesAuthForwardTLSInsecure          = "ingress.kubernetes.io/auth-tls-insecure"
+	// annotationKubernetesAuthForwardTLSInsecure          = "ingress.kubernetes.io/auth-tls-insecure"
 
 	// TODO ReplacePathRegexMiddleware
-	// annotationKubernetesRewriteTarget                   = "ingress.kubernetes.io/rewrite-target"
+	annotationKubernetesRewriteTarget                   = "ingress.kubernetes.io/rewrite-target"
 
 	// TODO whitelistMiddleware
 	// annotationKubernetesWhiteListSourceRange            = "ingress.kubernetes.io/whitelist-source-range"
@@ -92,6 +91,7 @@ const (
 	// annotationKubernetesResponseForwardingFlushInterval = "ingress.kubernetes.io/responseforwarding-flushinterval"
 
 	// TODO ??
+	// annotationKubernetesAuthRealm                       = "ingress.kubernetes.io/auth-realm"
 	// annotationKubernetesLoadBalancerMethod              = "ingress.kubernetes.io/load-balancer-method"
 	// annotationKubernetesServiceWeights                  = "ingress.kubernetes.io/service-weights"
 	// annotationKubernetesAppRoot                         = "ingress.kubernetes.io/app-root"
