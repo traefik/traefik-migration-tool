@@ -147,6 +147,9 @@ func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 	// errorPages middleware
 	middlewares = append(middlewares, getErrorPages(ingress)...)
 
+	// rateLimit middleware
+	middlewares = append(middlewares, getRateLimit(ingress)...)
+
 	var miRefs []v1alpha1.MiddlewareRef
 	for _, middleware := range middlewares {
 		miRefs = append(miRefs, v1alpha1.MiddlewareRef{
@@ -183,7 +186,7 @@ func createRoutes(namespace string, rules []extensionsv1beta1.IngressRule, annot
 	default:
 		ruleType = ruleTypePathPrefix
 	}
-
+	
 	var mi []*v1alpha1.Middleware
 
 	var routes []v1alpha1.Route

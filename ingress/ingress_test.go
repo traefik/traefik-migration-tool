@@ -16,7 +16,7 @@ import (
 	"k8s.io/api/extensions/v1beta1"
 )
 
-var updateExpected = flag.Bool("update_expected", true, "Update expected files in testdata")
+var updateExpected = flag.Bool("update_expected", false, "Update expected files in testdata")
 
 func Test_convertIngress(t *testing.T) {
 	testCases := []struct {
@@ -69,6 +69,10 @@ func Test_convertIngress(t *testing.T) {
 		},
 		{
 			ingressFile: "ingress_with_errorpage.yml",
+			objectCount: 3,
+		},
+		{
+			ingressFile: "ingress_with_ratelimit.yml",
 			objectCount: 3,
 		},
 	}
@@ -168,6 +172,10 @@ func Test_convertFile(t *testing.T) {
 		},
 		{
 			ingressFile: "ingress_with_errorpage.yml",
+			objectCount: 3,
+		},
+		{
+			ingressFile: "ingress_with_ratelimit.yml",
 			objectCount: 3,
 		},
 	}

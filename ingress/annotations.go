@@ -68,8 +68,8 @@ const (
 	// ErrorPagesMiddleware
 	annotationKubernetesErrorPages                      = "ingress.kubernetes.io/error-pages"
 
-	// TODO RateLimitMiddleware
-	// annotationKubernetesRateLimit                       = "ingress.kubernetes.io/rate-limit"
+	// RateLimitMiddleware
+	annotationKubernetesRateLimit                       = "ingress.kubernetes.io/rate-limit"
 
 
 	// TODO Modifiers Middlewares

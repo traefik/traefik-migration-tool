@@ -1,0 +1,27 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    ingress.kubernetes.io/rate-limit: |2
+
+      extractorfunc: client.ip
+      rateset:
+        bar:
+          period: 3s
+          average: 12
+          burst: 9
+        foo:
+          period: 6s
+          average: 12
+          burst: 18
+    kubernetes.io/ingress.class: traefik
+  namespace: testing
+spec:
+  rules:
+    - host: rate-limit
+      http:
+        paths:
+          - backend:
+              serviceName: service1
+              servicePort: 80
+            path: /ratelimit

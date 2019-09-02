@@ -1,0 +1,43 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: traefik
+  creationTimestamp: null
+  namespace: testing
+spec:
+  entryPoints: []
+  routes:
+  - kind: Rule
+    match: Host(`rate-limit`) && PathPrefix(`/ratelimit`)
+    middlewares:
+    - name: middleware-bar-11911857852866444515
+      namespace: testing
+    - name: middleware-foo-549606739352691114
+      namespace: testing
+    priority: 0
+    services:
+    - name: service1
+      port: 80
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  creationTimestamp: null
+  name: middleware-bar-11911857852866444515
+  namespace: testing
+spec:
+  rateLimit:
+    average: 4
+    burst: 9
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  creationTimestamp: null
+  name: middleware-foo-549606739352691114
+  namespace: testing
+spec:
+  rateLimit:
+    average: 2
+    burst: 18

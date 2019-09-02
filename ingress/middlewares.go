@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/containous/traefik/v2/pkg/config/dynamic"
 	"github.com/containous/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
@@ -327,16 +328,15 @@ func getRedirectMiddleware(namespace string, regex string, replacement string, p
 }
 
 func getErrorPages(i *extensionsv1beta1.Ingress) []*v1alpha1.Middleware {
-	var errorPages map[string]*dynamic.ErrorPage
-
 	pagesRaw := getStringValue(i.Annotations, annotationKubernetesErrorPages, "")
-	if len(pagesRaw) > 0 {
-		errorPages = make(map[string]*dynamic.ErrorPage)
-		err := yaml.Unmarshal([]byte(pagesRaw), errorPages)
-		if err != nil {
-			log.Println(err)
-			return nil
-		}
+	if len(pagesRaw) == 0 {
+		return nil
+	}
+	errorPages := make(map[string]*dynamic.ErrorPage)
+	err := yaml.Unmarshal([]byte(pagesRaw), errorPages)
+	if err != nil {
+		log.Println(err)
+		return nil
 	}
 
 	var mids []*v1alpha1.Middleware
@@ -345,7 +345,7 @@ func getErrorPages(i *extensionsv1beta1.Ingress) []*v1alpha1.Middleware {
 		errorPageMiddleware := dynamic.Middleware{
 			Errors: errorPage,
 		}
-		
+
 		hash, err := hashstructure.Hash(errorPageMiddleware, nil)
 		if err != nil {
 			panic(err)
@@ -360,18 +360,67 @@ func getErrorPages(i *extensionsv1beta1.Ingress) []*v1alpha1.Middleware {
 	return mids
 }
 
-// func getRateLimit(i *extensionsv1beta1.Ingress) *types.RateLimit {
-// 	var rateLimit *types.RateLimit
-//
-// 	rateRaw := getStringValue(i.Annotations, annotationKubernetesRateLimit, "")
-// 	if len(rateRaw) > 0 {
-// 		rateLimit = &types.RateLimit{}
-// 		err := yaml.Unmarshal([]byte(rateRaw), rateLimit)
-// 		if err != nil {
-// 			log.Error(err)
-// 			return nil
-// 		}
-// 	}
-//
-// 	return rateLimit
-// }
+func getRateLimit(i *extensionsv1beta1.Ingress) []*v1alpha1.Middleware {
+	rateRaw := getStringValue(i.Annotations, annotationKubernetesRateLimit, "")
+	if len(rateRaw) == 0 {
+		return nil
+	}
+	rateLimit := &RateLimit{}
+	err := yaml.Unmarshal([]byte(rateRaw), rateLimit)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	var mids []*v1alpha1.Middleware
+	for rateSetKey, rateSet := range rateLimit.RateSet {
+		if rateSet.Period == 0 {
+			continue
+		}
+		rateLimitMiddleware := dynamic.Middleware{
+			RateLimit: &dynamic.RateLimit{
+				Average: rateSet.Average / int64(rateSet.Period/time.Second),
+				Burst:   rateSet.Burst,
+			},
+		}
+
+		if rateLimit.ExtractorFunc == "request.host" {
+			rateLimitMiddleware.RateLimit.SourceCriterion = &dynamic.SourceCriterion{
+				RequestHost: true,
+			}
+		}
+
+		if strings.HasPrefix(rateLimit.ExtractorFunc, "request.header.") {
+			sourceHeader := strings.ReplaceAll(rateLimit.ExtractorFunc, "request.header.", "")
+			rateLimitMiddleware.RateLimit.SourceCriterion = &dynamic.SourceCriterion{
+				RequestHeaderName: sourceHeader,
+			}
+		}
+
+		hash, err := hashstructure.Hash(rateLimitMiddleware, nil)
+		if err != nil {
+			panic(err)
+		}
+
+		mids = append(mids, &v1alpha1.Middleware{
+			ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%s-%d", "middleware", rateSetKey, hash), Namespace: i.Namespace},
+			Spec:       rateLimitMiddleware,
+		})
+	}
+
+	return mids
+}
+
+// Rate holds a rate limiting configuration for a specific time period
+type Rate struct {
+	Period  time.Duration `json:"period,omitempty"`
+	Average int64         `json:"average,omitempty"`
+	Burst   int64         `json:"burst,omitempty"`
+}
+
+// RateLimit holds a rate limiting configuration for a given frontend
+type RateLimit struct {
+	RateSet       map[string]*Rate `json:"rateset,omitempty"`
+	ExtractorFunc string           `json:"extractorFunc,omitempty"`
+}
+

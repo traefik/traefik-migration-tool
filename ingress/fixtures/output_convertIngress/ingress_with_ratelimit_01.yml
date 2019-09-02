@@ -9,11 +9,11 @@ spec:
   entryPoints: []
   routes:
   - kind: Rule
-    match: Host(`error-pages`) && PathPrefix(`/errorpages`)
+    match: Host(`rate-limit`) && PathPrefix(`/ratelimit`)
     middlewares:
-    - name: errorpage-bar-6906619524742457949
+    - name: middleware-bar-11911857852866444515
       namespace: testing
-    - name: errorpage-foo-10449038770411266824
+    - name: middleware-foo-549606739352691114
       namespace: testing
     priority: 0
     services:
