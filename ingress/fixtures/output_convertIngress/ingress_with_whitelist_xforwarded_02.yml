@@ -1,0 +1,12 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  creationTimestamp: null
+  name: whitelist-6282919470491210895
+  namespace: testing
+spec:
+  ipWhiteList:
+    ipStrategy: {}
+    sourceRange:
+    - 1.1.1.1/24
+    - 1234:abcd::42/32

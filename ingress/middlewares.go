@@ -53,8 +53,7 @@ func getHeadersMiddleware(ingress *extensionsv1beta1.Ingress) *v1alpha1.Middlewa
 	}
 }
 
-
-func getAuthMiddleware(ingress *extensionsv1beta1.Ingress) *v1alpha1.Middleware{
+func getAuthMiddleware(ingress *extensionsv1beta1.Ingress) *v1alpha1.Middleware {
 	authType := getStringValue(ingress.Annotations, annotationKubernetesAuthType, "")
 	if len(authType) == 0 {
 		return nil
@@ -102,12 +101,11 @@ func getBasicAuthConfig(annotations map[string]string) *dynamic.BasicAuth {
 	return &dynamic.BasicAuth{
 		// Users:        credentials,
 		RemoveHeader: getBoolValue(annotations, annotationKubernetesAuthRemoveHeader, false),
-		HeaderField: getStringValue(annotations, annotationKubernetesAuthHeaderField, ""),
+		HeaderField:  getStringValue(annotations, annotationKubernetesAuthHeaderField, ""),
 	}
 }
 
 func getDigestAuthConfig(annotations map[string]string) *dynamic.DigestAuth {
-
 
 	// TODO handle secret
 	// credentials, err := getAuthCredentials(i, k8sClient)
@@ -118,7 +116,7 @@ func getDigestAuthConfig(annotations map[string]string) *dynamic.DigestAuth {
 	return &dynamic.DigestAuth{
 		// Users: credentials,
 		RemoveHeader: getBoolValue(annotations, annotationKubernetesAuthRemoveHeader, false),
-		HeaderField: getStringValue(annotations, annotationKubernetesAuthHeaderField, ""),
+		HeaderField:  getStringValue(annotations, annotationKubernetesAuthHeaderField, ""),
 	}
 }
 
@@ -150,4 +148,44 @@ func getForwardAuthConfig(annotations map[string]string) (*dynamic.ForwardAuth, 
 	// }
 
 	return forwardAuth, nil
+}
+
+func getWhiteList(i *extensionsv1beta1.Ingress) *v1alpha1.Middleware {
+	ranges := getSliceStringValue(i.Annotations, annotationKubernetesWhiteListSourceRange)
+	if len(ranges) <= 0 {
+		return nil
+	}
+
+	middleware := dynamic.Middleware{
+		IPWhiteList: &dynamic.IPWhiteList{
+			SourceRange: ranges,
+		},
+	}
+
+	if getBoolValue(i.Annotations, annotationKubernetesWhiteListUseXForwardedFor, false) {
+		middleware.IPWhiteList.IPStrategy = &dynamic.IPStrategy{}
+	}
+
+
+	hash, err := hashstructure.Hash(middleware, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	return &v1alpha1.Middleware{
+		ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%d", "whitelist", hash), Namespace: i.Namespace},
+		Spec:       middleware,
+	}
+}
+
+func createMiddleware(namespace string, middleware dynamic.Middleware) *v1alpha1.Middleware {
+	hash, err := hashstructure.Hash(middleware, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	return &v1alpha1.Middleware{
+		ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%d", "headers", hash), Namespace: namespace},
+		Spec:       middleware,
+	}
 }

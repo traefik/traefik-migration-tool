@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    ingress.kubernetes.io/whitelist-source-range: 1.1.1.1/24, 1234:abcd::42/32
+  namespace: testing
+spec:
+  rules:
+    - host: test
+      http:
+        paths:
+          - backend:
+              serviceName: service1
+              servicePort: 80
+            path: /whitelist-source-range

@@ -16,7 +16,7 @@ import (
 	"k8s.io/api/extensions/v1beta1"
 )
 
-var updateExpected = flag.Bool("update_expected", false, "Update expected files in testdata")
+var updateExpected = flag.Bool("update_expected", true, "Update expected files in testdata")
 
 func Test_convertIngress(t *testing.T) {
 	testCases := []struct {
@@ -45,6 +45,14 @@ func Test_convertIngress(t *testing.T) {
 		},
 		{
 			ingressFile: "ingress_rewrite_target.yml",
+			objectCount: 2,
+		},
+		{
+			ingressFile: "ingress_with_whitelist.yml",
+			objectCount: 2,
+		},
+		{
+			ingressFile: "ingress_with_whitelist_xforwarded.yml",
 			objectCount: 2,
 		},
 	}
@@ -120,6 +128,14 @@ func Test_convertFile(t *testing.T) {
 		},
 		{
 			ingressFile: "ingress_rewrite_target.yml",
+			objectCount: 2,
+		},
+		{
+			ingressFile: "ingress_with_whitelist.yml",
+			objectCount: 2,
+		},
+		{
+			ingressFile: "ingress_with_whitelist_xforwarded.yml",
 			objectCount: 2,
 		},
 	}

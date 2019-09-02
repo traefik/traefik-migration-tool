@@ -132,6 +132,12 @@ func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 		middlewares = append(middlewares, auth)
 	}
 
+	// Whitelist middleware
+	whiteList := getWhiteList(ingress)
+	if whiteList != nil {
+		middlewares = append(middlewares, whiteList)
+	}
+
 	var miRefs []v1alpha1.MiddlewareRef
 	for _, middleware := range middlewares {
 		miRefs = append(miRefs, v1alpha1.MiddlewareRef{
