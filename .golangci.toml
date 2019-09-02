@@ -42,7 +42,7 @@
     text = "`(compatibilityMapping)` is a global variable"
 
   [[issues.exclude-rules]]
-    path = "ingress_test.go"
+    path = ".*_test.go"
     text = "`(updateExpected)` is a global variable"
 
   [[issues.exclude-rules]]
