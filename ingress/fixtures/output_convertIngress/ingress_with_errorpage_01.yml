@@ -1,0 +1,21 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: traefik
+  creationTimestamp: null
+  namespace: testing
+spec:
+  entryPoints: []
+  routes:
+  - kind: Rule
+    match: Host(`error-pages`) && PathPrefix(`/errorpages`)
+    middlewares:
+    - name: errorpage-foo-10449038770411266824
+      namespace: testing
+    - name: errorpage-bar-6906619524742457949
+      namespace: testing
+    priority: 0
+    services:
+    - name: service1
+      port: 80

@@ -67,6 +67,10 @@ func Test_convertIngress(t *testing.T) {
 			ingressFile: "ingress_redirect_regex.yml",
 			objectCount: 2,
 		},
+		{
+			ingressFile: "ingress_with_errorpage.yml",
+			objectCount: 3,
+		},
 	}
 
 	outputDir := filepath.Join("fixtures", "output_convertIngress")
@@ -161,6 +165,10 @@ func Test_convertFile(t *testing.T) {
 		{
 			ingressFile: "ingress_redirect_regex.yml",
 			objectCount: 2,
+		},
+		{
+			ingressFile: "ingress_with_errorpage.yml",
+			objectCount: 3,
 		},
 	}
 

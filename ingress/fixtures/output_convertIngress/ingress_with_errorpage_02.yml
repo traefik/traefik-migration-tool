@@ -1,0 +1,12 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  creationTimestamp: null
+  name: errorpage-foo-10449038770411266824
+  namespace: testing
+spec:
+  errors:
+    query: /bar
+    status:
+    - "123"
+    - "456"

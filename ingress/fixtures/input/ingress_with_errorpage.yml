@@ -1,0 +1,29 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    ingress.kubernetes.io/error-pages: |2
+
+      foo:
+        status:
+        - "123"
+        - "456"
+        backend: bar
+        query: /bar
+      bar:
+        status:
+        - "404"
+        - "501"
+        backend: foo
+        query: /foo
+    kubernetes.io/ingress.class: traefik
+  namespace: testing
+spec:
+  rules:
+  - host: error-pages
+    http:
+      paths:
+      - backend:
+          serviceName: service1
+          servicePort: 80
+        path: /errorpages

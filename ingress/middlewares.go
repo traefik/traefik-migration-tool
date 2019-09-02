@@ -215,7 +215,7 @@ type TLSClientHeaders struct {
 
 func (t *TLSClientHeaders) getPassTLSCert() *dynamic.PassTLSClientCert {
 	passTLS := &dynamic.PassTLSClientCert{
-		PEM:  t.PEM,
+		PEM: t.PEM,
 	}
 	if t.Infos != nil {
 		passTLS.Info = &dynamic.TLSClientCertificateInfo{
@@ -325,3 +325,53 @@ func getRedirectMiddleware(namespace string, regex string, replacement string, p
 		Spec:       middleware,
 	}
 }
+
+func getErrorPages(i *extensionsv1beta1.Ingress) []*v1alpha1.Middleware {
+	var errorPages map[string]*dynamic.ErrorPage
+
+	pagesRaw := getStringValue(i.Annotations, annotationKubernetesErrorPages, "")
+	if len(pagesRaw) > 0 {
+		errorPages = make(map[string]*dynamic.ErrorPage)
+		err := yaml.Unmarshal([]byte(pagesRaw), errorPages)
+		if err != nil {
+			log.Println(err)
+			return nil
+		}
+	}
+
+	var mids []*v1alpha1.Middleware
+
+	for id, errorPage := range errorPages {
+		errorPageMiddleware := dynamic.Middleware{
+			Errors: errorPage,
+		}
+		
+		hash, err := hashstructure.Hash(errorPageMiddleware, nil)
+		if err != nil {
+			panic(err)
+		}
+
+		mids = append(mids, &v1alpha1.Middleware{
+			ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%s-%d", "errorpage", id, hash), Namespace: i.Namespace},
+			Spec:       errorPageMiddleware,
+		})
+	}
+
+	return mids
+}
+
+// func getRateLimit(i *extensionsv1beta1.Ingress) *types.RateLimit {
+// 	var rateLimit *types.RateLimit
+//
+// 	rateRaw := getStringValue(i.Annotations, annotationKubernetesRateLimit, "")
+// 	if len(rateRaw) > 0 {
+// 		rateLimit = &types.RateLimit{}
+// 		err := yaml.Unmarshal([]byte(rateRaw), rateLimit)
+// 		if err != nil {
+// 			log.Error(err)
+// 			return nil
+// 		}
+// 	}
+//
+// 	return rateLimit
+// }

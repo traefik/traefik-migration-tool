@@ -58,19 +58,19 @@ const (
 	annotationKubernetesPassTLSCert       = "ingress.kubernetes.io/pass-tls-cert" // Deprecated
 	annotationKubernetesPassTLSClientCert = "ingress.kubernetes.io/pass-client-tls-cert"
 
-	// TODO RedirectMiddleware
+	// RedirectMiddleware
 	annotationKubernetesAppRoot                         = "ingress.kubernetes.io/app-root"
 	annotationKubernetesRedirectEntryPoint              = "ingress.kubernetes.io/redirect-entry-point"
 	annotationKubernetesRedirectPermanent               = "ingress.kubernetes.io/redirect-permanent"
 	annotationKubernetesRedirectRegex                   = "ingress.kubernetes.io/redirect-regex"
 	annotationKubernetesRedirectReplacement             = "ingress.kubernetes.io/redirect-replacement"
 
+	// ErrorPagesMiddleware
+	annotationKubernetesErrorPages                      = "ingress.kubernetes.io/error-pages"
 
 	// TODO RateLimitMiddleware
 	// annotationKubernetesRateLimit                       = "ingress.kubernetes.io/rate-limit"
 
-	// TODO ErrorPagesMiddleware
-	// annotationKubernetesErrorPages                      = "ingress.kubernetes.io/error-pages"
 
 	// TODO Modifiers Middlewares
 	annotationKubernetesRequestModifier = "ingress.kubernetes.io/request-modifier"
