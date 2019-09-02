@@ -1,6 +1,6 @@
 # traefik-migration
 
-traefik-migration is a tool to migrate `Ingress` to Traefik `IngressRoute` resources.
+A tool to migrate from Traefik v1 to Traefik v2.
 
 ## Usage
 
