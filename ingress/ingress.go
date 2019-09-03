@@ -21,11 +21,13 @@ const separator = "---"
 const groupSuffix = "/v1alpha1"
 
 const (
-	ruleTypePath            = "Path"
-	ruleTypePathPrefix      = "PathPrefix"
-	ruleTypePathStrip       = "PathStrip"
-	ruleTypePathPrefixStrip = "PathPrefixStrip"
-	ruleTypeAddPrefix       = "AddPrefix"
+	ruleTypePath             = "Path"
+	ruleTypePathPrefix       = "PathPrefix"
+	ruleTypePathStrip        = "PathStrip"
+	ruleTypePathPrefixStrip  = "PathPrefixStrip"
+	ruleTypeAddPrefix        = "AddPrefix"
+	ruleTypeReplacePath      = "ReplacePath"
+	ruleTypeReplacePathRegex = "ReplacePathRegex"
 )
 
 // Convert converts all ingress in a src into a dstDir
@@ -165,6 +167,14 @@ func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 	// rateLimit middleware
 	middlewares = append(middlewares, getRateLimit(ingress)...)
 
+	if requestModifier := getStringValue(ingress.Annotations, annotationKubernetesRequestModifier, ""); requestModifier != "" {
+		middleware, err := parseRequestModifier(ingress.Namespace, requestModifier)
+		if err != nil {
+			log.Printf("Invalid %s: %v", annotationKubernetesRequestModifier, err)
+		}
+		middlewares = append(middlewares, middleware)
+	}
+
 	sort.Sort(middlewares)
 
 	var miRefs []v1alpha1.MiddlewareRef
@@ -175,8 +185,11 @@ func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 		})
 	}
 
-	routes, mi := createRoutes(ingress.Namespace, ingress.Spec.Rules, ingress.Annotations, miRefs)
-
+	routes, mi, err := createRoutes(ingress.Namespace, ingress.Spec.Rules, ingress.Annotations, miRefs)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
 	ingressRoute.Spec.Routes = routes
 
 	middlewares = append(middlewares, mi...)
@@ -189,21 +202,24 @@ func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 	return objects
 }
 
-func createRoutes(namespace string, rules []extensionsv1beta1.IngressRule, annotations map[string]string, middlewareRefs []v1alpha1.MiddlewareRef) ([]v1alpha1.Route, []*v1alpha1.Middleware) {
-
+func createRoutes(namespace string, rules []extensionsv1beta1.IngressRule, annotations map[string]string, middlewareRefs []v1alpha1.MiddlewareRef) ([]v1alpha1.Route, []*v1alpha1.Middleware, error) {
+	var stripPrefix bool
 	ruleType := getStringValue(annotations, annotationKubernetesRuleType, ruleTypePathPrefix)
 
-	var modifierType string
 	switch ruleType {
 	case ruleTypePath, ruleTypePathPrefix:
-	case ruleTypePathStrip, ruleTypePathPrefixStrip:
-		// FIXME
+	case ruleTypePathStrip:
+		ruleType = ruleTypePath
+		stripPrefix = true
+	case ruleTypePathPrefixStrip:
 		ruleType = ruleTypePathPrefix
-		modifierType = "StripPrefix"
+		stripPrefix = true
+	case ruleTypeReplacePath:
+		log.Printf("Using %s as %s will be deprecated in the future. Please use the %s annotation instead", ruleType, annotationKubernetesRuleType, annotationKubernetesRequestModifier)
 	default:
-		ruleType = ruleTypePathPrefix
+		return nil, nil, fmt.Errorf("cannot use non-matcher rule: %q", ruleType)
 	}
-	
+
 	var mi []*v1alpha1.Middleware
 
 	var routes []v1alpha1.Route
@@ -224,7 +240,7 @@ func createRoutes(namespace string, rules []extensionsv1beta1.IngressRule, annot
 			if len(path.Path) > 0 {
 				rules = append(rules, fmt.Sprintf("%s(`%s`)", ruleType, path.Path))
 
-				if modifierType == "StripPrefix" {
+				if stripPrefix {
 					mi = append(mi, &v1alpha1.Middleware{
 						ObjectMeta: v1.ObjectMeta{Name: middlewareName, Namespace: namespace},
 						Spec: dynamic.Middleware{
@@ -239,6 +255,9 @@ func createRoutes(namespace string, rules []extensionsv1beta1.IngressRule, annot
 				}
 
 				if rewriteTarget := getStringValue(annotations, annotationKubernetesRewriteTarget, ""); rewriteTarget != "" {
+					if ruleType == ruleTypeReplacePath {
+						return nil, nil, fmt.Errorf("rewrite-target must not be used together with annotation %q", annotationKubernetesRuleType)
+					}
 					middlewareName := "replace-path-" + rule.Host + path.Path
 					middleware := &v1alpha1.Middleware{
 						ObjectMeta: v1.ObjectMeta{Name: middlewareName, Namespace: namespace},
@@ -284,5 +303,5 @@ func createRoutes(namespace string, rules []extensionsv1beta1.IngressRule, annot
 			}
 		}
 	}
-	return routes, mi
+	return routes, mi, nil
 }

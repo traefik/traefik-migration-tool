@@ -1,6 +1,7 @@
 package ingress
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -325,6 +326,56 @@ func getRedirectMiddleware(namespace string, regex string, replacement string, p
 		ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%d", "redirect", hash), Namespace: namespace},
 		Spec:       middleware,
 	}
+}
+
+func parseRequestModifier(namespace, requestModifier string) (*v1alpha1.Middleware, error) {
+	trimmedRequestModifier := strings.TrimRight(requestModifier, " :")
+	if trimmedRequestModifier == "" {
+		return nil, fmt.Errorf("modifier %q is empty", requestModifier)
+	}
+
+	// Split annotation to determine modifier type
+	modifierParts := strings.Split(trimmedRequestModifier, ":")
+	if len(modifierParts) < 2 {
+		return nil, fmt.Errorf("modifier %q is missing type or value", requestModifier)
+	}
+
+	modifier := strings.TrimSpace(modifierParts[0])
+	value := strings.TrimSpace(modifierParts[1])
+
+	var middleware dynamic.Middleware
+	switch modifier {
+	case ruleTypeAddPrefix:
+		middleware = dynamic.Middleware{
+			AddPrefix: &dynamic.AddPrefix{Prefix: value},
+		}
+	case ruleTypeReplacePath:
+		middleware = dynamic.Middleware{
+			ReplacePath: &dynamic.ReplacePath{Path: value},
+		}
+	case ruleTypeReplacePathRegex:
+		split := strings.Split(value, " ")
+		if len(split) != 2 {
+			return nil, fmt.Errorf("invalid replacePathRegex syntax %s", value)
+		}
+		middleware = dynamic.Middleware{
+			ReplacePathRegex: &dynamic.ReplacePathRegex{Regex:split[0], Replacement:split[1]},
+		}
+	case "":
+		return nil, errors.New("cannot use empty rule")
+	default:
+		return nil, fmt.Errorf("cannot use non-modifier rule: %q", modifier)
+	}
+
+	hash, err := hashstructure.Hash(middleware, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	return &v1alpha1.Middleware{
+		ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%d", "requestmodifier", hash), Namespace: namespace},
+		Spec:       middleware,
+	}, nil
 }
 
 func getErrorPages(i *extensionsv1beta1.Ingress) []*v1alpha1.Middleware {
