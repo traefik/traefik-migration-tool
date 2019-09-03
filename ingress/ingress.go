@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/containous/traefik/v2/pkg/config/dynamic"
@@ -104,6 +105,20 @@ func convertFile(srcDir, dstDir, filename string) error {
 	return ioutil.WriteFile(filepath.Join(dstDir, filename), []byte(strings.Join(ymlBytes, separator+"\n")), 0666)
 }
 
+type SortMiddleware []*v1alpha1.Middleware
+
+func (s SortMiddleware) Len() int {
+	return len(s)
+}
+
+func (s SortMiddleware) Less(i, j int) bool {
+	return s[i].Name < s[j].Name
+}
+
+func (s SortMiddleware) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
 // convertIngress converts an *extensionsv1beta1.Ingress to a slice of runtime.Object (IngressRoute and Middlewares)
 func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 	ingressRoute := &v1alpha1.IngressRoute{
@@ -118,7 +133,7 @@ func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 		ingressRoute.Annotations[annotationKubernetesIngressClass] = ingressClass
 	}
 
-	var middlewares []*v1alpha1.Middleware
+	var middlewares SortMiddleware
 
 	// Headers middleware
 	headers := getHeadersMiddleware(ingress)
@@ -149,6 +164,8 @@ func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 
 	// rateLimit middleware
 	middlewares = append(middlewares, getRateLimit(ingress)...)
+
+	sort.Sort(middlewares)
 
 	var miRefs []v1alpha1.MiddlewareRef
 	for _, middleware := range middlewares {
