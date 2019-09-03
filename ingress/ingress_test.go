@@ -65,7 +65,7 @@ func Test_convertIngress(t *testing.T) {
 		},
 		{
 			ingressFile: "ingress_redirect_regex.yml",
-			objectCount: 2,
+			objectCount: 3,
 		},
 		{
 			ingressFile: "ingress_with_errorpage.yml",
@@ -168,7 +168,7 @@ func Test_convertFile(t *testing.T) {
 		},
 		{
 			ingressFile: "ingress_redirect_regex.yml",
-			objectCount: 2,
+			objectCount: 3,
 		},
 		{
 			ingressFile: "ingress_with_errorpage.yml",
