@@ -52,7 +52,7 @@ func getHeadersMiddleware(ingress *extensionsv1beta1.Ingress) *v1alpha1.Middlewa
 
 	return &v1alpha1.Middleware{
 		ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%d", "headers", hash), Namespace: ingress.Namespace},
-		Spec:       dynamic.Middleware{Headers: headers},
+		Spec:       v1alpha1.MiddlewareSpec{Headers: headers},
 	}
 }
 
@@ -62,7 +62,7 @@ func getAuthMiddleware(ingress *extensionsv1beta1.Ingress) *v1alpha1.Middleware 
 		return nil
 	}
 
-	middleware := dynamic.Middleware{}
+	middleware := v1alpha1.MiddlewareSpec{}
 
 	switch strings.ToLower(authType) {
 	case "basic":
@@ -93,64 +93,39 @@ func getAuthMiddleware(ingress *extensionsv1beta1.Ingress) *v1alpha1.Middleware 
 	}
 }
 
-func getBasicAuthConfig(annotations map[string]string) *dynamic.BasicAuth {
-
-	// TODO handle secret
-	// credentials, err := getAuthCredentials(i, k8sClient)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	return &dynamic.BasicAuth{
-		// Users:        credentials,
+func getBasicAuthConfig(annotations map[string]string) *v1alpha1.BasicAuth {
+	return &v1alpha1.BasicAuth{
+		Secret:       getStringValue(annotations, annotationKubernetesAuthSecret, ""),
 		RemoveHeader: getBoolValue(annotations, annotationKubernetesAuthRemoveHeader, false),
 		HeaderField:  getStringValue(annotations, annotationKubernetesAuthHeaderField, ""),
 	}
 }
 
-func getDigestAuthConfig(annotations map[string]string) *dynamic.DigestAuth {
-
-	// TODO handle secret
-	// credentials, err := getAuthCredentials(i, k8sClient)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	return &dynamic.DigestAuth{
-		// Users: credentials,
+func getDigestAuthConfig(annotations map[string]string) *v1alpha1.DigestAuth {
+	return &v1alpha1.DigestAuth{
+		Secret:       getStringValue(annotations, annotationKubernetesAuthSecret, ""),
 		RemoveHeader: getBoolValue(annotations, annotationKubernetesAuthRemoveHeader, false),
 		HeaderField:  getStringValue(annotations, annotationKubernetesAuthHeaderField, ""),
 	}
 }
 
-func getForwardAuthConfig(annotations map[string]string) (*dynamic.ForwardAuth, error) {
+func getForwardAuthConfig(annotations map[string]string) (*v1alpha1.ForwardAuth, error) {
 	authURL := getStringValue(annotations, annotationKubernetesAuthForwardURL, "")
 	if len(authURL) == 0 {
 		return nil, fmt.Errorf("forward authentication requires a url")
 	}
 
-	forwardAuth := &dynamic.ForwardAuth{
+	return &v1alpha1.ForwardAuth{
 		Address:             authURL,
 		TrustForwardHeader:  getBoolValue(annotations, annotationKubernetesAuthForwardTrustHeaders, false),
 		AuthResponseHeaders: getSliceStringValue(annotations, annotationKubernetesAuthForwardResponseHeaders),
-	}
-
-	// TODO handle secret
-	// authSecretName := getStringValue(annotations, annotationKubernetesAuthForwardTLSSecret, "")
-	// if len(authSecretName) > 0 {
-	// 	authSecretCert, authSecretKey, err := loadAuthTLSSecret(i.Namespace, authSecretName, k8sClient)
-	// 	if err != nil {
-	// 		return nil, fmt.Errorf("failed to load auth secret: %s", err)
-	// 	}
-	//
-	// 	forwardAuth.TLS = &types.ClientTLS{
-	// 		Cert:               authSecretCert,
-	// 		Key:                authSecretKey,
-	// 		InsecureSkipVerify: getBoolValue(annotations, annotationKubernetesAuthForwardTLSInsecure, false),
-	// 	}
-	// }
-
-	return forwardAuth, nil
+		TLS: &v1alpha1.ClientTLS{
+			CASecret:           "",
+			CAOptional:         false,
+			CertSecret:         getStringValue(annotations, annotationKubernetesAuthForwardTLSSecret, ""),
+			InsecureSkipVerify: getBoolValue(annotations, annotationKubernetesAuthForwardTLSInsecure, false),
+		},
+	}, nil
 }
 
 func getWhiteList(i *extensionsv1beta1.Ingress) *v1alpha1.Middleware {
@@ -159,7 +134,7 @@ func getWhiteList(i *extensionsv1beta1.Ingress) *v1alpha1.Middleware {
 		return nil
 	}
 
-	middleware := dynamic.Middleware{
+	middleware := v1alpha1.MiddlewareSpec{
 		IPWhiteList: &dynamic.IPWhiteList{
 			SourceRange: ranges,
 		},
@@ -194,7 +169,7 @@ func getPassTLSClientCert(i *extensionsv1beta1.Ingress) *v1alpha1.Middleware {
 		log.Println(err)
 	}
 
-	middleware := dynamic.Middleware{
+	middleware := v1alpha1.MiddlewareSpec{
 		PassTLSClientCert: passTLSClientCert.getPassTLSCert(),
 	}
 
@@ -309,7 +284,7 @@ func getFrontendRedirect(namespace string, annotations map[string]string, baseNa
 }
 
 func getRedirectMiddleware(namespace string, regex string, replacement string, permanent bool) *v1alpha1.Middleware {
-	middleware := dynamic.Middleware{
+	middleware := v1alpha1.MiddlewareSpec{
 		RedirectRegex: &dynamic.RedirectRegex{
 			Regex:       regex,
 			Replacement: replacement,
@@ -343,14 +318,14 @@ func parseRequestModifier(namespace, requestModifier string) (*v1alpha1.Middlewa
 	modifier := strings.TrimSpace(modifierParts[0])
 	value := strings.TrimSpace(modifierParts[1])
 
-	var middleware dynamic.Middleware
+	var middleware v1alpha1.MiddlewareSpec
 	switch modifier {
 	case ruleTypeAddPrefix:
-		middleware = dynamic.Middleware{
+		middleware = v1alpha1.MiddlewareSpec{
 			AddPrefix: &dynamic.AddPrefix{Prefix: value},
 		}
 	case ruleTypeReplacePath:
-		middleware = dynamic.Middleware{
+		middleware = v1alpha1.MiddlewareSpec{
 			ReplacePath: &dynamic.ReplacePath{Path: value},
 		}
 	case ruleTypeReplacePathRegex:
@@ -358,8 +333,8 @@ func parseRequestModifier(namespace, requestModifier string) (*v1alpha1.Middlewa
 		if len(split) != 2 {
 			return nil, fmt.Errorf("invalid replacePathRegex syntax %s", value)
 		}
-		middleware = dynamic.Middleware{
-			ReplacePathRegex: &dynamic.ReplacePathRegex{Regex:split[0], Replacement:split[1]},
+		middleware = v1alpha1.MiddlewareSpec{
+			ReplacePathRegex: &dynamic.ReplacePathRegex{Regex: split[0], Replacement: split[1]},
 		}
 	case "":
 		return nil, errors.New("cannot use empty rule")
@@ -393,7 +368,7 @@ func getErrorPages(i *extensionsv1beta1.Ingress) []*v1alpha1.Middleware {
 	var mids []*v1alpha1.Middleware
 
 	for id, errorPage := range errorPages {
-		errorPageMiddleware := dynamic.Middleware{
+		errorPageMiddleware := v1alpha1.MiddlewareSpec{
 			Errors: errorPage,
 		}
 
@@ -428,7 +403,7 @@ func getRateLimit(i *extensionsv1beta1.Ingress) []*v1alpha1.Middleware {
 		if rateSet.Period == 0 {
 			continue
 		}
-		rateLimitMiddleware := dynamic.Middleware{
+		rateLimitMiddleware := v1alpha1.MiddlewareSpec{
 			RateLimit: &dynamic.RateLimit{
 				Average: rateSet.Average / int64(rateSet.Period/time.Second),
 				Burst:   rateSet.Burst,
@@ -474,4 +449,3 @@ type RateLimit struct {
 	RateSet       map[string]*Rate `json:"rateset,omitempty"`
 	ExtractorFunc string           `json:"extractorFunc,omitempty"`
 }
-

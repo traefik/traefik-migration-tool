@@ -2,7 +2,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   creationTimestamp: null
-  name: errorpage-bar-6906619524742457949
+  name: errorpage-bar-4191873217380368336
   namespace: testing
 spec:
   errors:

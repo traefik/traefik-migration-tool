@@ -43,34 +43,32 @@ const (
 	annotationKubernetesWhiteListUseXForwardedFor = "ingress.kubernetes.io/whitelist-x-forwarded-for"
 
 	// AuthMiddleware
-	annotationKubernetesAuthType = "ingress.kubernetes.io/auth-type"
+	annotationKubernetesAuthType                   = "ingress.kubernetes.io/auth-type"
 	annotationKubernetesAuthHeaderField            = "ingress.kubernetes.io/auth-header-field"
 	annotationKubernetesAuthForwardResponseHeaders = "ingress.kubernetes.io/auth-response-headers"
 	annotationKubernetesAuthRemoveHeader           = "ingress.kubernetes.io/auth-remove-header"
 	annotationKubernetesAuthForwardURL             = "ingress.kubernetes.io/auth-url"
 	annotationKubernetesAuthForwardTrustHeaders    = "ingress.kubernetes.io/auth-trust-headers"
-	// TODO Handle auth secrets
-	// annotationKubernetesAuthSecret                      = "ingress.kubernetes.io/auth-secret"
-	// annotationKubernetesAuthForwardTLSSecret            = "ingress.kubernetes.io/auth-tls-secret"
-	// annotationKubernetesAuthForwardTLSInsecure          = "ingress.kubernetes.io/auth-tls-insecure"
+	annotationKubernetesAuthSecret                 = "ingress.kubernetes.io/auth-secret"
+	annotationKubernetesAuthForwardTLSSecret       = "ingress.kubernetes.io/auth-tls-secret"
+	annotationKubernetesAuthForwardTLSInsecure     = "ingress.kubernetes.io/auth-tls-insecure"
 
 	// PassTLSCertMiddleware
 	annotationKubernetesPassTLSCert       = "ingress.kubernetes.io/pass-tls-cert" // Deprecated
 	annotationKubernetesPassTLSClientCert = "ingress.kubernetes.io/pass-client-tls-cert"
 
 	// RedirectMiddleware
-	annotationKubernetesAppRoot                         = "ingress.kubernetes.io/app-root"
-	annotationKubernetesRedirectEntryPoint              = "ingress.kubernetes.io/redirect-entry-point"
-	annotationKubernetesRedirectPermanent               = "ingress.kubernetes.io/redirect-permanent"
-	annotationKubernetesRedirectRegex                   = "ingress.kubernetes.io/redirect-regex"
-	annotationKubernetesRedirectReplacement             = "ingress.kubernetes.io/redirect-replacement"
+	annotationKubernetesAppRoot             = "ingress.kubernetes.io/app-root"
+	annotationKubernetesRedirectEntryPoint  = "ingress.kubernetes.io/redirect-entry-point"
+	annotationKubernetesRedirectPermanent   = "ingress.kubernetes.io/redirect-permanent"
+	annotationKubernetesRedirectRegex       = "ingress.kubernetes.io/redirect-regex"
+	annotationKubernetesRedirectReplacement = "ingress.kubernetes.io/redirect-replacement"
 
 	// ErrorPagesMiddleware
-	annotationKubernetesErrorPages                      = "ingress.kubernetes.io/error-pages"
+	annotationKubernetesErrorPages = "ingress.kubernetes.io/error-pages"
 
 	// RateLimitMiddleware
-	annotationKubernetesRateLimit                       = "ingress.kubernetes.io/rate-limit"
-
+	annotationKubernetesRateLimit = "ingress.kubernetes.io/rate-limit"
 
 	// TODO Modifiers Middlewares
 	annotationKubernetesRequestModifier = "ingress.kubernetes.io/request-modifier"
@@ -92,7 +90,6 @@ const (
 
 	// annotationKubernetesResponseForwardingFlushInterval = "ingress.kubernetes.io/responseforwarding-flushinterval"
 	// annotationKubernetesLoadBalancerMethod              = "ingress.kubernetes.io/load-balancer-method"
-
 
 	// TODO ??
 	// annotationKubernetesAuthRealm                       = "ingress.kubernetes.io/auth-realm"

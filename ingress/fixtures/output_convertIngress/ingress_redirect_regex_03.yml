@@ -2,7 +2,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   creationTimestamp: null
-  name: redirect-12592111946377067483
+  name: redirect-14642768914914930262
   namespace: testing
 spec:
   redirectRegex:

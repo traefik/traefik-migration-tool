@@ -9,7 +9,7 @@ spec:
   - kind: Rule
     match: Host(`test`) && PathPrefix(`/whitelist-source-range-x-forwarded`)
     middlewares:
-    - name: whitelist-6282919470491210895
+    - name: whitelist-3658280100335485186
       namespace: testing
     priority: 0
     services:
@@ -20,7 +20,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   creationTimestamp: null
-  name: whitelist-6282919470491210895
+  name: whitelist-3658280100335485186
   namespace: testing
 spec:
   ipWhiteList:

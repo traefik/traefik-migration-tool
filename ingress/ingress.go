@@ -243,7 +243,7 @@ func createRoutes(namespace string, rules []extensionsv1beta1.IngressRule, annot
 				if stripPrefix {
 					mi = append(mi, &v1alpha1.Middleware{
 						ObjectMeta: v1.ObjectMeta{Name: middlewareName, Namespace: namespace},
-						Spec: dynamic.Middleware{
+						Spec: v1alpha1.MiddlewareSpec{
 							StripPrefix: &dynamic.StripPrefix{Prefixes: []string{path.Path}},
 						},
 					})
@@ -261,7 +261,7 @@ func createRoutes(namespace string, rules []extensionsv1beta1.IngressRule, annot
 					middlewareName := "replace-path-" + rule.Host + path.Path
 					middleware := &v1alpha1.Middleware{
 						ObjectMeta: v1.ObjectMeta{Name: middlewareName, Namespace: namespace},
-						Spec: dynamic.Middleware{
+						Spec: v1alpha1.MiddlewareSpec{
 							ReplacePathRegex: &dynamic.ReplacePathRegex{
 								Regex:       fmt.Sprintf("^%s(.*)", path.Path),
 								Replacement: fmt.Sprintf("%s$1", strings.TrimRight(rewriteTarget, "/")),

@@ -11,9 +11,9 @@ spec:
   - kind: Rule
     match: Host(`error-pages`) && PathPrefix(`/errorpages`)
     middlewares:
-    - name: errorpage-bar-6906619524742457949
+    - name: errorpage-bar-4191873217380368336
       namespace: testing
-    - name: errorpage-foo-10449038770411266824
+    - name: errorpage-foo-17651800191571261061
       namespace: testing
     priority: 0
     services:
@@ -24,7 +24,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   creationTimestamp: null
-  name: errorpage-bar-6906619524742457949
+  name: errorpage-bar-4191873217380368336
   namespace: testing
 spec:
   errors:
@@ -37,7 +37,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   creationTimestamp: null
-  name: errorpage-foo-10449038770411266824
+  name: errorpage-foo-17651800191571261061
   namespace: testing
 spec:
   errors:
