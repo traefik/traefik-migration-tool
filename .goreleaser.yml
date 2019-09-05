@@ -1,20 +1,46 @@
-project_name: traefik-migration
+project_name: traefik-migration-tool
 
 builds:
-  - binary: traefik-migration
+  - binary: traefik-migration-tool
     main: ./main.go
-    env:
-      - CGO_ENABLED=0
+
     goos:
       - linux
       - darwin
       - windows
+      - freebsd
+      - openbsd
     goarch:
       - amd64
-#      - 386
+      - 386
+      - arm
+      - arm64
+      - ppc64le
+    goarm:
+      - 7
+      - 6
+      - 5
+    ignore:
+      - goos: darwin
+        goarch: 386
+      - goos: openbsd
+        goarch: arm
+      - goos: freebsd
+        goarch: arm
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^doc:'
+      - '^chore:'
+      - '^chore(deps):'
+      - '^test:'
+      - '^tests:'
 
 archives:
-  - id: faekeapi
+  - id: traefik-migration-tool
     name_template: '{{ .ProjectName }}_v{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
     format: tar.gz
     format_overrides:
@@ -26,6 +52,3 @@ archives:
 
 checksum:
   name_template: "{{ .ProjectName }}_v{{ .Version }}_checksums.txt"
-
-release:
-  disable: true
