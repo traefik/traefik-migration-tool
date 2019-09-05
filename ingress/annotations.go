@@ -70,7 +70,7 @@ const (
 	// RateLimitMiddleware
 	annotationKubernetesRateLimit = "ingress.kubernetes.io/rate-limit"
 
-	// TODO Modifiers Middlewares
+	// Modifiers Middlewares
 	annotationKubernetesRequestModifier = "ingress.kubernetes.io/request-modifier"
 
 	// FIXME Not possible yet
@@ -107,10 +107,10 @@ var compatibilityMapping = map[string]string{
 	// annotationKubernetesLoadBalancerMethod:       "traefik.backend.loadbalancer.method",
 	// annotationKubernetesAffinity:                 "traefik.backend.loadbalancer.stickiness",
 	// annotationKubernetesSessionCookieName:        "traefik.backend.loadbalancer.stickiness.cookieName",
-	annotationKubernetesRuleType: "traefik.frontend.rule.type",
-	// annotationKubernetesRedirectEntryPoint:       "traefik.frontend.redirect.entrypoint",
-	// annotationKubernetesRedirectRegex:            "traefik.frontend.redirect.regex",
-	// annotationKubernetesRedirectReplacement:      "traefik.frontend.redirect.replacement",
+	annotationKubernetesRuleType:            "traefik.frontend.rule.type",
+	annotationKubernetesRedirectEntryPoint:  "traefik.frontend.redirect.entrypoint",
+	annotationKubernetesRedirectRegex:       "traefik.frontend.redirect.regex",
+	annotationKubernetesRedirectReplacement: "traefik.frontend.redirect.replacement",
 }
 
 func getAnnotationName(annotations map[string]string, name string) string {

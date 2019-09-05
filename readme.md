@@ -13,3 +13,19 @@ Features:
 ## Usage
 
 - [traefik-migration-tool](docs/traefik-migration-tool.md)
+
+## Limits
+
+Unsupported annotations:
+
+- `ingress.kubernetes.io/preserve-host`
+- `ingress.kubernetes.io/session-cookie-name`
+- `ingress.kubernetes.io/affinity`
+- `ingress.kubernetes.io/buffering`
+- `ingress.kubernetes.io/circuit-breaker-expression`
+- `ingress.kubernetes.io/max-conn-amount`
+- `ingress.kubernetes.io/max-conn-extractor-func`
+- `ingress.kubernetes.io/responseforwarding-flushinterval`
+- `ingress.kubernetes.io/load-balancer-method`
+- `ingress.kubernetes.io/auth-realm`
+- `ingress.kubernetes.io/service-weights`
