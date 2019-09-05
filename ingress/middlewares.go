@@ -15,6 +15,82 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// Rate holds a rate limiting configuration for a specific time period
+type Rate struct {
+	Period  time.Duration `json:"period,omitempty"`
+	Average int64         `json:"average,omitempty"`
+	Burst   int64         `json:"burst,omitempty"`
+}
+
+// RateLimit holds a rate limiting configuration for a given frontend
+type RateLimit struct {
+	RateSet       map[string]*Rate `json:"rateset,omitempty"`
+	ExtractorFunc string           `json:"extractorFunc,omitempty"`
+}
+
+// TLSClientHeaders holds the TLS client cert headers configuration.
+type TLSClientHeaders struct {
+	PEM   bool                       `description:"Enable header with escaped client pem" json:"pem"`
+	Infos *TLSClientCertificateInfos `description:"Enable header with configured client cert infos" json:"infos,omitempty"`
+}
+
+func (t *TLSClientHeaders) getPassTLSCert() *dynamic.PassTLSClientCert {
+	passTLS := &dynamic.PassTLSClientCert{
+		PEM: t.PEM,
+	}
+	if t.Infos != nil {
+		passTLS.Info = &dynamic.TLSClientCertificateInfo{
+			NotAfter:  t.Infos.NotAfter,
+			NotBefore: t.Infos.NotBefore,
+			Sans:      t.Infos.Sans,
+		}
+		if t.Infos.Issuer != nil {
+			passTLS.Info.Issuer = &dynamic.TLSCLientCertificateDNInfo{
+				Country:         t.Infos.Issuer.Country,
+				Province:        t.Infos.Issuer.Province,
+				Locality:        t.Infos.Issuer.Locality,
+				Organization:    t.Infos.Issuer.Organization,
+				CommonName:      t.Infos.Issuer.CommonName,
+				SerialNumber:    t.Infos.Issuer.SerialNumber,
+				DomainComponent: t.Infos.Issuer.DomainComponent,
+			}
+			if t.Infos.Subject != nil {
+				passTLS.Info.Subject = &dynamic.TLSCLientCertificateDNInfo{
+					Country:         t.Infos.Subject.Country,
+					Province:        t.Infos.Subject.Province,
+					Locality:        t.Infos.Subject.Locality,
+					Organization:    t.Infos.Subject.Organization,
+					CommonName:      t.Infos.Subject.CommonName,
+					SerialNumber:    t.Infos.Subject.SerialNumber,
+					DomainComponent: t.Infos.Subject.DomainComponent,
+				}
+			}
+		}
+	}
+	return passTLS
+}
+
+// TLSClientCertificateInfos holds the client TLS certificate infos configuration
+type TLSClientCertificateInfos struct {
+	NotAfter  bool                         `description:"Add NotAfter info in header" json:"notAfter"`
+	NotBefore bool                         `description:"Add NotBefore info in header" json:"notBefore"`
+	Sans      bool                         `description:"Add Sans info in header" json:"sans"`
+	Subject   *TLSCLientCertificateDNInfos `description:"Add Subject info in header" json:"subject,omitempty"`
+	Issuer    *TLSCLientCertificateDNInfos `description:"Add Issuer info in header" json:"issuer,omitempty"`
+}
+
+// TLSCLientCertificateDNInfos holds the client TLS certificate distinguished name infos configuration
+// cf https://tools.ietf.org/html/rfc3739
+type TLSCLientCertificateDNInfos struct {
+	Country         bool `description:"Add Country info in header" json:"country"`
+	Province        bool `description:"Add Province info in header" json:"province"`
+	Locality        bool `description:"Add Locality info in header" json:"locality"`
+	Organization    bool `description:"Add Organization info in header" json:"organization"`
+	CommonName      bool `description:"Add CommonName info in header" json:"commonName"`
+	SerialNumber    bool `description:"Add SerialNumber info in header" json:"serialNumber"`
+	DomainComponent bool `description:"Add Domain Component info in header" json:"domainComponent"`
+}
+
 func getHeadersMiddleware(ingress *extensionsv1beta1.Ingress) *v1alpha1.Middleware {
 	headers := &dynamic.Headers{
 		CustomRequestHeaders:    getMapValue(ingress.Annotations, annotationKubernetesCustomRequestHeaders),
@@ -184,69 +260,6 @@ func getPassTLSClientCert(i *extensionsv1beta1.Ingress) *v1alpha1.Middleware {
 	}
 }
 
-// TLSClientHeaders holds the TLS client cert headers configuration.
-type TLSClientHeaders struct {
-	PEM   bool                       `description:"Enable header with escaped client pem" json:"pem"`
-	Infos *TLSClientCertificateInfos `description:"Enable header with configured client cert infos" json:"infos,omitempty"`
-}
-
-func (t *TLSClientHeaders) getPassTLSCert() *dynamic.PassTLSClientCert {
-	passTLS := &dynamic.PassTLSClientCert{
-		PEM: t.PEM,
-	}
-	if t.Infos != nil {
-		passTLS.Info = &dynamic.TLSClientCertificateInfo{
-			NotAfter:  t.Infos.NotAfter,
-			NotBefore: t.Infos.NotBefore,
-			Sans:      t.Infos.Sans,
-		}
-		if t.Infos.Issuer != nil {
-			passTLS.Info.Issuer = &dynamic.TLSCLientCertificateDNInfo{
-				Country:         t.Infos.Issuer.Country,
-				Province:        t.Infos.Issuer.Province,
-				Locality:        t.Infos.Issuer.Locality,
-				Organization:    t.Infos.Issuer.Organization,
-				CommonName:      t.Infos.Issuer.CommonName,
-				SerialNumber:    t.Infos.Issuer.SerialNumber,
-				DomainComponent: t.Infos.Issuer.DomainComponent,
-			}
-			if t.Infos.Subject != nil {
-				passTLS.Info.Subject = &dynamic.TLSCLientCertificateDNInfo{
-					Country:         t.Infos.Subject.Country,
-					Province:        t.Infos.Subject.Province,
-					Locality:        t.Infos.Subject.Locality,
-					Organization:    t.Infos.Subject.Organization,
-					CommonName:      t.Infos.Subject.CommonName,
-					SerialNumber:    t.Infos.Subject.SerialNumber,
-					DomainComponent: t.Infos.Subject.DomainComponent,
-				}
-			}
-		}
-	}
-	return passTLS
-}
-
-// TLSClientCertificateInfos holds the client TLS certificate infos configuration
-type TLSClientCertificateInfos struct {
-	NotAfter  bool                         `description:"Add NotAfter info in header" json:"notAfter"`
-	NotBefore bool                         `description:"Add NotBefore info in header" json:"notBefore"`
-	Sans      bool                         `description:"Add Sans info in header" json:"sans"`
-	Subject   *TLSCLientCertificateDNInfos `description:"Add Subject info in header" json:"subject,omitempty"`
-	Issuer    *TLSCLientCertificateDNInfos `description:"Add Issuer info in header" json:"issuer,omitempty"`
-}
-
-// TLSCLientCertificateDNInfos holds the client TLS certificate distinguished name infos configuration
-// cf https://tools.ietf.org/html/rfc3739
-type TLSCLientCertificateDNInfos struct {
-	Country         bool `description:"Add Country info in header" json:"country"`
-	Province        bool `description:"Add Province info in header" json:"province"`
-	Locality        bool `description:"Add Locality info in header" json:"locality"`
-	Organization    bool `description:"Add Organization info in header" json:"organization"`
-	CommonName      bool `description:"Add CommonName info in header" json:"commonName"`
-	SerialNumber    bool `description:"Add SerialNumber info in header" json:"serialNumber"`
-	DomainComponent bool `description:"Add Domain Component info in header" json:"domainComponent"`
-}
-
 func getFrontendRedirect(namespace string, annotations map[string]string, baseName, path string) *v1alpha1.Middleware {
 	permanent := getBoolValue(annotations, annotationKubernetesRedirectPermanent, false)
 
@@ -255,6 +268,7 @@ func getFrontendRedirect(namespace string, annotations map[string]string, baseNa
 		if path == "" {
 			regex = fmt.Sprintf("%s/$", baseName)
 		}
+
 		return getRedirectMiddleware(namespace, regex, fmt.Sprintf("%s/%s", strings.TrimRight(baseName, "/"), strings.TrimLeft(appRoot, "/")), permanent)
 	}
 
@@ -437,15 +451,25 @@ func getRateLimit(i *extensionsv1beta1.Ingress) []*v1alpha1.Middleware {
 	return mids
 }
 
-// Rate holds a rate limiting configuration for a specific time period
-type Rate struct {
-	Period  time.Duration `json:"period,omitempty"`
-	Average int64         `json:"average,omitempty"`
-	Burst   int64         `json:"burst,omitempty"`
+func getReplacePathRegex(rule extensionsv1beta1.IngressRule, path extensionsv1beta1.HTTPIngressPath, namespace, rewriteTarget string) *v1alpha1.Middleware {
+	middlewareName := "replace-path-" + rule.Host + path.Path
+
+	return &v1alpha1.Middleware{
+		ObjectMeta: v1.ObjectMeta{Name: middlewareName, Namespace: namespace},
+		Spec: v1alpha1.MiddlewareSpec{
+			ReplacePathRegex: &dynamic.ReplacePathRegex{
+				Regex:       fmt.Sprintf("^%s(.*)", path.Path),
+				Replacement: fmt.Sprintf("%s$1", strings.TrimRight(rewriteTarget, "/")),
+			},
+		},
+	}
 }
 
-// RateLimit holds a rate limiting configuration for a given frontend
-type RateLimit struct {
-	RateSet       map[string]*Rate `json:"rateset,omitempty"`
-	ExtractorFunc string           `json:"extractorFunc,omitempty"`
+func getStripPrefix(path extensionsv1beta1.HTTPIngressPath, middlewareName, namespace string) *v1alpha1.Middleware {
+	return &v1alpha1.Middleware{
+		ObjectMeta: v1.ObjectMeta{Name: middlewareName, Namespace: namespace},
+		Spec: v1alpha1.MiddlewareSpec{
+			StripPrefix: &dynamic.StripPrefix{Prefixes: []string{path.Path}},
+		},
+	}
 }

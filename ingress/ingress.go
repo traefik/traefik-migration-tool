@@ -9,7 +9,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/containous/traefik/v2/pkg/config/dynamic"
 	"github.com/containous/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
 	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -107,20 +106,6 @@ func convertFile(srcDir, dstDir, filename string) error {
 	return ioutil.WriteFile(filepath.Join(dstDir, filename), []byte(strings.Join(ymlBytes, separator+"\n")), 0666)
 }
 
-type SortMiddleware []*v1alpha1.Middleware
-
-func (s SortMiddleware) Len() int {
-	return len(s)
-}
-
-func (s SortMiddleware) Less(i, j int) bool {
-	return s[i].Name < s[j].Name
-}
-
-func (s SortMiddleware) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-
 // convertIngress converts an *extensionsv1beta1.Ingress to a slice of runtime.Object (IngressRoute and Middlewares)
 func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 	ingressRoute := &v1alpha1.IngressRoute{
@@ -135,7 +120,7 @@ func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 		ingressRoute.Annotations[annotationKubernetesIngressClass] = ingressClass
 	}
 
-	var middlewares SortMiddleware
+	var middlewares []*v1alpha1.Middleware
 
 	// Headers middleware
 	headers := getHeadersMiddleware(ingress)
@@ -167,22 +152,19 @@ func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 	// rateLimit middleware
 	middlewares = append(middlewares, getRateLimit(ingress)...)
 
-	if requestModifier := getStringValue(ingress.Annotations, annotationKubernetesRequestModifier, ""); requestModifier != "" {
+	requestModifier := getStringValue(ingress.Annotations, annotationKubernetesRequestModifier, "")
+	if requestModifier != "" {
 		middleware, err := parseRequestModifier(ingress.Namespace, requestModifier)
 		if err != nil {
 			log.Printf("Invalid %s: %v", annotationKubernetesRequestModifier, err)
 		}
+
 		middlewares = append(middlewares, middleware)
 	}
 
-	sort.Sort(middlewares)
-
 	var miRefs []v1alpha1.MiddlewareRef
-	for _, middleware := range middlewares {
-		miRefs = append(miRefs, v1alpha1.MiddlewareRef{
-			Name:      middleware.Name,
-			Namespace: middleware.Namespace,
-		})
+	for _, mi := range middlewares {
+		miRefs = append(miRefs, toRef(mi))
 	}
 
 	routes, mi, err := createRoutes(ingress.Namespace, ingress.Spec.Rules, ingress.Annotations, miRefs)
@@ -194,6 +176,8 @@ func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 
 	middlewares = append(middlewares, mi...)
 
+	sort.Slice(middlewares, func(i, j int) bool { return middlewares[i].Name < middlewares[j].Name })
+
 	objects := []runtime.Object{ingressRoute}
 	for _, middleware := range middlewares {
 		objects = append(objects, middleware)
@@ -203,6 +187,76 @@ func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 }
 
 func createRoutes(namespace string, rules []extensionsv1beta1.IngressRule, annotations map[string]string, middlewareRefs []v1alpha1.MiddlewareRef) ([]v1alpha1.Route, []*v1alpha1.Middleware, error) {
+	ruleType, stripPrefix, err := extractRuleType(annotations)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var mis []*v1alpha1.Middleware
+
+	var routes []v1alpha1.Route
+
+	for _, rule := range rules {
+		for _, path := range rule.HTTP.Paths {
+			var miRefs = make([]v1alpha1.MiddlewareRef, 0, 1)
+			miRefs = append(miRefs, middlewareRefs...)
+
+			var rules []string
+
+			if len(rule.Host) > 0 {
+				rules = append(rules, fmt.Sprintf("Host(`%s`)", rule.Host))
+			}
+
+			if len(path.Path) > 0 {
+				rules = append(rules, fmt.Sprintf("%s(`%s`)", ruleType, path.Path))
+
+				if stripPrefix {
+					mi := getStripPrefix(path, rule.Host+path.Path, namespace)
+					mis = append(mis, mi)
+					miRefs = append(miRefs, toRef(mi))
+				}
+
+				rewriteTarget := getStringValue(annotations, annotationKubernetesRewriteTarget, "")
+				if rewriteTarget != "" {
+					if ruleType == ruleTypeReplacePath {
+						return nil, nil, fmt.Errorf("rewrite-target must not be used together with annotation %q", annotationKubernetesRuleType)
+					}
+
+					mi := getReplacePathRegex(rule, path, namespace, rewriteTarget)
+					mis = append(mis, mi)
+					miRefs = append(miRefs, toRef(mi))
+				}
+			}
+
+			redirect := getFrontendRedirect(namespace, annotations, rule.Host+path.Path, path.Path)
+			if redirect != nil {
+				mis = append(mis, redirect)
+				miRefs = append(miRefs, toRef(redirect))
+			}
+
+			if len(rules) > 0 {
+				sort.Slice(miRefs, func(i, j int) bool { return miRefs[i].Name < miRefs[j].Name })
+
+				routes = append(routes, v1alpha1.Route{
+					Match:    strings.Join(rules, " && "),
+					Kind:     "Rule",
+					Priority: getIntValue(annotations, annotationKubernetesPriority, 0),
+					Services: []v1alpha1.Service{{
+						Name: path.Backend.ServiceName,
+						// TODO pas de port en string dans ingressRoute ?
+						Port:   path.Backend.ServicePort.IntVal,
+						Scheme: getStringValue(annotations, annotationKubernetesProtocol, ""),
+					}},
+					Middlewares: miRefs,
+				})
+			}
+		}
+	}
+
+	return routes, mis, nil
+}
+
+func extractRuleType(annotations map[string]string) (string, bool, error) {
 	var stripPrefix bool
 	ruleType := getStringValue(annotations, annotationKubernetesRuleType, ruleTypePathPrefix)
 
@@ -217,91 +271,15 @@ func createRoutes(namespace string, rules []extensionsv1beta1.IngressRule, annot
 	case ruleTypeReplacePath:
 		log.Printf("Using %s as %s will be deprecated in the future. Please use the %s annotation instead", ruleType, annotationKubernetesRuleType, annotationKubernetesRequestModifier)
 	default:
-		return nil, nil, fmt.Errorf("cannot use non-matcher rule: %q", ruleType)
+		return "", false, fmt.Errorf("cannot use non-matcher rule: %q", ruleType)
 	}
 
-	var mi []*v1alpha1.Middleware
+	return ruleType, stripPrefix, nil
+}
 
-	var routes []v1alpha1.Route
-
-	for _, rule := range rules {
-		for _, path := range rule.HTTP.Paths {
-			var miRefs = make([]v1alpha1.MiddlewareRef, 0, 1)
-
-			miRefs = append(miRefs, middlewareRefs...)
-
-			var rules []string
-			middlewareName := rule.Host + path.Path
-
-			if len(rule.Host) > 0 {
-				rules = append(rules, fmt.Sprintf("Host(`%s`)", rule.Host))
-			}
-
-			if len(path.Path) > 0 {
-				rules = append(rules, fmt.Sprintf("%s(`%s`)", ruleType, path.Path))
-
-				if stripPrefix {
-					mi = append(mi, &v1alpha1.Middleware{
-						ObjectMeta: v1.ObjectMeta{Name: middlewareName, Namespace: namespace},
-						Spec: v1alpha1.MiddlewareSpec{
-							StripPrefix: &dynamic.StripPrefix{Prefixes: []string{path.Path}},
-						},
-					})
-
-					miRefs = append(miRefs, v1alpha1.MiddlewareRef{
-						Name:      middlewareName,
-						Namespace: namespace,
-					})
-				}
-
-				if rewriteTarget := getStringValue(annotations, annotationKubernetesRewriteTarget, ""); rewriteTarget != "" {
-					if ruleType == ruleTypeReplacePath {
-						return nil, nil, fmt.Errorf("rewrite-target must not be used together with annotation %q", annotationKubernetesRuleType)
-					}
-					middlewareName := "replace-path-" + rule.Host + path.Path
-					middleware := &v1alpha1.Middleware{
-						ObjectMeta: v1.ObjectMeta{Name: middlewareName, Namespace: namespace},
-						Spec: v1alpha1.MiddlewareSpec{
-							ReplacePathRegex: &dynamic.ReplacePathRegex{
-								Regex:       fmt.Sprintf("^%s(.*)", path.Path),
-								Replacement: fmt.Sprintf("%s$1", strings.TrimRight(rewriteTarget, "/")),
-							},
-						},
-					}
-					mi = append(mi, middleware)
-					miRefs = append(miRefs, v1alpha1.MiddlewareRef{
-						Name:      middlewareName,
-						Namespace: namespace,
-					})
-				}
-			}
-
-			redirect := getFrontendRedirect(namespace, annotations, rule.Host+path.Path, path.Path)
-			if redirect != nil {
-				mi = append(mi, redirect)
-				miRefs = append(miRefs, v1alpha1.MiddlewareRef{
-					Name:      redirect.Name,
-					Namespace: namespace,
-				})
-			}
-
-			if len(rules) > 0 {
-				route := v1alpha1.Route{
-					Match:    strings.Join(rules, " && "),
-					Kind:     "Rule",
-					Priority: getIntValue(annotations, annotationKubernetesPriority, 0),
-					Services: []v1alpha1.Service{{
-						Name: path.Backend.ServiceName,
-						// TODO pas de port en string dans ingressRoute ?
-						Port:   path.Backend.ServicePort.IntVal,
-						Scheme: getStringValue(annotations, annotationKubernetesProtocol, ""),
-					}},
-					Middlewares: miRefs,
-				}
-
-				routes = append(routes, route)
-			}
-		}
+func toRef(mi *v1alpha1.Middleware) v1alpha1.MiddlewareRef {
+	return v1alpha1.MiddlewareRef{
+		Name:      mi.Name,
+		Namespace: mi.Namespace,
 	}
-	return routes, mi, nil
 }
