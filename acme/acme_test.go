@@ -19,7 +19,7 @@ func TestConvert(t *testing.T) {
 	srcFile := "./fixtures/acme.json"
 	fixtureFile := "./fixtures/new-acme.json"
 
-	dir, err := ioutil.TempDir("", "traefik-migration")
+	dir, err := ioutil.TempDir("", "traefik-migration-tool")
 	require.NoError(t, err)
 
 	defer func() { _ = os.RemoveAll(dir) }()

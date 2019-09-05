@@ -1,6 +1,6 @@
-# traefik-migration
+# traefik-migration-tool
 
-A tool to migrate from Traefik v1 to Traefik v2.
+A migration tool from Traefik v1 to Traefik v2.
 
 Features:
 
@@ -9,4 +9,4 @@ Features:
 
 ## Usage
 
-- [traefik-migration](docs/traefik-migration.md)
+- [traefik-migration-tool](docs/traefik-migration-tool.md)

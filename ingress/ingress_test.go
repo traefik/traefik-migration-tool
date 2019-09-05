@@ -122,7 +122,7 @@ func Test_convertIngress(t *testing.T) {
 }
 
 func Test_convertFile(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "traefik-migration")
+	tempDir, err := ioutil.TempDir("", "traefik-migration-tool")
 	require.NoError(t, err)
 	defer func() { _ = os.RemoveAll(tempDir) }()
 

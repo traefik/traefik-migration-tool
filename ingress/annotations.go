@@ -3,7 +3,7 @@ package ingress
 import (
 	"strconv"
 
-	"github.com/containous/traefik-migration/label"
+	"github.com/containous/traefik-migration-tool/label"
 )
 
 const (

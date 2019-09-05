@@ -1,4 +1,4 @@
-module github.com/containous/traefik-migration
+module github.com/containous/traefik-migration-tool
 
 go 1.13
 

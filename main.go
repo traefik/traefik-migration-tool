@@ -7,8 +7,8 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/containous/traefik-migration/acme"
-	"github.com/containous/traefik-migration/ingress"
+	"github.com/containous/traefik-migration-tool/acme"
+	"github.com/containous/traefik-migration-tool/ingress"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 )
@@ -26,7 +26,7 @@ func main() {
 	log.SetFlags(log.Lshortfile)
 
 	rootCmd := &cobra.Command{
-		Use:     "traefik-migration",
+		Use:     "traefik-migration-tool",
 		Short:   "A tool to migrate from Traefik v1 to Traefik v2.",
 		Long:    `A tool to migrate from Traefik v1 to Traefik v2.`,
 		Version: Version,
