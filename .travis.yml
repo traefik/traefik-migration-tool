@@ -3,6 +3,10 @@ language: go
 go:
   - "1.x"
 
+cache:
+  directories:
+    - $GOPATH/pkg/mod
+
 notifications:
   email:
     on_success: never
