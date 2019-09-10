@@ -202,9 +202,11 @@ func Test_convertFile(t *testing.T) {
 			require.FileExists(t, filepath.Join(tempDir, test.ingressFile))
 
 			if *updateExpected {
-				src, err := os.Open(filepath.Join(tempDir, test.ingressFile))
+				var src *os.File
+				src, err = os.Open(filepath.Join(tempDir, test.ingressFile))
 				require.NoError(t, err)
-				dst, err := os.Create(filepath.Join(fixturesDir, test.ingressFile))
+				var dst *os.File
+				dst, err = os.Create(filepath.Join(fixturesDir, test.ingressFile))
 				require.NoError(t, err)
 				_, err = io.Copy(dst, src)
 				require.NoError(t, err)

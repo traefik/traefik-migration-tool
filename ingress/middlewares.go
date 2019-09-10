@@ -206,7 +206,7 @@ func getForwardAuthConfig(annotations map[string]string) (*v1alpha1.ForwardAuth,
 
 func getWhiteList(i *extensionsv1beta1.Ingress) *v1alpha1.Middleware {
 	ranges := getSliceStringValue(i.Annotations, annotationKubernetesWhiteListSourceRange)
-	if len(ranges) <= 0 {
+	if len(ranges) == 0 {
 		return nil
 	}
 

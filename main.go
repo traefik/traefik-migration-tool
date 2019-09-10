@@ -54,10 +54,8 @@ func main() {
 				if err != nil {
 					return err
 				}
-			} else {
-				if !info.IsDir() {
-					return errors.New("output must be a directory")
-				}
+			} else if !info.IsDir() {
+				return errors.New("output must be a directory")
 			}
 
 			return nil

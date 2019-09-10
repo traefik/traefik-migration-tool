@@ -29,7 +29,7 @@
     "dupl",
     "prealloc",
     "scopelint",
-    "typecheck",
+    "funlen",
   ]
 
 [issues]
@@ -48,4 +48,12 @@
   [[issues.exclude-rules]]
     path = "main.go"
     text = "`(Version|ShortCommit|Date)` is a global variable"
+
+  [[issues.exclude-rules]]
+    path = "main.go"
+    text = "exported var `(Version|ShortCommit|Date)` should have comment or be unexported"
+
+  [[issues.exclude-rules]]
+    path = "ingress/annotations.go"
+    text = "`getBoolValue` - `defaultValue` always receives `false`"
 

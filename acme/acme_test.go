@@ -35,9 +35,11 @@ func TestConvert(t *testing.T) {
 	fmt.Println(dstFile)
 
 	if *updateExpected {
-		dst, err := os.Open(dstFile)
+		var dst *os.File
+		dst, err = os.Open(dstFile)
 		require.NoError(t, err)
-		fixture, err := os.Create(fixtureFile)
+		var fixture *os.File
+		fixture, err = os.Create(fixtureFile)
 		require.NoError(t, err)
 
 		_, err = io.Copy(fixture, dst)

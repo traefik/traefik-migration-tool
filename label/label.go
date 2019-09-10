@@ -9,6 +9,7 @@ import (
 )
 
 const (
+	// Prefix of the Traefik labels.
 	Prefix = "traefik."
 )
 

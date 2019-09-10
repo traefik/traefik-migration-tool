@@ -9,6 +9,7 @@ import (
 	"github.com/containous/traefik/v2/pkg/types"
 )
 
+// Convert a acme.json file.
 func Convert(srcFile, dstFile string) error {
 	src, err := os.Open(srcFile)
 	if err != nil {
