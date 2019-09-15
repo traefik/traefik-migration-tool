@@ -100,8 +100,8 @@ github.com/containous/minheap v0.0.0-20190809180810-6e71eb837595/go.mod h1:+lHFb
 github.com/containous/multibuf v0.0.0-20190809014333-8b6c9a7e6bba/go.mod h1:zkWcASFUJEst6QwCrxLdkuw1gvaKqmflEipm+iecV5M=
 github.com/containous/mux v0.0.0-20181024131434-c33f32e26898 h1:1srn9voikJGofblBhWy3WuZWqo14Ou7NaswNG/I2yWc=
 github.com/containous/mux v0.0.0-20181024131434-c33f32e26898/go.mod h1:z8WW7n06n8/1xF9Jl9WmuDeZuHAhfL+bwarNjsciwwg=
-github.com/containous/traefik/v2 v2.0.0-rc2.0.20190905114204-1959e1fd4412 h1:P6jQCx8jpwT1vczmRhmHA8XTbWeCSWJHN/j3vk4ZJq0=
-github.com/containous/traefik/v2 v2.0.0-rc2.0.20190905114204-1959e1fd4412/go.mod h1:cMRcfFusi/M1AViEya8ZK0BTCLyewdB/ot1EW+esWHg=
+github.com/containous/traefik/v2 v2.0.0-rc4 h1:X29ixpnDuvDLxYG30w3i0Yw1oBh6FCow7aq6rG6os7U=
+github.com/containous/traefik/v2 v2.0.0-rc4/go.mod h1:cMRcfFusi/M1AViEya8ZK0BTCLyewdB/ot1EW+esWHg=
 github.com/coreos/etcd v3.3.10+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
 github.com/coreos/etcd v3.3.13+incompatible h1:8F3hqu9fGYLBifCmRCJsicFqDx/D68Rt3q1JMazcgBQ=
 github.com/coreos/etcd v3.3.13+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
