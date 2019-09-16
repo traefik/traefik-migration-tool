@@ -29,3 +29,4 @@ Unsupported annotations:
 - `ingress.kubernetes.io/load-balancer-method`
 - `ingress.kubernetes.io/auth-realm`
 - `ingress.kubernetes.io/service-weights`
+- `ingress.kubernetes.io/error-pages`

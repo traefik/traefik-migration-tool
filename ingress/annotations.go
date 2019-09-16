@@ -64,8 +64,8 @@ const (
 	annotationKubernetesRedirectRegex       = "ingress.kubernetes.io/redirect-regex"
 	annotationKubernetesRedirectReplacement = "ingress.kubernetes.io/redirect-replacement"
 
-	// ErrorPagesMiddleware
-	annotationKubernetesErrorPages = "ingress.kubernetes.io/error-pages"
+	// FIXME ErrorPagesMiddleware
+	// annotationKubernetesErrorPages = "ingress.kubernetes.io/error-pages"
 
 	// RateLimitMiddleware
 	annotationKubernetesRateLimit = "ingress.kubernetes.io/rate-limit"

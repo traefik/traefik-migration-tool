@@ -146,8 +146,8 @@ func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 		middlewares = append(middlewares, passTLSCert)
 	}
 
-	// errorPages middleware
-	middlewares = append(middlewares, getErrorPages(ingress)...)
+	// FIXME errorPages middleware
+	// middlewares = append(middlewares, getErrorPages(ingress)...)
 
 	// rateLimit middleware
 	middlewares = append(middlewares, getRateLimit(ingress)...)

@@ -367,38 +367,39 @@ func parseRequestModifier(namespace, requestModifier string) (*v1alpha1.Middlewa
 	}, nil
 }
 
-func getErrorPages(i *extensionsv1beta1.Ingress) []*v1alpha1.Middleware {
-	pagesRaw := getStringValue(i.Annotations, annotationKubernetesErrorPages, "")
-	if len(pagesRaw) == 0 {
-		return nil
-	}
-	errorPages := make(map[string]*dynamic.ErrorPage)
-	err := yaml.Unmarshal([]byte(pagesRaw), errorPages)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-
-	var mids []*v1alpha1.Middleware
-
-	for id, errorPage := range errorPages {
-		errorPageMiddleware := v1alpha1.MiddlewareSpec{
-			Errors: errorPage,
-		}
-
-		hash, err := hashstructure.Hash(errorPageMiddleware, nil)
-		if err != nil {
-			panic(err)
-		}
-
-		mids = append(mids, &v1alpha1.Middleware{
-			ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%s-%d", "errorpage", id, hash), Namespace: i.Namespace},
-			Spec:       errorPageMiddleware,
-		})
-	}
-
-	return mids
-}
+// FIXME errorPages middleware
+// func getErrorPages(i *extensionsv1beta1.Ingress) []*v1alpha1.Middleware {
+// 	pagesRaw := getStringValue(i.Annotations, annotationKubernetesErrorPages, "")
+// 	if len(pagesRaw) == 0 {
+// 		return nil
+// 	}
+// 	errorPages := make(map[string]*dynamic.ErrorPage)
+// 	err := yaml.Unmarshal([]byte(pagesRaw), errorPages)
+// 	if err != nil {
+// 		log.Println(err)
+// 		return nil
+// 	}
+//
+// 	var mids []*v1alpha1.Middleware
+//
+// 	for id, errorPage := range errorPages {
+// 		errorPageMiddleware := v1alpha1.MiddlewareSpec{
+// 			Errors: errorPage,
+// 		}
+//
+// 		hash, err := hashstructure.Hash(errorPageMiddleware, nil)
+// 		if err != nil {
+// 			panic(err)
+// 		}
+//
+// 		mids = append(mids, &v1alpha1.Middleware{
+// 			ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%s-%d", "errorpage", id, hash), Namespace: i.Namespace},
+// 			Spec:       errorPageMiddleware,
+// 		})
+// 	}
+//
+// 	return mids
+// }
 
 func getRateLimit(i *extensionsv1beta1.Ingress) []*v1alpha1.Middleware {
 	rateRaw := getStringValue(i.Annotations, annotationKubernetesRateLimit, "")
