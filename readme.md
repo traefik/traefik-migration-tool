@@ -14,6 +14,16 @@ Features:
 
 - [traefik-migration-tool](docs/traefik-migration-tool.md)
 
+## Install
+
+### From Binaries
+
+You can use pre-compiled binaries:
+
+* To get the binary just download the latest release for your OS/Arch from [the releases page](https://github.com/containous/traefik-migration-tool/releases)
+* Unzip the archive.
+* Add `traefik-migration-tool` in your `PATH`.
+
 ## Limits
 
 Unsupported annotations:
