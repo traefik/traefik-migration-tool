@@ -19,6 +19,9 @@ replace (
 	github.com/docker/docker => github.com/docker/engine v0.0.0-20190725163905-fa8dd90ceb7b
 )
 
+// Waiting for the merge of https://github.com/go-acme/lego/pull/962
+replace github.com/labbsr0x/goh => github.com/labbsr0x/goh v0.0.0-20190830205702-3d6988c73e10
+
 // Containous forks
 replace (
 	github.com/abbot/go-http-auth => github.com/containous/go-http-auth v0.4.1-0.20180112153951-65b0cdae8d7f
