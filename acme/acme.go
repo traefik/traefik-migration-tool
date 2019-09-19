@@ -10,7 +10,7 @@ import (
 )
 
 // Convert a acme.json file.
-func Convert(srcFile, dstFile string) error {
+func Convert(srcFile, dstFile string, resolverName string) error {
 	src, err := os.Open(srcFile)
 	if err != nil {
 		return err
@@ -62,5 +62,5 @@ func Convert(srcFile, dstFile string) error {
 	encoder := json.NewEncoder(dst)
 	encoder.SetIndent("", "  ")
 
-	return encoder.Encode(map[string]*acme.StoredData{"default": &data})
+	return encoder.Encode(map[string]*acme.StoredData{resolverName: &data})
 }

@@ -18,8 +18,9 @@ var ShortCommit = ""
 var Date = ""
 
 type config struct {
-	input  string
-	output string
+	input        string
+	output       string
+	resolverName string
 }
 
 func main() {
@@ -77,12 +78,13 @@ func main() {
 		Short: "Migrate acme.json file from Traefik v1 to Traefik v2.",
 		Long:  "Migrate acme.json file from Traefik v1 to Traefik v2.",
 		RunE: func(_ *cobra.Command, _ []string) error {
-			return acme.Convert(acmeCfg.input, acmeCfg.output)
+			return acme.Convert(acmeCfg.input, acmeCfg.output, acmeCfg.resolverName)
 		},
 	}
 
 	acmeCmd.Flags().StringVar(&acmeCfg.input, "input", "./acme.json", "Path to the acme.json file from Traefik v1.")
 	acmeCmd.Flags().StringVar(&acmeCfg.output, "output", "./acme-new.json", "Path to the acme.json file for Traefik v2.")
+	acmeCmd.Flags().StringVar(&acmeCfg.resolverName, "resolver", "default", "The name of the certificates resolver.")
 
 	rootCmd.AddCommand(acmeCmd)
 

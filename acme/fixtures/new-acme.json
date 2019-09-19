@@ -1,5 +1,5 @@
 {
-  "default": {
+  "myresolver": {
     "Account": {
       "Email": "test@example.com",
       "Registration": {

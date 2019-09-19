@@ -26,7 +26,7 @@ func TestConvert(t *testing.T) {
 
 	dstFile := filepath.Join(dir, "new-acme.json")
 
-	err = Convert(srcFile, dstFile)
+	err = Convert(srcFile, dstFile, "myresolver")
 	require.NoError(t, err)
 
 	actual, err := ioutil.ReadFile(dstFile)
