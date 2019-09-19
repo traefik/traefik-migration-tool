@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var updateExpected = flag.Bool("update_expected", true, "Update expected files in testdata")
+var updateExpected = flag.Bool("update_expected", false, "Update expected files in testdata")
 
 func TestConvert(t *testing.T) {
 	srcFile := "./fixtures/acme.json"

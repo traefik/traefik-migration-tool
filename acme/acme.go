@@ -62,5 +62,5 @@ func Convert(srcFile, dstFile string) error {
 	encoder := json.NewEncoder(dst)
 	encoder.SetIndent("", "  ")
 
-	return encoder.Encode(data)
+	return encoder.Encode(map[string]*acme.StoredData{"default": &data})
 }
