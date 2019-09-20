@@ -3,6 +3,8 @@ module github.com/containous/traefik-migration-tool
 go 1.13
 
 require (
+	github.com/BurntSushi/toml v0.3.1
+	github.com/containous/flaeg v1.4.1
 	github.com/containous/traefik/v2 v2.0.0
 	github.com/go-acme/lego/v3 v3.0.2
 	github.com/mitchellh/hashstructure v1.0.0

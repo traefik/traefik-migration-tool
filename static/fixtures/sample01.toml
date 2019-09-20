@@ -1,0 +1,37 @@
+defaultEntryPoints = ["http", "https"]
+
+[entryPoints]
+  [entryPoints.http]
+    address = ":80"
+    [entryPoints.http.redirect]
+      entryPoint = "https"
+  [entryPoints.https]
+    address = ":443"
+    [entryPoints.https.tls]
+      [entryPoints.https.tls.ClientCA]
+        files = ["/app/CA.crt"]
+        optional = true
+      [[entryPoints.https.tls.certificates]]
+        certFile = "/app/tls.crt"
+        keyFile = "/app/tls.key"
+
+[api]
+
+[Docker]
+swarmmode = true
+watch = true
+network = "traefik"
+
+[Metrics]
+  [Metrics.Prometheus]
+    Buckets = [42.0, 42.0]
+    EntryPoint = "foobar"
+  [Metrics.Datadog]
+    Address = "foobar"
+  [Metrics.StatsD]
+    Address = "foobar"
+  [Metrics.InfluxDB]
+    Address = "foobar"
+    Protocol = "foobar"
+    Database = "foobar"
+    RetentionPolicy = "foobar"

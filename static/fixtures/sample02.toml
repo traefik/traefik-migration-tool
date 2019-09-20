@@ -1,0 +1,560 @@
+GraceTimeOut = 42
+Debug = true
+CheckNewVersion = true
+SendAnonymousUsage = true
+AccessLogsFile = "foobar"
+TraefikLogsFile = "foobar"
+LogLevel = "foobar"
+DefaultEntryPoints = ["foobar", "foobar"]
+ProvidersThrottleDuration = 42
+MaxIdleConnsPerHost = 42
+IdleTimeout = 42
+InsecureSkipVerify = true
+RootCAs = ["foobar", "foobar"]
+AllowMinWeightZero = true
+KeepTrailingSlash = true
+
+[LifeCycle]
+  RequestAcceptGraceTimeout = 42
+  GraceTimeOut = 42
+
+[AccessLog]
+  FilePath = "foobar"
+  Format = "foobar"
+  BufferingSize = 42
+  [AccessLog.Filters]
+    StatusCodes = ["foobar", "foobar"]
+    RetryAttempts = true
+    MinDuration = 42
+  [AccessLog.Fields]
+    DefaultMode = "foobar"
+    [AccessLog.Fields.Names]
+      name0 = "foobar"
+    [AccessLog.Fields.Headers]
+      DefaultMode = "foobar"
+      [AccessLog.Fields.Headers.Names]
+        name0 = "foobar"
+
+[TraefikLog]
+  FilePath = "foobar"
+  Format = "foobar"
+
+[Tracing]
+  Backend = "foobar"
+  ServiceName = "foobar"
+  SpanNameLimit = 42
+  [Tracing.Jaeger]
+    SamplingServerURL = "foobar"
+    SamplingType = "foobar"
+    SamplingParam = 42.0
+    LocalAgentHostPort = "foobar"
+    TraceContextHeaderName = "foobar"
+  [Tracing.Zipkin]
+    HTTPEndpoint = "foobar"
+    SameSpan = true
+    ID128Bit = true
+    Debug = true
+  [Tracing.DataDog]
+    LocalAgentHostPort = "foobar"
+    GlobalTag = "foobar"
+    Debug = true
+    PrioritySampling = true
+    TraceIDHeaderName = "foobar"
+    ParentIDHeaderName = "foobar"
+    SamplingPriorityHeaderName = "foobar"
+    BagagePrefixHeaderName = "foobar"
+
+[EntryPoints]
+  [EntryPoints.EntryPoint0]
+    Address = "foobar"
+    WhitelistSourceRange = ["foobar", "foobar"]
+    Compress = true
+    [EntryPoints.EntryPoint0.TLS]
+      MinVersion = "foobar"
+      CipherSuites = ["foobar", "foobar"]
+      ClientCAFiles = ["foobar", "foobar"]
+      SniStrict = true
+
+      [[EntryPoints.EntryPoint0.TLS.Certificates]]
+        CertFile = "foobar"
+        KeyFile = "foobar"
+
+      [[EntryPoints.EntryPoint0.TLS.Certificates]]
+        CertFile = "foobar"
+        KeyFile = "foobar"
+      [EntryPoints.EntryPoint0.TLS.ClientCA]
+        Files = ["foobar", "foobar"]
+        Optional = true
+      [EntryPoints.EntryPoint0.TLS.DefaultCertificate]
+        CertFile = "foobar"
+        KeyFile = "foobar"
+    [EntryPoints.EntryPoint0.Redirect]
+      EntryPoint = "foobar"
+      Regex = "foobar"
+      Replacement = "foobar"
+      Permanent = true
+    [EntryPoints.EntryPoint0.Auth]
+      HeaderField = "foobar"
+      [EntryPoints.EntryPoint0.Auth.Basic]
+        Users = ["foobar", "foobar"]
+        UsersFile = "foobar"
+        RemoveHeader = true
+      [EntryPoints.EntryPoint0.Auth.Digest]
+        Users = ["foobar", "foobar"]
+        UsersFile = "foobar"
+        RemoveHeader = true
+      [EntryPoints.EntryPoint0.Auth.Forward]
+        Address = "foobar"
+        TrustForwardHeader = true
+        AuthResponseHeaders = ["foobar", "foobar"]
+        [EntryPoints.EntryPoint0.Auth.Forward.TLS]
+          CA = "foobar"
+          CAOptional = true
+          Cert = "foobar"
+          Key = "foobar"
+          InsecureSkipVerify = true
+    [EntryPoints.EntryPoint0.WhiteList]
+      SourceRange = ["foobar", "foobar"]
+      UseXForwardedFor = true
+    [EntryPoints.EntryPoint0.ProxyProtocol]
+      Insecure = true
+      TrustedIPs = ["foobar", "foobar"]
+    [EntryPoints.EntryPoint0.ForwardedHeaders]
+      Insecure = true
+      TrustedIPs = ["foobar", "foobar"]
+
+[Cluster]
+  Node = "foobar"
+  [Cluster.Store]
+    Prefix = "foobar"
+
+Constraints = ["tag==api"]
+
+[ACME]
+  Email = "foobar"
+  Storage = "foobar"
+  StorageFile = "foobar"
+  OnDemand = true
+  OnHostRule = true
+  CAServer = "foobar"
+  EntryPoint = "foobar"
+  KeyType = "foobar"
+  DNSProvider = "foobar"
+  DelayDontCheckDNS = 42
+  ACMELogging = true
+  OverrideCertificates = true
+
+  [[ACME.Domains]]
+    Main = "foobar"
+    SANs = ["foobar", "foobar"]
+
+  [[ACME.Domains]]
+    Main = "foobar"
+    SANs = ["foobar", "foobar"]
+  [ACME.DNSChallenge]
+    Provider = "foobar"
+    DelayBeforeCheck = 42
+    Resolvers = ["foobar", "foobar"]
+    DisablePropagationCheck = true
+  [ACME.HTTPChallenge]
+    EntryPoint = "foobar"
+  [ACME.TLSChallenge]
+
+[Retry]
+  Attempts = 42
+
+[HealthCheck]
+  Interval = 42
+
+[RespondingTimeouts]
+  ReadTimeout = 42
+  WriteTimeout = 42
+  IdleTimeout = 42
+
+[ForwardingTimeouts]
+  DialTimeout = 42
+  ResponseHeaderTimeout = 42
+
+[Web]
+  Address = "foobar"
+  CertFile = "foobar"
+  KeyFile = "foobar"
+  ReadOnly = true
+  Path = "foobar"
+  Debug = true
+  [Web.Statistics]
+    RecentErrors = 42
+  [Web.Metrics]
+    [Web.Metrics.Prometheus]
+      Buckets = [42.0, 42.0]
+      EntryPoint = "foobar"
+    [Web.Metrics.Datadog]
+      Address = "foobar"
+      PushInterval = "10s"
+    [Web.Metrics.StatsD]
+      Address = "foobar"
+      PushInterval = "10s"
+    [Web.Metrics.InfluxDB]
+      Address = "foobar"
+      Protocol = "foobar"
+      PushInterval = "10s"
+      Database = "foobar"
+      RetentionPolicy = "foobar"
+  [Web.Auth]
+    HeaderField = "foobar"
+    [Web.Auth.Basic]
+      Users = ["foobar", "foobar"]
+      UsersFile = "foobar"
+      RemoveHeader = true
+    [Web.Auth.Digest]
+      Users = ["foobar", "foobar"]
+      UsersFile = "foobar"
+      RemoveHeader = true
+    [Web.Auth.Forward]
+      Address = "foobar"
+      TrustForwardHeader = true
+      AuthResponseHeaders = ["foobar", "foobar"]
+      [Web.Auth.Forward.TLS]
+        CA = "foobar"
+        CAOptional = true
+        Cert = "foobar"
+        Key = "foobar"
+        InsecureSkipVerify = true
+
+[Docker]
+  Watch = true
+  Filename = "foobar"
+  Trace = true
+  TemplateVersion = 42
+  DebugLogGeneratedTemplate = true
+  Endpoint = "foobar"
+  Domain = "foobar"
+  ExposedByDefault = true
+  UseBindPortIP = true
+  SwarmMode = true
+  Network = "foobar"
+  SwarmModeRefreshSeconds = 42
+
+  Constraints = ["tag==api"]
+
+  [Docker.TLS]
+    CA = "foobar"
+    CAOptional = true
+    Cert = "foobar"
+    Key = "foobar"
+    InsecureSkipVerify = true
+
+[File]
+  Watch = true
+  Filename = "foobar"
+  Trace = true
+  TemplateVersion = 42
+  DebugLogGeneratedTemplate = true
+  Directory = "foobar"
+  TraefikFile = "foobar"
+
+  Constraints = ["tag==api"]
+
+[Marathon]
+  Watch = true
+  Filename = "foobar"
+  Trace = true
+  TemplateVersion = 42
+  DebugLogGeneratedTemplate = true
+  Endpoint = "foobar"
+  Domain = "foobar"
+  ExposedByDefault = true
+  GroupsAsSubDomains = true
+  DCOSToken = "foobar"
+  MarathonLBCompatibility = true
+  FilterMarathonConstraints = true
+  DialerTimeout = 42
+  ResponseHeaderTimeout = 42
+  TLSHandshakeTimeout = 42
+  KeepAlive = 42
+  ForceTaskHostname = true
+  RespectReadinessChecks = true
+
+  Constraints = ["tag==api"]
+
+  [Marathon.TLS]
+    CA = "foobar"
+    CAOptional = true
+    Cert = "foobar"
+    Key = "foobar"
+    InsecureSkipVerify = true
+  [Marathon.Basic]
+    HTTPBasicAuthUser = "foobar"
+    HTTPBasicPassword = "foobar"
+
+[Consul]
+  Watch = true
+  Filename = "foobar"
+  Trace = true
+  TemplateVersion = 42
+  DebugLogGeneratedTemplate = true
+  Endpoint = "foobar"
+  Username = "foobar"
+  Password = "foobar"
+  Prefix = "foobar"
+
+  Constraints = ["tag==api"]
+
+  [Consul.TLS]
+    CA = "foobar"
+    CAOptional = true
+    Cert = "foobar"
+    Key = "foobar"
+    InsecureSkipVerify = true
+
+[ConsulCatalog]
+  Watch = true
+  Filename = "foobar"
+  Trace = true
+  TemplateVersion = 42
+  DebugLogGeneratedTemplate = true
+  Endpoint = "foobar"
+  Domain = "foobar"
+  Stale = true
+  ExposedByDefault = true
+  Prefix = "foobar"
+  StrictChecks = true
+  FrontEndRule = "foobar"
+
+  Constraints = ["tag==api"]
+
+  [ConsulCatalog.TLS]
+    CA = "foobar"
+    CAOptional = true
+    Cert = "foobar"
+    Key = "foobar"
+    InsecureSkipVerify = true
+
+[Etcd]
+  Watch = true
+  Filename = "foobar"
+  Trace = true
+  TemplateVersion = 42
+  DebugLogGeneratedTemplate = true
+  Endpoint = "foobar"
+  Username = "foobar"
+  Password = "foobar"
+  UseAPIV3 = true
+  Prefix = "foobar"
+  [Etcd.TLS]
+    CA = "foobar"
+    CAOptional = true
+    Cert = "foobar"
+    Key = "foobar"
+    InsecureSkipVerify = true
+
+    Constraints = ["tag==api"]
+
+[Zookeeper]
+  Watch = true
+  Filename = "foobar"
+  Trace = true
+  TemplateVersion = 42
+  DebugLogGeneratedTemplate = true
+  Regex = "foobar"
+  Endpoint = "foobar"
+  Username = "foobar"
+  Password = "foobar"
+  Prefix = "foobar"
+
+  Constraints = ["tag==api"]
+
+  [Zookeeper.TLS]
+    CA = "foobar"
+    CAOptional = true
+    Cert = "foobar"
+    Key = "foobar"
+    InsecureSkipVerify = true
+
+[Boltdb]
+  Watch = true
+  Filename = "foobar"
+  Trace = true
+  TemplateVersion = 42
+  DebugLogGeneratedTemplate = true
+  Endpoint = "foobar"
+  Username = "foobar"
+  Password = "foobar"
+  Prefix = "foobar"
+
+  Constraints = ["tag==api"]
+
+  [Boltdb.TLS]
+    CA = "foobar"
+    CAOptional = true
+    Cert = "foobar"
+    Key = "foobar"
+    InsecureSkipVerify = true
+
+[Kubernetes]
+  Watch = true
+  Filename = "foobar"
+  Trace = true
+  TemplateVersion = 42
+  DebugLogGeneratedTemplate = true
+  Endpoint = "foobar"
+  Token = "foobar"
+  CertAuthFilePath = "foobar"
+  DisablePassHostHeaders = true
+  EnablePassTLSCert = true
+  Namespaces = ["foobar", "foobar"]
+  LabelSelector = "foobar"
+  IngressClass = "foobar"
+  ThrottleDuration = 42
+
+  Constraints = ["tag==api"]
+
+  [Kubernetes.IngressEndpoint]
+    IP = "foobar"
+    Hostname = "foobar"
+    PublishedService = "foobar"
+
+[Mesos]
+  Watch = true
+  Filename = "foobar"
+  Trace = true
+  TemplateVersion = 42
+  DebugLogGeneratedTemplate = true
+  Endpoint = "foobar"
+  Domain = "foobar"
+  ExposedByDefault = true
+  GroupsAsSubDomains = true
+  ZkDetectionTimeout = 42
+  RefreshSeconds = 42
+  IPSources = "foobar"
+  StateTimeoutSecond = 42
+  Masters = ["foobar", "foobar"]
+
+  Constraints = ["tag==api"]
+
+[Eureka]
+  Watch = true
+  Filename = "foobar"
+  Trace = true
+  TemplateVersion = 42
+  DebugLogGeneratedTemplate = true
+  Endpoint = "foobar"
+  Delay = 42
+  RefreshSeconds = 42
+
+  Constraints = ["tag==api"]
+
+[ECS]
+  Watch = true
+  Filename = "foobar"
+  Trace = true
+  TemplateVersion = 42
+  DebugLogGeneratedTemplate = true
+  Domain = "foobar"
+  ExposedByDefault = true
+  RefreshSeconds = 42
+  Clusters = ["foobar", "foobar"]
+  Cluster = "foobar"
+  AutoDiscoverClusters = true
+  Region = "foobar"
+  AccessKeyID = "foobar"
+  SecretAccessKey = "foobar"
+
+  Constraints = ["tag==api"]
+
+[Rancher]
+  Watch = true
+  Filename = "foobar"
+  Trace = true
+  TemplateVersion = 42
+  DebugLogGeneratedTemplate = true
+  Endpoint = "foobar"
+  AccessKey = "foobar"
+  SecretKey = "foobar"
+  Domain = "foobar"
+  RefreshSeconds = 42
+  ExposedByDefault = true
+  EnableServiceHealthFilter = true
+
+  Constraints = ["tag==api"]
+
+  [Rancher.API]
+    Endpoint = "foobar"
+    AccessKey = "foobar"
+    SecretKey = "foobar"
+  [Rancher.Metadata]
+    IntervalPoll = true
+    Prefix = "foobar"
+
+[DynamoDB]
+  Watch = true
+  Filename = "foobar"
+  Trace = true
+  TemplateVersion = 42
+  DebugLogGeneratedTemplate = true
+  AccessKeyID = "foobar"
+  RefreshSeconds = 42
+  Region = "foobar"
+  SecretAccessKey = "foobar"
+  TableName = "foobar"
+  Endpoint = "foobar"
+
+  Constraints = ["tag==api"]
+
+[ServiceFabric]
+  Watch = true
+  Filename = "foobar"
+  Trace = true
+  TemplateVersion = 42
+  DebugLogGeneratedTemplate = true
+  ClusterManagementURL = "foobar"
+  APIVersion = "foobar"
+  RefreshSeconds = 42
+  AppInsightsClientName = "foobar"
+  AppInsightsKey = "foobar"
+  AppInsightsBatchSize = 42
+  AppInsightsInterval = 42
+
+  Constraints = ["tag==api"]
+
+  [ServiceFabric.TLS]
+    CA = "foobar"
+    CAOptional = true
+    Cert = "foobar"
+    Key = "foobar"
+    InsecureSkipVerify = true
+
+[Rest]
+  EntryPoint = "foobar"
+
+[API]
+  EntryPoint = "foobar"
+  Dashboard = true
+  Debug = true
+  [API.Statistics]
+    RecentErrors = 42
+
+[Metrics]
+  [Metrics.Prometheus]
+    Buckets = [42.0, 42.0]
+    EntryPoint = "foobar"
+  [Metrics.Datadog]
+    Address = "foobar"
+    PushInterval = "10s"
+  [Metrics.StatsD]
+    Address = "foobar"
+    PushInterval = "10s"
+  [Metrics.InfluxDB]
+    Address = "foobar"
+    Protocol = "foobar"
+    PushInterval = "10s"
+    Database = "foobar"
+    RetentionPolicy = "foobar"
+
+[Ping]
+  EntryPoint = "foobar"
+
+[HostResolver]
+  CnameFlattening = true
+  ResolvConfig = "foobar"
+  ResolvDepth = 42

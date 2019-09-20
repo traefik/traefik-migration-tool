@@ -57,3 +57,7 @@
     path = "ingress/annotations.go"
     text = "`getBoolValue` - `defaultValue` always receives `false`"
 
+  [[issues.exclude-rules]]
+    path = "static/v1.go"
+    text = "exported type `(.+)` should have comment or be unexported"
+

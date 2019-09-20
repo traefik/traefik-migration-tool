@@ -9,6 +9,7 @@ Features:
 
 - ⛵ Migrate 'Ingress' to Traefik 'IngressRoute' resources.
 - 🔒 Migrate acme.json file from Traefik v1 to Traefik v2.
+- 🖹 Migrate the static configuration contained in the file `traefik.toml` to a Traefik v2 file.
 
 ## Usage
 

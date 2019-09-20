@@ -9,6 +9,7 @@ import (
 
 	"github.com/containous/traefik-migration-tool/acme"
 	"github.com/containous/traefik-migration-tool/ingress"
+	"github.com/containous/traefik-migration-tool/static"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 )
@@ -17,10 +18,20 @@ var Version = "dev"
 var ShortCommit = ""
 var Date = ""
 
-type config struct {
+type acmeConfig struct {
 	input        string
 	output       string
 	resolverName string
+}
+
+type ingressConfig struct {
+	input  string
+	output string
+}
+
+type staticConfig struct {
+	input     string
+	outputDir string
 }
 
 func main() {
@@ -33,7 +44,7 @@ func main() {
 		Version: Version,
 	}
 
-	var ingressCfg config
+	var ingressCfg ingressConfig
 
 	ingressCmd := &cobra.Command{
 		Use:   "ingress",
@@ -66,12 +77,12 @@ func main() {
 		},
 	}
 
-	ingressCmd.Flags().StringVar(&ingressCfg.input, "input", "", "Input directory.")
-	ingressCmd.Flags().StringVar(&ingressCfg.output, "output", "./output", "Output directory.")
+	ingressCmd.Flags().StringVarP(&ingressCfg.input, "input", "i", "", "Input directory.")
+	ingressCmd.Flags().StringVarP(&ingressCfg.output, "output", "o", "./output", "Output directory.")
 
 	rootCmd.AddCommand(ingressCmd)
 
-	acmeCfg := config{}
+	acmeCfg := acmeConfig{}
 
 	acmeCmd := &cobra.Command{
 		Use:   "acme",
@@ -82,11 +93,28 @@ func main() {
 		},
 	}
 
-	acmeCmd.Flags().StringVar(&acmeCfg.input, "input", "./acme.json", "Path to the acme.json file from Traefik v1.")
-	acmeCmd.Flags().StringVar(&acmeCfg.output, "output", "./acme-new.json", "Path to the acme.json file for Traefik v2.")
+	acmeCmd.Flags().StringVarP(&acmeCfg.input, "input", "i", "./acme.json", "Path to the acme.json file from Traefik v1.")
+	acmeCmd.Flags().StringVarP(&acmeCfg.output, "output", "o", "./acme-new.json", "Path to the acme.json file for Traefik v2.")
 	acmeCmd.Flags().StringVar(&acmeCfg.resolverName, "resolver", "default", "The name of the certificates resolver.")
 
 	rootCmd.AddCommand(acmeCmd)
+
+	staticCfg := staticConfig{}
+
+	staticCmd := &cobra.Command{
+		Use:   "static",
+		Short: "Migrate static configuration file from Traefik v1 to Traefik v2.",
+		Long: `Migrate static configuration file from Traefik v1 to Traefik v2.
+Convert only the static configuration.`,
+		RunE: func(_ *cobra.Command, _ []string) error {
+			return static.Convert(staticCfg.input, staticCfg.outputDir)
+		},
+	}
+
+	staticCmd.Flags().StringVarP(&staticCfg.input, "input", "i", "./traefik.toml", "Path to the traefik.toml file from Traefik v1.")
+	staticCmd.Flags().StringVarP(&staticCfg.outputDir, "output-dir", "d", "./static", "Path to the directory of the created files")
+
+	rootCmd.AddCommand(staticCmd)
 
 	docCmd := &cobra.Command{
 		Use:    "doc",
