@@ -13,7 +13,7 @@ Features:
 
 ## Usage
 
-- [traefik-migration-tool](docs/traefik-migration-tool.md)
+- [Commands documentation](docs/traefik-migration-tool.md)
 
 ## Install
 

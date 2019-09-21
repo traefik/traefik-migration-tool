@@ -13,6 +13,7 @@ InsecureSkipVerify = true
 RootCAs = ["foobar", "foobar"]
 AllowMinWeightZero = true
 KeepTrailingSlash = true
+Constraints = ["tag==api"]
 
 [LifeCycle]
   RequestAcceptGraceTimeout = 42
@@ -128,8 +129,6 @@ KeepTrailingSlash = true
   [Cluster.Store]
     Prefix = "foobar"
 
-Constraints = ["tag==api"]
-
 [ACME]
   Email = "foobar"
   Storage = "foobar"
@@ -234,7 +233,6 @@ Constraints = ["tag==api"]
   SwarmMode = true
   Network = "foobar"
   SwarmModeRefreshSeconds = 42
-
   Constraints = ["tag==api"]
 
   [Docker.TLS]
@@ -252,7 +250,6 @@ Constraints = ["tag==api"]
   DebugLogGeneratedTemplate = true
   Directory = "foobar"
   TraefikFile = "foobar"
-
   Constraints = ["tag==api"]
 
 [Marathon]
@@ -274,7 +271,6 @@ Constraints = ["tag==api"]
   KeepAlive = 42
   ForceTaskHostname = true
   RespectReadinessChecks = true
-
   Constraints = ["tag==api"]
 
   [Marathon.TLS]
@@ -283,6 +279,7 @@ Constraints = ["tag==api"]
     Cert = "foobar"
     Key = "foobar"
     InsecureSkipVerify = true
+
   [Marathon.Basic]
     HTTPBasicAuthUser = "foobar"
     HTTPBasicPassword = "foobar"
@@ -297,7 +294,6 @@ Constraints = ["tag==api"]
   Username = "foobar"
   Password = "foobar"
   Prefix = "foobar"
-
   Constraints = ["tag==api"]
 
   [Consul.TLS]
@@ -320,7 +316,6 @@ Constraints = ["tag==api"]
   Prefix = "foobar"
   StrictChecks = true
   FrontEndRule = "foobar"
-
   Constraints = ["tag==api"]
 
   [ConsulCatalog.TLS]
@@ -341,14 +336,14 @@ Constraints = ["tag==api"]
   Password = "foobar"
   UseAPIV3 = true
   Prefix = "foobar"
+  Constraints = ["tag==api"]
+
   [Etcd.TLS]
     CA = "foobar"
     CAOptional = true
     Cert = "foobar"
     Key = "foobar"
     InsecureSkipVerify = true
-
-    Constraints = ["tag==api"]
 
 [Zookeeper]
   Watch = true
@@ -361,7 +356,6 @@ Constraints = ["tag==api"]
   Username = "foobar"
   Password = "foobar"
   Prefix = "foobar"
-
   Constraints = ["tag==api"]
 
   [Zookeeper.TLS]
@@ -381,7 +375,6 @@ Constraints = ["tag==api"]
   Username = "foobar"
   Password = "foobar"
   Prefix = "foobar"
-
   Constraints = ["tag==api"]
 
   [Boltdb.TLS]
@@ -406,7 +399,6 @@ Constraints = ["tag==api"]
   LabelSelector = "foobar"
   IngressClass = "foobar"
   ThrottleDuration = 42
-
   Constraints = ["tag==api"]
 
   [Kubernetes.IngressEndpoint]
@@ -429,7 +421,6 @@ Constraints = ["tag==api"]
   IPSources = "foobar"
   StateTimeoutSecond = 42
   Masters = ["foobar", "foobar"]
-
   Constraints = ["tag==api"]
 
 [Eureka]
@@ -441,7 +432,6 @@ Constraints = ["tag==api"]
   Endpoint = "foobar"
   Delay = 42
   RefreshSeconds = 42
-
   Constraints = ["tag==api"]
 
 [ECS]
@@ -459,7 +449,6 @@ Constraints = ["tag==api"]
   Region = "foobar"
   AccessKeyID = "foobar"
   SecretAccessKey = "foobar"
-
   Constraints = ["tag==api"]
 
 [Rancher]
@@ -475,7 +464,6 @@ Constraints = ["tag==api"]
   RefreshSeconds = 42
   ExposedByDefault = true
   EnableServiceHealthFilter = true
-
   Constraints = ["tag==api"]
 
   [Rancher.API]
@@ -498,7 +486,6 @@ Constraints = ["tag==api"]
   SecretAccessKey = "foobar"
   TableName = "foobar"
   Endpoint = "foobar"
-
   Constraints = ["tag==api"]
 
 [ServiceFabric]
@@ -514,7 +501,6 @@ Constraints = ["tag==api"]
   AppInsightsKey = "foobar"
   AppInsightsBatchSize = 42
   AppInsightsInterval = 42
-
   Constraints = ["tag==api"]
 
   [ServiceFabric.TLS]

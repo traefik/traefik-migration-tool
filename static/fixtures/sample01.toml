@@ -18,9 +18,9 @@ defaultEntryPoints = ["http", "https"]
 [api]
 
 [Docker]
-swarmmode = true
-watch = true
-network = "traefik"
+  swarmmode = true
+  watch = true
+  network = "traefik"
 
 [Metrics]
   [Metrics.Prometheus]
@@ -35,3 +35,5 @@ network = "traefik"
     Protocol = "foobar"
     Database = "foobar"
     RetentionPolicy = "foobar"
+
+[file]
