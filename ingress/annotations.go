@@ -64,53 +64,55 @@ const (
 	annotationKubernetesRedirectRegex       = "ingress.kubernetes.io/redirect-regex"
 	annotationKubernetesRedirectReplacement = "ingress.kubernetes.io/redirect-replacement"
 
-	// FIXME ErrorPagesMiddleware
-	// annotationKubernetesErrorPages = "ingress.kubernetes.io/error-pages"
-
 	// RateLimitMiddleware
 	annotationKubernetesRateLimit = "ingress.kubernetes.io/rate-limit"
 
 	// Modifiers Middlewares
 	annotationKubernetesRequestModifier = "ingress.kubernetes.io/request-modifier"
 
-	// FIXME Not possible yet
-	// annotationKubernetesPreserveHost                    = "ingress.kubernetes.io/preserve-host"
-	// annotationKubernetesSessionCookieName               = "ingress.kubernetes.io/session-cookie-name"
-	// annotationKubernetesAffinity                        = "ingress.kubernetes.io/affinity"
+	// TODO ErrorPagesMiddleware
+	annotationKubernetesErrorPages = "ingress.kubernetes.io/error-pages"
 
 	// TODO service annotation
 
 	// TODO BufferingMiddleware
-	// annotationKubernetesBuffering                       = "ingress.kubernetes.io/buffering"
-	// TODO CircuitBreakMiddleware
-	// annotationKubernetesCircuitBreakerExpression        = "ingress.kubernetes.io/circuit-breaker-expression"
-	// TODO InFlightReqMiddleware
-	// annotationKubernetesMaxConnAmount                   = "ingress.kubernetes.io/max-conn-amount"
-	// annotationKubernetesMaxConnExtractorFunc            = "ingress.kubernetes.io/max-conn-extractor-func"
+	annotationKubernetesBuffering = "ingress.kubernetes.io/buffering"
 
-	// annotationKubernetesResponseForwardingFlushInterval = "ingress.kubernetes.io/responseforwarding-flushinterval"
-	// annotationKubernetesLoadBalancerMethod              = "ingress.kubernetes.io/load-balancer-method"
+	// TODO CircuitBreakMiddleware
+	annotationKubernetesCircuitBreakerExpression = "ingress.kubernetes.io/circuit-breaker-expression"
+
+	// TODO InFlightReqMiddleware
+	annotationKubernetesMaxConnAmount        = "ingress.kubernetes.io/max-conn-amount"
+	annotationKubernetesMaxConnExtractorFunc = "ingress.kubernetes.io/max-conn-extractor-func"
+
+	annotationKubernetesResponseForwardingFlushInterval = "ingress.kubernetes.io/responseforwarding-flushinterval"
+	annotationKubernetesLoadBalancerMethod              = "ingress.kubernetes.io/load-balancer-method"
+
+	// FIXME Not possible yet
+	annotationKubernetesPreserveHost      = "ingress.kubernetes.io/preserve-host"
+	annotationKubernetesSessionCookieName = "ingress.kubernetes.io/session-cookie-name"
+	annotationKubernetesAffinity          = "ingress.kubernetes.io/affinity"
 
 	// TODO ??
-	// annotationKubernetesAuthRealm                       = "ingress.kubernetes.io/auth-realm"
-	// annotationKubernetesServiceWeights                  = "ingress.kubernetes.io/service-weights"
+	annotationKubernetesAuthRealm      = "ingress.kubernetes.io/auth-realm"
+	annotationKubernetesServiceWeights = "ingress.kubernetes.io/service-weights"
 
 	// FIXME global backend
 )
 
 var compatibilityMapping = map[string]string{
-	// annotationKubernetesPreserveHost:             "traefik.frontend.passHostHeader",
-	annotationKubernetesPassTLSCert:         "traefik.frontend.passTLSCert",
-	annotationKubernetesFrontendEntryPoints: "traefik.frontend.entryPoints",
-	annotationKubernetesPriority:            "traefik.frontend.priority",
-	// annotationKubernetesCircuitBreakerExpression: "traefik.backend.circuitbreaker",
-	// annotationKubernetesLoadBalancerMethod:       "traefik.backend.loadbalancer.method",
-	// annotationKubernetesAffinity:                 "traefik.backend.loadbalancer.stickiness",
-	// annotationKubernetesSessionCookieName:        "traefik.backend.loadbalancer.stickiness.cookieName",
-	annotationKubernetesRuleType:            "traefik.frontend.rule.type",
-	annotationKubernetesRedirectEntryPoint:  "traefik.frontend.redirect.entrypoint",
-	annotationKubernetesRedirectRegex:       "traefik.frontend.redirect.regex",
-	annotationKubernetesRedirectReplacement: "traefik.frontend.redirect.replacement",
+	annotationKubernetesPreserveHost:             "traefik.frontend.passHostHeader",
+	annotationKubernetesPassTLSCert:              "traefik.frontend.passTLSCert",
+	annotationKubernetesFrontendEntryPoints:      "traefik.frontend.entryPoints",
+	annotationKubernetesPriority:                 "traefik.frontend.priority",
+	annotationKubernetesCircuitBreakerExpression: "traefik.backend.circuitbreaker",
+	annotationKubernetesLoadBalancerMethod:       "traefik.backend.loadbalancer.method",
+	annotationKubernetesAffinity:                 "traefik.backend.loadbalancer.stickiness",
+	annotationKubernetesSessionCookieName:        "traefik.backend.loadbalancer.stickiness.cookieName",
+	annotationKubernetesRuleType:                 "traefik.frontend.rule.type",
+	annotationKubernetesRedirectEntryPoint:       "traefik.frontend.redirect.entrypoint",
+	annotationKubernetesRedirectRegex:            "traefik.frontend.redirect.regex",
+	annotationKubernetesRedirectReplacement:      "traefik.frontend.redirect.replacement",
 }
 
 func getAnnotationName(annotations map[string]string, name string) string {
