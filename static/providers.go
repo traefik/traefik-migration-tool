@@ -164,7 +164,7 @@ func migrateFile(oldCfg Configuration) *file.Provider {
 	}
 
 	if oldCfg.File.Directory == "" && oldCfg.File.Filename == "" {
-		fmt.Println("All the elements related to dynamic configuration (backends and frondends) must be converted manually. Look https://docs.traefik.io/v2.0/routing/overview/")
+		fmt.Println("All the elements related to dynamic configuration (backends, frontends, ...) must be converted manually. Look https://docs.traefik.io/v2.0/routing/overview/")
 	}
 
 	return &file.Provider{
