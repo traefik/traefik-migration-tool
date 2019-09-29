@@ -11,7 +11,7 @@ import (
 	"github.com/containous/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
 	"github.com/mitchellh/hashstructure"
 	"gopkg.in/yaml.v2"
-	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
+	networking "k8s.io/api/networking/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -91,30 +91,32 @@ type TLSCLientCertificateDNInfos struct {
 	DomainComponent bool `description:"Add Domain Component info in header" json:"domainComponent"`
 }
 
-func getHeadersMiddleware(ingress *extensionsv1beta1.Ingress) *v1alpha1.Middleware {
+func getHeadersMiddleware(ingress *networking.Ingress) *v1alpha1.Middleware {
+	annotations := ingress.GetAnnotations()
+
 	headers := &dynamic.Headers{
-		CustomRequestHeaders:    getMapValue(ingress.Annotations, annotationKubernetesCustomRequestHeaders),
-		CustomResponseHeaders:   getMapValue(ingress.Annotations, annotationKubernetesCustomResponseHeaders),
-		AllowedHosts:            getSliceStringValue(ingress.Annotations, annotationKubernetesAllowedHosts),
-		HostsProxyHeaders:       getSliceStringValue(ingress.Annotations, annotationKubernetesProxyHeaders),
-		SSLForceHost:            getBoolValue(ingress.Annotations, annotationKubernetesSSLForceHost, false),
-		SSLRedirect:             getBoolValue(ingress.Annotations, annotationKubernetesSSLRedirect, false),
-		SSLTemporaryRedirect:    getBoolValue(ingress.Annotations, annotationKubernetesSSLTemporaryRedirect, false),
-		SSLHost:                 getStringValue(ingress.Annotations, annotationKubernetesSSLHost, ""),
-		SSLProxyHeaders:         getMapValue(ingress.Annotations, annotationKubernetesSSLProxyHeaders),
-		STSSeconds:              getInt64Value(ingress.Annotations, annotationKubernetesHSTSMaxAge, 0),
-		STSIncludeSubdomains:    getBoolValue(ingress.Annotations, annotationKubernetesHSTSIncludeSubdomains, false),
-		STSPreload:              getBoolValue(ingress.Annotations, annotationKubernetesHSTSPreload, false),
-		ForceSTSHeader:          getBoolValue(ingress.Annotations, annotationKubernetesForceHSTSHeader, false),
-		FrameDeny:               getBoolValue(ingress.Annotations, annotationKubernetesFrameDeny, false),
-		CustomFrameOptionsValue: getStringValue(ingress.Annotations, annotationKubernetesCustomFrameOptionsValue, ""),
-		ContentTypeNosniff:      getBoolValue(ingress.Annotations, annotationKubernetesContentTypeNosniff, false),
-		BrowserXSSFilter:        getBoolValue(ingress.Annotations, annotationKubernetesBrowserXSSFilter, false),
-		CustomBrowserXSSValue:   getStringValue(ingress.Annotations, annotationKubernetesCustomBrowserXSSValue, ""),
-		ContentSecurityPolicy:   getStringValue(ingress.Annotations, annotationKubernetesContentSecurityPolicy, ""),
-		PublicKey:               getStringValue(ingress.Annotations, annotationKubernetesPublicKey, ""),
-		ReferrerPolicy:          getStringValue(ingress.Annotations, annotationKubernetesReferrerPolicy, ""),
-		IsDevelopment:           getBoolValue(ingress.Annotations, annotationKubernetesIsDevelopment, false),
+		CustomRequestHeaders:    getMapValue(annotations, annotationKubernetesCustomRequestHeaders),
+		CustomResponseHeaders:   getMapValue(annotations, annotationKubernetesCustomResponseHeaders),
+		AllowedHosts:            getSliceStringValue(annotations, annotationKubernetesAllowedHosts),
+		HostsProxyHeaders:       getSliceStringValue(annotations, annotationKubernetesProxyHeaders),
+		SSLForceHost:            getBoolValue(annotations, annotationKubernetesSSLForceHost, false),
+		SSLRedirect:             getBoolValue(annotations, annotationKubernetesSSLRedirect, false),
+		SSLTemporaryRedirect:    getBoolValue(annotations, annotationKubernetesSSLTemporaryRedirect, false),
+		SSLHost:                 getStringValue(annotations, annotationKubernetesSSLHost, ""),
+		SSLProxyHeaders:         getMapValue(annotations, annotationKubernetesSSLProxyHeaders),
+		STSSeconds:              getInt64Value(annotations, annotationKubernetesHSTSMaxAge, 0),
+		STSIncludeSubdomains:    getBoolValue(annotations, annotationKubernetesHSTSIncludeSubdomains, false),
+		STSPreload:              getBoolValue(annotations, annotationKubernetesHSTSPreload, false),
+		ForceSTSHeader:          getBoolValue(annotations, annotationKubernetesForceHSTSHeader, false),
+		FrameDeny:               getBoolValue(annotations, annotationKubernetesFrameDeny, false),
+		CustomFrameOptionsValue: getStringValue(annotations, annotationKubernetesCustomFrameOptionsValue, ""),
+		ContentTypeNosniff:      getBoolValue(annotations, annotationKubernetesContentTypeNosniff, false),
+		BrowserXSSFilter:        getBoolValue(annotations, annotationKubernetesBrowserXSSFilter, false),
+		CustomBrowserXSSValue:   getStringValue(annotations, annotationKubernetesCustomBrowserXSSValue, ""),
+		ContentSecurityPolicy:   getStringValue(annotations, annotationKubernetesContentSecurityPolicy, ""),
+		PublicKey:               getStringValue(annotations, annotationKubernetesPublicKey, ""),
+		ReferrerPolicy:          getStringValue(annotations, annotationKubernetesReferrerPolicy, ""),
+		IsDevelopment:           getBoolValue(annotations, annotationKubernetesIsDevelopment, false),
 	}
 
 	if !headers.HasCustomHeadersDefined() && !headers.HasCorsHeadersDefined() && !headers.HasSecureHeadersDefined() {
@@ -127,13 +129,13 @@ func getHeadersMiddleware(ingress *extensionsv1beta1.Ingress) *v1alpha1.Middlewa
 	}
 
 	return &v1alpha1.Middleware{
-		ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%d", "headers", hash), Namespace: ingress.Namespace},
+		ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%d", "headers", hash), Namespace: ingress.GetNamespace()},
 		Spec:       v1alpha1.MiddlewareSpec{Headers: headers},
 	}
 }
 
-func getAuthMiddleware(ingress *extensionsv1beta1.Ingress) *v1alpha1.Middleware {
-	authType := getStringValue(ingress.Annotations, annotationKubernetesAuthType, "")
+func getAuthMiddleware(ingress *networking.Ingress) *v1alpha1.Middleware {
+	authType := getStringValue(ingress.GetAnnotations(), annotationKubernetesAuthType, "")
 	if len(authType) == 0 {
 		return nil
 	}
@@ -142,13 +144,13 @@ func getAuthMiddleware(ingress *extensionsv1beta1.Ingress) *v1alpha1.Middleware 
 
 	switch strings.ToLower(authType) {
 	case "basic":
-		basic := getBasicAuthConfig(ingress.Annotations)
+		basic := getBasicAuthConfig(ingress.GetAnnotations())
 		middleware.BasicAuth = basic
 	case "digest":
-		digest := getDigestAuthConfig(ingress.Annotations)
+		digest := getDigestAuthConfig(ingress.GetAnnotations())
 		middleware.DigestAuth = digest
 	case "forward":
-		forward, err := getForwardAuthConfig(ingress.Annotations)
+		forward, err := getForwardAuthConfig(ingress.GetAnnotations())
 		if err != nil {
 			log.Println(err)
 			return nil
@@ -164,7 +166,7 @@ func getAuthMiddleware(ingress *extensionsv1beta1.Ingress) *v1alpha1.Middleware 
 	}
 
 	return &v1alpha1.Middleware{
-		ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%d", "auth", hash), Namespace: ingress.Namespace},
+		ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%d", "auth", hash), Namespace: ingress.GetNamespace()},
 		Spec:       middleware,
 	}
 }
@@ -204,8 +206,8 @@ func getForwardAuthConfig(annotations map[string]string) (*v1alpha1.ForwardAuth,
 	}, nil
 }
 
-func getWhiteList(i *extensionsv1beta1.Ingress) *v1alpha1.Middleware {
-	ranges := getSliceStringValue(i.Annotations, annotationKubernetesWhiteListSourceRange)
+func getWhiteList(ingress *networking.Ingress) *v1alpha1.Middleware {
+	ranges := getSliceStringValue(ingress.GetAnnotations(), annotationKubernetesWhiteListSourceRange)
 	if len(ranges) == 0 {
 		return nil
 	}
@@ -216,7 +218,7 @@ func getWhiteList(i *extensionsv1beta1.Ingress) *v1alpha1.Middleware {
 		},
 	}
 
-	if getBoolValue(i.Annotations, annotationKubernetesWhiteListUseXForwardedFor, false) {
+	if getBoolValue(ingress.GetAnnotations(), annotationKubernetesWhiteListUseXForwardedFor, false) {
 		middleware.IPWhiteList.IPStrategy = &dynamic.IPStrategy{}
 	}
 
@@ -226,15 +228,15 @@ func getWhiteList(i *extensionsv1beta1.Ingress) *v1alpha1.Middleware {
 	}
 
 	return &v1alpha1.Middleware{
-		ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%d", "whitelist", hash), Namespace: i.Namespace},
+		ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%d", "whitelist", hash), Namespace: ingress.GetNamespace()},
 		Spec:       middleware,
 	}
 }
 
-func getPassTLSClientCert(i *extensionsv1beta1.Ingress) *v1alpha1.Middleware {
+func getPassTLSClientCert(ingress *networking.Ingress) *v1alpha1.Middleware {
 	var passTLSClientCert *TLSClientHeaders
 
-	passRaw := getStringValue(i.Annotations, annotationKubernetesPassTLSClientCert, "")
+	passRaw := getStringValue(ingress.GetAnnotations(), annotationKubernetesPassTLSClientCert, "")
 	if len(passRaw) == 0 {
 		return nil
 	}
@@ -255,7 +257,7 @@ func getPassTLSClientCert(i *extensionsv1beta1.Ingress) *v1alpha1.Middleware {
 	}
 
 	return &v1alpha1.Middleware{
-		ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%d", "passtlscert", hash), Namespace: i.Namespace},
+		ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%d", "passtlscert", hash), Namespace: ingress.GetNamespace()},
 		Spec:       middleware,
 	}
 }
@@ -367,8 +369,8 @@ func parseRequestModifier(namespace, requestModifier string) (*v1alpha1.Middlewa
 	}, nil
 }
 
-func getRateLimit(i *extensionsv1beta1.Ingress) []*v1alpha1.Middleware {
-	rateRaw := getStringValue(i.Annotations, annotationKubernetesRateLimit, "")
+func getRateLimit(i *networking.Ingress) []*v1alpha1.Middleware {
+	rateRaw := getStringValue(i.GetAnnotations(), annotationKubernetesRateLimit, "")
 	if len(rateRaw) == 0 {
 		return nil
 	}
@@ -410,7 +412,7 @@ func getRateLimit(i *extensionsv1beta1.Ingress) []*v1alpha1.Middleware {
 		}
 
 		mids = append(mids, &v1alpha1.Middleware{
-			ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%s-%d", "middleware", rateSetKey, hash), Namespace: i.Namespace},
+			ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%s-%d", "middleware", rateSetKey, hash), Namespace: i.GetNamespace()},
 			Spec:       rateLimitMiddleware,
 		})
 	}
@@ -418,7 +420,7 @@ func getRateLimit(i *extensionsv1beta1.Ingress) []*v1alpha1.Middleware {
 	return mids
 }
 
-func getReplacePathRegex(rule extensionsv1beta1.IngressRule, path extensionsv1beta1.HTTPIngressPath, namespace, rewriteTarget string) *v1alpha1.Middleware {
+func getReplacePathRegex(rule networking.IngressRule, path networking.HTTPIngressPath, namespace, rewriteTarget string) *v1alpha1.Middleware {
 	middlewareName := "replace-path-" + rule.Host + path.Path
 
 	return &v1alpha1.Middleware{
@@ -432,7 +434,7 @@ func getReplacePathRegex(rule extensionsv1beta1.IngressRule, path extensionsv1be
 	}
 }
 
-func getStripPrefix(path extensionsv1beta1.HTTPIngressPath, middlewareName, namespace string) *v1alpha1.Middleware {
+func getStripPrefix(path networking.HTTPIngressPath, middlewareName, namespace string) *v1alpha1.Middleware {
 	return &v1alpha1.Middleware{
 		ObjectMeta: v1.ObjectMeta{Name: middlewareName, Namespace: namespace},
 		Spec: v1alpha1.MiddlewareSpec{

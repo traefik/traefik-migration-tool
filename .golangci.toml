@@ -8,7 +8,7 @@
     check-shadowing = true
 
   [linters-settings.gocyclo]
-    min-complexity = 12.0
+    min-complexity = 13.0
 
   [linters-settings.maligned]
     suggest-new = true
@@ -30,6 +30,8 @@
     "prealloc",
     "scopelint",
     "funlen",
+#    "godox",
+#    "stylecheck",
   ]
 
 [issues]

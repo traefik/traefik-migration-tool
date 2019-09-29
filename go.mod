@@ -7,6 +7,7 @@ require (
 	github.com/containous/flaeg v1.4.1
 	github.com/containous/traefik/v2 v2.0.0
 	github.com/go-acme/lego/v3 v3.0.2
+	github.com/gogo/protobuf v1.2.0
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/spf13/cobra v0.0.5
 	github.com/stretchr/testify v1.4.0

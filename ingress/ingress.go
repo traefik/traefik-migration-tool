@@ -1,3 +1,4 @@
+// Package ingress convert Ingress to IngressRoute
 package ingress
 
 import (
@@ -10,7 +11,8 @@ import (
 	"strings"
 
 	"github.com/containous/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
-	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
+	extensions "k8s.io/api/extensions/v1beta1"
+	networking "k8s.io/api/networking/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -40,7 +42,6 @@ func Convert(src, dstDir string) error {
 		filename := info.Name()
 		srcPath := filepath.Dir(src)
 		return convertFile(srcPath, dstDir, filename)
-
 	}
 
 	dir := info.Name()
@@ -85,15 +86,22 @@ func convertFile(srcDir, dstDir, filename string) error {
 			continue
 		}
 
-		ingress, ok := object.(*extensionsv1beta1.Ingress)
-		if !ok {
+		var ingress *networking.Ingress
+		switch i := object.(type) {
+		case *extensions.Ingress:
+			ingress, err = extensionsToNetworking(i)
+			if err != nil {
+				return err
+			}
+		case *networking.Ingress:
+			ingress = i
+		default:
 			log.Printf("object is not an ingress ignore it: %T", object)
 			ymlBytes = append(ymlBytes, file)
 			continue
 		}
 
 		objects := convertIngress(ingress)
-
 		for _, object := range objects {
 			yml, err := encodeYaml(object, v1alpha1.GroupName+groupSuffix)
 			if err != nil {
@@ -106,20 +114,20 @@ func convertFile(srcDir, dstDir, filename string) error {
 	return ioutil.WriteFile(filepath.Join(dstDir, filename), []byte(strings.Join(ymlBytes, separator+"\n")), 0666)
 }
 
-// convertIngress converts an *extensionsv1beta1.Ingress to a slice of runtime.Object (IngressRoute and Middlewares)
-func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
+// convertIngress converts an *networking.Ingress to a slice of runtime.Object (IngressRoute and Middlewares)
+func convertIngress(ingress *networking.Ingress) []runtime.Object {
 	logUnsupported(ingress)
 
 	ingressRoute := &v1alpha1.IngressRoute{
-		ObjectMeta: v1.ObjectMeta{Name: ingress.Name, Namespace: ingress.Namespace, Annotations: map[string]string{}},
+		ObjectMeta: v1.ObjectMeta{Name: ingress.GetName(), Namespace: ingress.GetNamespace(), Annotations: map[string]string{}},
 		Spec: v1alpha1.IngressRouteSpec{
-			EntryPoints: getSliceStringValue(ingress.Annotations, annotationKubernetesFrontendEntryPoints),
+			EntryPoints: getSliceStringValue(ingress.GetAnnotations(), annotationKubernetesFrontendEntryPoints),
 		},
 	}
 
-	ingressClass := getStringValue(ingress.Annotations, annotationKubernetesIngressClass, "")
+	ingressClass := getStringValue(ingress.GetAnnotations(), annotationKubernetesIngressClass, "")
 	if len(ingressClass) > 0 {
-		ingressRoute.Annotations[annotationKubernetesIngressClass] = ingressClass
+		ingressRoute.GetAnnotations()[annotationKubernetesIngressClass] = ingressClass
 	}
 
 	var middlewares []*v1alpha1.Middleware
@@ -151,9 +159,9 @@ func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 	// rateLimit middleware
 	middlewares = append(middlewares, getRateLimit(ingress)...)
 
-	requestModifier := getStringValue(ingress.Annotations, annotationKubernetesRequestModifier, "")
+	requestModifier := getStringValue(ingress.GetAnnotations(), annotationKubernetesRequestModifier, "")
 	if requestModifier != "" {
-		middleware, err := parseRequestModifier(ingress.Namespace, requestModifier)
+		middleware, err := parseRequestModifier(ingress.GetNamespace(), requestModifier)
 		if err != nil {
 			log.Printf("Invalid %s: %v", annotationKubernetesRequestModifier, err)
 		}
@@ -166,7 +174,7 @@ func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 		miRefs = append(miRefs, toRef(mi))
 	}
 
-	routes, mi, err := createRoutes(ingress.Namespace, ingress.Spec.Rules, ingress.Annotations, miRefs)
+	routes, mi, err := createRoutes(ingress.GetNamespace(), ingress.Spec.Rules, ingress.GetAnnotations(), miRefs)
 	if err != nil {
 		log.Println(err)
 		return nil
@@ -185,7 +193,7 @@ func convertIngress(ingress *extensionsv1beta1.Ingress) []runtime.Object {
 	return objects
 }
 
-func createRoutes(namespace string, rules []extensionsv1beta1.IngressRule, annotations map[string]string, middlewareRefs []v1alpha1.MiddlewareRef) ([]v1alpha1.Route, []*v1alpha1.Middleware, error) {
+func createRoutes(namespace string, rules []networking.IngressRule, annotations map[string]string, middlewareRefs []v1alpha1.MiddlewareRef) ([]v1alpha1.Route, []*v1alpha1.Middleware, error) {
 	ruleType, stripPrefix, err := extractRuleType(annotations)
 	if err != nil {
 		return nil, nil, err
@@ -283,7 +291,7 @@ func toRef(mi *v1alpha1.Middleware) v1alpha1.MiddlewareRef {
 	}
 }
 
-func logUnsupported(ingress *extensionsv1beta1.Ingress) {
+func logUnsupported(ingress *networking.Ingress) {
 	unsupportedAnnotations := map[string]string{
 		annotationKubernetesErrorPages:                      "Look https://docs.traefik.io/v2.0/middlewares/errorpages/",
 		annotationKubernetesBuffering:                       "Look https://docs.traefik.io/v2.0/middlewares/buffering/",
@@ -300,8 +308,8 @@ func logUnsupported(ingress *extensionsv1beta1.Ingress) {
 	}
 
 	for annot, msg := range unsupportedAnnotations {
-		if getStringValue(ingress.Annotations, annot, "") != "" {
-			fmt.Printf("The annotation %s must be converted manually. %s", annot, msg)
+		if getStringValue(ingress.GetAnnotations(), annot, "") != "" {
+			fmt.Printf("%s/%s: The annotation %s must be converted manually. %s", ingress.GetNamespace(), ingress.GetName(), annot, msg)
 		}
 	}
 }

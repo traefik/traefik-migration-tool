@@ -6,10 +6,26 @@ import (
 	"fmt"
 
 	"github.com/containous/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
+	"github.com/gogo/protobuf/proto"
+	networking "k8s.io/api/networking/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/kubernetes/scheme"
 )
+
+func extensionsToNetworking(i proto.Marshaler) (*networking.Ingress, error) {
+	data, err := i.Marshal()
+	if err != nil {
+		return nil, err
+	}
+
+	ni := &networking.Ingress{}
+	err = ni.Unmarshal(data)
+	if err != nil {
+		return nil, err
+	}
+	return ni, nil
+}
 
 func encodeYaml(object runtime.Object, groupName string) (string, error) {
 	err := v1alpha1.AddToScheme(scheme.Scheme)

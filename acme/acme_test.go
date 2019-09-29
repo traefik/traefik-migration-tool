@@ -50,5 +50,4 @@ func TestConvert(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.JSONEq(t, string(expected), string(actual))
-
 }

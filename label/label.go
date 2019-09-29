@@ -100,7 +100,6 @@ func ParseMapValue(labelName, values string) map[string]string {
 // GetMapValue get Map value associated to a label
 func GetMapValue(labels map[string]string, labelName string) map[string]string {
 	if values, ok := labels[labelName]; ok {
-
 		if len(values) == 0 {
 			log.Printf("Missing value for %q, skipping...", labelName)
 			return nil

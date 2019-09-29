@@ -1,11 +1,11 @@
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: test
   namespace: testing
   annotations:
     ingress.kubernetes.io/frontend-entry-points: "web"
-    ingress.kubernetes.io/rule-type: "PathPrefixStrip"
+    ingress.kubernetes.io/priority: "10"
 spec:
   rules:
   - host: traefik.tchouk
