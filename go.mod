@@ -5,8 +5,8 @@ go 1.13
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/containous/flaeg v1.4.1
-	github.com/containous/traefik/v2 v2.0.0
-	github.com/go-acme/lego/v3 v3.0.2
+	github.com/containous/traefik/v2 v2.0.2
+	github.com/go-acme/lego/v3 v3.1.0
 	github.com/gogo/protobuf v1.2.0
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/spf13/cobra v0.0.5
@@ -21,9 +21,6 @@ replace (
 	github.com/Azure/go-autorest => github.com/Azure/go-autorest v12.4.1+incompatible
 	github.com/docker/docker => github.com/docker/engine v0.0.0-20190725163905-fa8dd90ceb7b
 )
-
-// Waiting for the merge of https://github.com/go-acme/lego/pull/962
-replace github.com/labbsr0x/goh => github.com/labbsr0x/goh v0.0.0-20190830205702-3d6988c73e10
 
 // Containous forks
 replace (
