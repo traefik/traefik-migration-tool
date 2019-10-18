@@ -10,6 +10,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/containous/traefik-migration-tool/service"
 	"github.com/containous/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -77,6 +78,10 @@ func Test_convertIngress(t *testing.T) {
 			objectCount: 3,
 		},
 		{
+			ingressFile: "ingress_with_service.yml",
+			objectCount: 1,
+		},
+		{
 			ingressFile: "ingress_with_request_modifier.yml",
 			objectCount: 2,
 		},
@@ -96,7 +101,21 @@ func Test_convertIngress(t *testing.T) {
 			objectIngress, err := parseYaml(bytes)
 			require.NoError(t, err)
 
-			objects := convertIngress(objectIngress.(*networking.Ingress))
+			var (
+				test_namespace           = "testing"
+				test_service             = "test"
+				test_service_portmapping = make(map[string]int32)
+			)
+			test_service_portmapping["http"] = 80
+
+			var snp *service.NamePortMapping
+			snp, err = service.NewNamePortMapping()
+			require.NoError(t, err)
+
+			err = snp.AddNamePortMapping(test_namespace, test_service, test_service_portmapping)
+			require.NoError(t, err)
+
+			objects := convertIngress(objectIngress.(*networking.Ingress), snp)
 
 			if !*updateExpected {
 				require.Len(t, objects, test.objectCount)
@@ -200,9 +219,19 @@ func Test_convertFile(t *testing.T) {
 		require.NoError(t, os.MkdirAll(fixturesDir, 0755))
 	}
 
+	var (
+		test_namespace           = "testing"
+		test_service             = "test"
+		test_service_portmapping = make(map[string]int32)
+	)
+	test_service_portmapping["http"] = 80
+
+	snp, _ := service.NewNamePortMapping()
+	_ = snp.AddNamePortMapping(test_namespace, test_service, test_service_portmapping)
+
 	for _, test := range testCases {
 		t.Run(test.ingressFile, func(t *testing.T) {
-			err := convertFile(filepath.Join("fixtures", "input"), tempDir, test.ingressFile)
+			err := convertFile(filepath.Join("fixtures", "input"), tempDir, test.ingressFile, snp)
 			require.NoError(t, err)
 
 			require.FileExists(t, filepath.Join(tempDir, test.ingressFile))

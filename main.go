@@ -9,6 +9,7 @@ import (
 
 	"github.com/containous/traefik-migration-tool/acme"
 	"github.com/containous/traefik-migration-tool/ingress"
+	"github.com/containous/traefik-migration-tool/service"
 	"github.com/containous/traefik-migration-tool/static"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
@@ -25,8 +26,9 @@ type acmeConfig struct {
 }
 
 type ingressConfig struct {
-	input  string
-	output string
+	input   string
+	output  string
+	service string
 }
 
 type staticConfig struct {
@@ -45,6 +47,7 @@ func main() {
 	}
 
 	var ingressCfg ingressConfig
+	var serviceIndex *service.NamePortMapping
 
 	ingressCmd := &cobra.Command{
 		Use:   "ingress",
@@ -56,6 +59,9 @@ func main() {
 			if len(ingressCfg.input) == 0 || len(ingressCfg.output) == 0 {
 				return errors.New("input and output flags are requires")
 			}
+
+			//try build service port name and port mapping
+			serviceIndex, _ = service.BuildIndex(ingressCfg.service)
 
 			info, err := os.Stat(ingressCfg.output)
 			if err != nil {
@@ -73,12 +79,13 @@ func main() {
 			return nil
 		},
 		RunE: func(_ *cobra.Command, _ []string) error {
-			return ingress.Convert(ingressCfg.input, ingressCfg.output)
+			return ingress.Convert(ingressCfg.input, ingressCfg.output, serviceIndex)
 		},
 	}
 
 	ingressCmd.Flags().StringVarP(&ingressCfg.input, "input", "i", "", "Input directory.")
 	ingressCmd.Flags().StringVarP(&ingressCfg.output, "output", "o", "./output", "Output directory.")
+	ingressCmd.Flags().StringVarP(&ingressCfg.service, "service", "s", "./service", "service directory.")
 
 	rootCmd.AddCommand(ingressCmd)
 

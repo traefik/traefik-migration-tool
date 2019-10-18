@@ -12,19 +12,8 @@ spec:
           - path: /bar
             backend:
               serviceName: service1
-              servicePort: 80
+              servicePort: http
           - path: /foo
             backend:
               serviceName: service1
               servicePort: 80
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: service1
-  namespace: testing
-
-spec:
-  ports:
-    - port: 80
-  clusterIp: 10.0.0.1
