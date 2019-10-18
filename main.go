@@ -9,6 +9,7 @@ import (
 
 	"github.com/containous/traefik-migration-tool/acme"
 	"github.com/containous/traefik-migration-tool/ingress"
+	"github.com/containous/traefik-migration-tool/service"
 	"github.com/containous/traefik-migration-tool/static"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
@@ -25,8 +26,9 @@ type acmeConfig struct {
 }
 
 type ingressConfig struct {
-	input  string
-	output string
+	input   string
+	output  string
+	service string
 }
 
 type staticConfig struct {
@@ -57,6 +59,9 @@ func main() {
 				return errors.New("input and output flags are requires")
 			}
 
+			//try build service port name and port mapping
+			_ = service.BuildIndex(ingressCfg.service)
+
 			info, err := os.Stat(ingressCfg.output)
 			if err != nil {
 				if !os.IsNotExist(err) {
@@ -79,6 +84,7 @@ func main() {
 
 	ingressCmd.Flags().StringVarP(&ingressCfg.input, "input", "i", "", "Input directory.")
 	ingressCmd.Flags().StringVarP(&ingressCfg.output, "output", "o", "./output", "Output directory.")
+	ingressCmd.Flags().StringVarP(&ingressCfg.service, "service", "s", "./service", "service directory.")
 
 	rootCmd.AddCommand(ingressCmd)
 

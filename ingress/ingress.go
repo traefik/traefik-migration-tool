@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/containous/traefik-migration-tool/service"
 	"github.com/containous/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
 	extensions "k8s.io/api/extensions/v1beta1"
 	networking "k8s.io/api/networking/v1beta1"
@@ -244,14 +245,20 @@ func createRoutes(namespace string, rules []networking.IngressRule, annotations 
 			if len(rules) > 0 {
 				sort.Slice(miRefs, func(i, j int) bool { return miRefs[i].Name < miRefs[j].Name })
 
+				var port int32
+				if path.Backend.ServicePort.Type == 1 {
+					port, _ = service.GetServicePortWithName(path.Backend.ServiceName, path.Backend.ServicePort.StrVal)
+				} else {
+					port = path.Backend.ServicePort.IntVal
+				}
+
 				routes = append(routes, v1alpha1.Route{
 					Match:    strings.Join(rules, " && "),
 					Kind:     "Rule",
 					Priority: getIntValue(annotations, annotationKubernetesPriority, 0),
 					Services: []v1alpha1.Service{{
-						Name: path.Backend.ServiceName,
-						// TODO pas de port en string dans ingressRoute ?
-						Port:   path.Backend.ServicePort.IntVal,
+						Name:   path.Backend.ServiceName,
+						Port:   port,
 						Scheme: getStringValue(annotations, annotationKubernetesProtocol, ""),
 					}},
 					Middlewares: miRefs,
