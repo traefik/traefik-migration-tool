@@ -10,14 +10,14 @@ import (
 )
 
 func Test_NewNamePortMapping(t *testing.T) {
-	want_snp := &NamePortMapping{
+	wantSnp := &NamePortMapping{
 		mux:             new(sync.RWMutex),
 		serviceNamePort: make(map[string]map[string]int32),
 	}
 
 	snp, err := NewNamePortMapping()
 	require.NoError(t, err)
-	assert.Equal(t, snp, want_snp)
+	assert.Equal(t, snp, wantSnp)
 }
 
 //Test_NamePortMapping test  AddNamePortMapping and GetServicePortWithName
@@ -52,7 +52,7 @@ func Test_BuildIndex(t *testing.T) {
 	var src = filepath.Join("./", "fixtures")
 	var filename = "service.yml"
 
-	var want_port int32 = 80
+	var wantPort int32 = 80
 
 	testPath := []string{
 		src,
@@ -67,6 +67,6 @@ func Test_BuildIndex(t *testing.T) {
 		port, err = serviceIndex.GetServicePortWithName(namespace, service, portName)
 		require.NoError(t, err)
 
-		require.Equal(t, port, want_port)
+		require.Equal(t, port, wantPort)
 	}
 }

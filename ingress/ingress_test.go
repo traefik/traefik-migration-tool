@@ -102,17 +102,17 @@ func Test_convertIngress(t *testing.T) {
 			require.NoError(t, err)
 
 			var (
-				test_namespace           = "testing"
-				test_service             = "test"
-				test_service_portmapping = make(map[string]int32)
+				testNamespace          = "testing"
+				testService            = "test"
+				testServicePortmapping = make(map[string]int32)
 			)
-			test_service_portmapping["http"] = 80
+			testServicePortmapping["http"] = 80
 
 			var snp *service.NamePortMapping
 			snp, err = service.NewNamePortMapping()
 			require.NoError(t, err)
 
-			err = snp.AddNamePortMapping(test_namespace, test_service, test_service_portmapping)
+			err = snp.AddNamePortMapping(testNamespace, testService, testServicePortmapping)
 			require.NoError(t, err)
 
 			objects := convertIngress(objectIngress.(*networking.Ingress), snp)
@@ -220,14 +220,14 @@ func Test_convertFile(t *testing.T) {
 	}
 
 	var (
-		test_namespace           = "testing"
-		test_service             = "test"
-		test_service_portmapping = make(map[string]int32)
+		testNamespace          = "testing"
+		testService            = "test"
+		testServicePortmapping = make(map[string]int32)
 	)
-	test_service_portmapping["http"] = 80
+	testServicePortmapping["http"] = 80
 
 	snp, _ := service.NewNamePortMapping()
-	_ = snp.AddNamePortMapping(test_namespace, test_service, test_service_portmapping)
+	_ = snp.AddNamePortMapping(testNamespace, testService, testServicePortmapping)
 
 	for _, test := range testCases {
 		t.Run(test.ingressFile, func(t *testing.T) {
