@@ -30,8 +30,9 @@
     "prealloc",
     "scopelint",
     "funlen",
-#    "godox",
-#    "stylecheck",
+    "godox",
+    "stylecheck",
+    "wsl",
   ]
 
 [issues]
