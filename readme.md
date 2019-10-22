@@ -29,7 +29,7 @@ You can use pre-compiled binaries:
 
 If you wish to use this command with docker
 
-sh```
+```sh
 docker run --rm -v ${PWD}:/app purplebabar/traefik-migration-tool *options here*
 ```
 
