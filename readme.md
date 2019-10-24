@@ -27,10 +27,10 @@ You can use pre-compiled binaries:
 
 ### With docker
 
-If you wish to use this command with docker
+If you wish to use this command with docker:
 
 ```sh
-docker run --rm -v ${PWD}:/app purplebabar/traefik-migration-tool *options here*
+docker run --rm -v ${PWD}:/app containous/traefik-migration-tool *options here*
 ```
 
 ## Limits
