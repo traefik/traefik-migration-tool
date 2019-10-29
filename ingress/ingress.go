@@ -302,18 +302,18 @@ func toRef(mi *v1alpha1.Middleware) v1alpha1.MiddlewareRef {
 
 func logUnsupported(ingress *networking.Ingress) {
 	unsupportedAnnotations := map[string]string{
-		annotationKubernetesErrorPages:                      "Look https://docs.traefik.io/v2.0/middlewares/errorpages/",
-		annotationKubernetesBuffering:                       "Look https://docs.traefik.io/v2.0/middlewares/buffering/",
-		annotationKubernetesCircuitBreakerExpression:        "Look https://docs.traefik.io/v2.0/middlewares/circuitbreaker/",
-		annotationKubernetesMaxConnAmount:                   "Look https://docs.traefik.io/v2.0/middlewares/inflightreq/",
-		annotationKubernetesMaxConnExtractorFunc:            "Look https://docs.traefik.io/v2.0/middlewares/inflightreq/",
-		annotationKubernetesResponseForwardingFlushInterval: "Look https://docs.traefik.io/v2.0/providers/kubernetes-crd/",
-		annotationKubernetesLoadBalancerMethod:              "Look https://docs.traefik.io/v2.0/providers/kubernetes-crd/",
-		annotationKubernetesPreserveHost:                    "Look https://docs.traefik.io/v2.0/providers/kubernetes-crd/",
+		annotationKubernetesErrorPages:                      "See https://docs.traefik.io/v2.0/middlewares/errorpages/",
+		annotationKubernetesBuffering:                       "See https://docs.traefik.io/v2.0/middlewares/buffering/",
+		annotationKubernetesCircuitBreakerExpression:        "See https://docs.traefik.io/v2.0/middlewares/circuitbreaker/",
+		annotationKubernetesMaxConnAmount:                   "See https://docs.traefik.io/v2.0/middlewares/inflightreq/",
+		annotationKubernetesMaxConnExtractorFunc:            "See https://docs.traefik.io/v2.0/middlewares/inflightreq/",
+		annotationKubernetesResponseForwardingFlushInterval: "See https://docs.traefik.io/v2.0/providers/kubernetes-crd/",
+		annotationKubernetesLoadBalancerMethod:              "See https://docs.traefik.io/v2.0/providers/kubernetes-crd/",
+		annotationKubernetesPreserveHost:                    "See https://docs.traefik.io/v2.0/providers/kubernetes-crd/",
 		annotationKubernetesSessionCookieName:               "Not supported yet.",
 		annotationKubernetesAffinity:                        "Not supported yet.",
-		annotationKubernetesAuthRealm:                       "Look https://docs.traefik.io/v2.0/middlewares/basicauth/",
-		annotationKubernetesServiceWeights:                  "Look https://docs.traefik.io/v2.0/providers/kubernetes-crd/",
+		annotationKubernetesAuthRealm:                       "See https://docs.traefik.io/v2.0/middlewares/basicauth/",
+		annotationKubernetesServiceWeights:                  "See https://docs.traefik.io/v2.0/providers/kubernetes-crd/",
 	}
 
 	for annot, msg := range unsupportedAnnotations {

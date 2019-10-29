@@ -13,7 +13,7 @@ func migrateACME(oldCfg Configuration) map[string]static.CertificateResolver {
 	}
 
 	if oldCfg.ACME.EntryPoint != "" {
-		fmt.Printf("The entry point (%s) defined in the ACME configuration must be converted manually. Look https://docs.traefik.io/v2.0/routing/routers/#certresolver\n", oldCfg.ACME.EntryPoint)
+		fmt.Printf("The entry point (%s) defined in the ACME configuration must be converted manually. See https://docs.traefik.io/v2.0/routing/routers/#certresolver\n", oldCfg.ACME.EntryPoint)
 	}
 
 	return map[string]static.CertificateResolver{
