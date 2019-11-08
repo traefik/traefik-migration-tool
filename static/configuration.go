@@ -174,16 +174,22 @@ func migrateProxyProtocol(entryPoint EntryPoint) *static.ProxyProtocol {
 func migrateServersTransport(oldCfg Configuration) *static.ServersTransport {
 	var serversTransport *static.ServersTransport
 	if oldCfg.InsecureSkipVerify || oldCfg.MaxIdleConnsPerHost > 0 {
+		serversTransport = &static.ServersTransport{
+			InsecureSkipVerify:  oldCfg.InsecureSkipVerify,
+			MaxIdleConnsPerHost: oldCfg.MaxIdleConnsPerHost,
+		}
+	}
+
+	if len(oldCfg.RootCAs) > 0 {
+		if serversTransport == nil {
+			serversTransport = &static.ServersTransport{}
+		}
+
 		var rootCas []tls.FileOrContent
 		for _, ca := range oldCfg.RootCAs {
 			rootCas = append(rootCas, tls.FileOrContent(ca))
 		}
-
-		serversTransport = &static.ServersTransport{
-			InsecureSkipVerify:  oldCfg.InsecureSkipVerify,
-			RootCAs:             rootCas,
-			MaxIdleConnsPerHost: oldCfg.MaxIdleConnsPerHost,
-		}
+		serversTransport.RootCAs = rootCas
 	}
 
 	if oldCfg.ForwardingTimeouts != nil {
@@ -199,6 +205,7 @@ func migrateServersTransport(oldCfg Configuration) *static.ServersTransport {
 
 		serversTransport.ForwardingTimeouts = timeouts
 	}
+
 	return serversTransport
 }
 
