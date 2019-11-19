@@ -24,6 +24,9 @@ check:
 doc:
 	go run . doc
 
+image:
+	docker build -t traefik-migration-tool .
+
 package:
 	goreleaser --skip-publish --skip-validate --rm-dist
 

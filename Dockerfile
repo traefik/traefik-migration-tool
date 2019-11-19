@@ -1,20 +1,27 @@
 # Building app with golang container
-FROM golang:alpine as builder
+FROM golang:1.13-alpine as builder
 
-RUN apk --no-cache --no-progress add git \
+RUN apk --no-cache --no-progress add git make ca-certificates tzdata\
     && rm -rf /var/cache/apk/*
 
-WORKDIR /app
+WORKDIR /go/traefik-migration-tool
 
-COPY . /app
+# Download go modules
+COPY go.mod .
+COPY go.sum .
+RUN GO111MODULE=on GOPROXY=https://proxy.golang.org go mod download
 
-RUN GO111MODULE=on GOPROXY=https://proxy.golang.org go mod download \
-    && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o traefik-migration-tool .
+COPY . .
 
-# packaging app with scratch to have the smaller container possible
-FROM scratch
+RUN make build
 
-COPY --from=builder /app/traefik-migration-tool .
+## IMAGE
+FROM alpine:3.10
+
+RUN apk --no-cache --no-progress add ca-certificates tzdata\
+    && rm -rf /var/cache/apk/*
+
+COPY --from=builder /go/traefik-migration-tool/traefik-migration-tool .
 
 ENTRYPOINT ["/traefik-migration-tool"]
 CMD ["-h"]
