@@ -25,6 +25,14 @@ You can use pre-compiled binaries:
 * Unzip the archive.
 * Add `traefik-migration-tool` in your `PATH`.
 
+### With Docker
+
+You can use a Docker image:
+
+```sh
+docker run --rm -v ${PWD}:/data containous/traefik-migration-tool <options here>
+```
+
 ## Limits
 
 Unsupported annotations:
