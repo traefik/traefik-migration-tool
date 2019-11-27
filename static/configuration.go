@@ -26,8 +26,8 @@ func migrateConfiguration(oldCfg Configuration) static.Configuration {
 
 	return static.Configuration{
 		Global: &static.Global{
-			CheckNewVersion:    true,
-			SendAnonymousUsage: true,
+			CheckNewVersion:    oldCfg.CheckNewVersion,
+			SendAnonymousUsage: oldCfg.SendAnonymousUsage,
 		},
 		ServersTransport:      migrateServersTransport(oldCfg),
 		EntryPoints:           migrateEntryPoints(oldCfg),
