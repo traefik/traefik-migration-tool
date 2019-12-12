@@ -14,7 +14,9 @@ spec:
       namespace: testing
     priority: 0
     services:
-    - name: service1
+    - kind: Service
+      name: service1
+      namespace: testing
       port: 80
   - kind: Rule
     match: Host(`traefik.tchouk`) && PathPrefix(`/bar`)
@@ -23,5 +25,7 @@ spec:
       namespace: testing
     priority: 0
     services:
-    - name: service1
+    - kind: Service
+      name: service1
+      namespace: testing
       port: 80

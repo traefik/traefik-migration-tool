@@ -13,12 +13,16 @@ spec:
     middlewares: []
     priority: 10
     services:
-    - name: service1
+    - kind: Service
+      name: service1
+      namespace: testing
       port: 80
   - kind: Rule
     match: Host(`traefik.tchouk`) && PathPrefix(`/foo`)
     middlewares: []
     priority: 10
     services:
-    - name: service1
+    - kind: Service
+      name: service1
+      namespace: testing
       port: 80

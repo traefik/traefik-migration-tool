@@ -12,7 +12,9 @@ spec:
     middlewares: []
     priority: 0
     services:
-    - name: service1
+    - kind: Service
+      name: service1
+      namespace: testing
       port: 80
       scheme: h2c
   - kind: Rule
@@ -20,6 +22,8 @@ spec:
     middlewares: []
     priority: 0
     services:
-    - name: service1
+    - kind: Service
+      name: service1
+      namespace: testing
       port: 80
       scheme: h2c

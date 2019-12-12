@@ -248,12 +248,17 @@ func createRoutes(namespace string, rules []networking.IngressRule, annotations 
 					Match:    strings.Join(rules, " && "),
 					Kind:     "Rule",
 					Priority: getIntValue(annotations, annotationKubernetesPriority, 0),
-					Services: []v1alpha1.Service{{
-						Name: path.Backend.ServiceName,
-						// TODO pas de port en string dans ingressRoute ?
-						Port:   path.Backend.ServicePort.IntVal,
-						Scheme: getStringValue(annotations, annotationKubernetesProtocol, ""),
-					}},
+					Services: []v1alpha1.Service{
+						{
+							LoadBalancerSpec: v1alpha1.LoadBalancerSpec{
+								Name:      path.Backend.ServiceName,
+								Namespace: namespace,
+								Kind:      "Service",
+								// TODO pas de port en string dans ingressRoute ?
+								Port:   path.Backend.ServicePort.IntVal,
+								Scheme: getStringValue(annotations, annotationKubernetesProtocol, ""),
+							},
+						}},
 					Middlewares: miRefs,
 				})
 			}
