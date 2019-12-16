@@ -75,16 +75,26 @@ func convertFile(srcDir, dstDir, filename string) error {
 	}
 
 	parts := strings.Split(string(content), separator)
-	var ymlBytes []string
+	var fragments []string
 	for _, part := range parts {
 		if part == "\n" || part == "" {
+			continue
+		}
+
+		unstruct, err := createUnstructured([]byte(part))
+		if err != nil {
+			return err
+		}
+
+		if unstruct.IsList() {
+			fragments = append(fragments, part)
 			continue
 		}
 
 		object, err := parseYaml([]byte(part))
 		if err != nil {
 			log.Printf("err while reading yaml: %v", err)
-			ymlBytes = append(ymlBytes, part)
+			fragments = append(fragments, part)
 			continue
 		}
 
@@ -98,8 +108,8 @@ func convertFile(srcDir, dstDir, filename string) error {
 		case *networking.Ingress:
 			ingress = obj
 		default:
-			log.Printf("object is not an Ingress ignore it: %T", object)
-			ymlBytes = append(ymlBytes, part)
+			log.Printf("the object is skipped because is not an Ingress: %T", object)
+			fragments = append(fragments, part)
 			continue
 		}
 
@@ -109,11 +119,11 @@ func convertFile(srcDir, dstDir, filename string) error {
 			if err != nil {
 				return err
 			}
-			ymlBytes = append(ymlBytes, yml)
+			fragments = append(fragments, yml)
 		}
 	}
 
-	return ioutil.WriteFile(filepath.Join(dstDir, filename), []byte(strings.Join(ymlBytes, separator+"\n")), 0666)
+	return ioutil.WriteFile(filepath.Join(dstDir, filename), []byte(strings.Join(fragments, separator+"\n")), 0666)
 }
 
 func expandFileContent(filePath string) ([]byte, error) {
