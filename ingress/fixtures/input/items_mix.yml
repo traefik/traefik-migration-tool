@@ -1,0 +1,123 @@
+apiVersion: v1
+items:
+  - apiVersion: v1
+    data:
+      traefik.toml: |
+        # traefik.toml
+        logLevel = "DEBUG"
+        debug = false
+        sendAnonymousUsage = true
+        defaultEntryPoints = ["http","https"]
+
+        [entryPoints]
+          [entryPoints.http]
+            address = ":80"
+            compress = true
+            [entryPoints.http.redirect]
+              regex = "^http://(.*)"
+              replacement = "https://$1"
+            [entryPoints.http.forwardedHeaders]
+              trustedIPs = ["127.0.0.1/32"]
+          [entryPoints.https]
+            address = ":443"
+            compress = true
+            [entryPoints.https.forwardedHeaders]
+              trustedIPs = ["127.0.0.1/32"]
+            [entryPoints.https.tls]
+              # Exclude old tls versions, whitelist known still-strong cipher suites
+              minVersion = "VersionTLS12"
+              cipherSuites = [
+                "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA"
+              ]
+          [entryPoints.httpn]
+            address = ":8880"
+            compress = true
+        [kubernetes]
+
+        [traefikLog]
+
+        [accessLog]
+
+        [metrics]
+          [metrics.prometheus]
+          [metrics.statistics]
+
+        [ping]
+
+        [api]
+
+        [retry]
+          attempts = 2
+    kind: ConfigMap
+    metadata:
+      name: traefik-config
+      namespace: ingress
+
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      annotations:
+        checksum/config: bd0bd0dafbb6f0ae3b471f35e0c73750f887121d0494eee81fb55a2e25520459
+        cni.projectcalico.org/podIP: 10.244.7.111/32
+      labels:
+        name: traefik-ingress-controller
+      name: traefik-ingress-controller-86949d84c5-p9m8w
+      namespace: ingress
+    spec:
+      containers:
+        - args:
+            - --configfile=/config/traefik.toml
+          image: traefik:1.7.2-alpine
+          imagePullPolicy: Always
+          name: traefik-ingress-controller
+          ports:
+            - containerPort: 80
+              name: http
+              protocol: TCP
+            - containerPort: 443
+              name: https
+              protocol: TCP
+            - containerPort: 8880
+              name: httpn
+              protocol: TCP
+            - containerPort: 8080
+              name: dashboard
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /config
+              name: config
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: traefik-config
+          name: config
+
+  - apiVersion: extensions/v1beta1
+    kind: Ingress
+    metadata:
+      annotations:
+        ingress.kubernetes.io/auth-secret: basic-auth-document-db
+        ingress.kubernetes.io/auth-type: basic
+        ingress.kubernetes.io/custom-request-headers: XYZ-My-Custom-Header:dev
+        kubernetes.io/ingress.class: traefik
+      creationTimestamp: "2018-02-27T10:03:59Z"
+      generation: 9
+      name: dev-protected
+      namespace: dev
+      resourceVersion: "277178439"
+      selfLink: /apis/extensions/v1beta1/namespaces/dev/ingresses/dev-protected
+      uid: 87d8d657-1ba5-11e8-a9cd-06fa2d724cac
+    spec:
+      rules:
+        - host: svc.test.migrate.traefik.to.v2.com
+          http:
+            paths:
+              - backend:
+                  serviceName: v2
+                  servicePort: 80

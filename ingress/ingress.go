@@ -14,7 +14,9 @@ import (
 	extensions "k8s.io/api/extensions/v1beta1"
 	networking "k8s.io/api/networking/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"sigs.k8s.io/yaml"
 )
 
 const separator = "---"
@@ -62,7 +64,7 @@ func Convert(src, dstDir string) error {
 }
 
 func convertFile(srcDir, dstDir, filename string) error {
-	content, err := ioutil.ReadFile(filepath.Join(srcDir, filename))
+	content, err := expandFileContent(filepath.Join(srcDir, filename))
 	if err != nil {
 		return err
 	}
@@ -87,16 +89,16 @@ func convertFile(srcDir, dstDir, filename string) error {
 		}
 
 		var ingress *networking.Ingress
-		switch i := object.(type) {
+		switch obj := object.(type) {
 		case *extensions.Ingress:
-			ingress, err = extensionsToNetworking(i)
+			ingress, err = extensionsToNetworking(obj)
 			if err != nil {
 				return err
 			}
 		case *networking.Ingress:
-			ingress = i
+			ingress = obj
 		default:
-			log.Printf("object is not an ingress ignore it: %T", object)
+			log.Printf("object is not an Ingress ignore it: %T", object)
 			ymlBytes = append(ymlBytes, part)
 			continue
 		}
@@ -112,6 +114,95 @@ func convertFile(srcDir, dstDir, filename string) error {
 	}
 
 	return ioutil.WriteFile(filepath.Join(dstDir, filename), []byte(strings.Join(ymlBytes, separator+"\n")), 0666)
+}
+
+func expandFileContent(filePath string) ([]byte, error) {
+	content, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	parts := strings.Split(string(content), separator)
+	var fragments []string
+	for _, part := range parts {
+		if part == "\n" || part == "" {
+			continue
+		}
+
+		listObj, err := createUnstructured(content)
+		if err != nil {
+			return nil, err
+		}
+
+		if !listObj.IsList() {
+			fragments = append(fragments, part)
+			continue
+		}
+
+		items, _, err := unstructured.NestedSlice(listObj.Object, "items")
+		if err != nil {
+			return nil, err
+		}
+
+		toKeep, toConvert := extractItems(items)
+
+		if len(items) == len(toKeep) {
+			fragments = append(fragments, part)
+			continue
+		}
+
+		if len(toKeep) > 0 {
+			newObj := listObj.DeepCopy()
+
+			err = unstructured.SetNestedSlice(newObj.Object, toKeep, "items")
+			if err != nil {
+				return nil, err
+			}
+
+			m, err := yaml.Marshal(newObj)
+			if err != nil {
+				return nil, err
+			}
+
+			fragments = append(fragments, string(m))
+		}
+
+		for _, elt := range toConvert {
+			m, err := yaml.Marshal(elt.Object)
+			if err != nil {
+				return nil, err
+			}
+			fragments = append(fragments, string(m))
+		}
+	}
+
+	return []byte(strings.Join(fragments, separator+"\n")), nil
+}
+
+func createUnstructured(content []byte) (*unstructured.Unstructured, error) {
+	listObj := &unstructured.Unstructured{Object: map[string]interface{}{}}
+
+	if err := yaml.Unmarshal(content, &listObj.Object); err != nil {
+		return nil, fmt.Errorf("error decoding YAML: %w\noriginal YAML: %s", err, string(content))
+	}
+
+	return listObj, nil
+}
+
+func extractItems(items []interface{}) ([]interface{}, []unstructured.Unstructured) {
+	var toKeep []interface{}
+	var toConvert []unstructured.Unstructured
+
+	for _, elt := range items {
+		obj := unstructured.Unstructured{Object: elt.(map[string]interface{})}
+		if (obj.GetAPIVersion() == "extensions/v1beta1" || obj.GetAPIVersion() == "networking.k8s.io/v1beta1") && obj.GetKind() == "Ingress" {
+			toConvert = append(toConvert, obj)
+		} else {
+			toKeep = append(toKeep, elt)
+		}
+	}
+
+	return toKeep, toConvert
 }
 
 // convertIngress converts an *networking.Ingress to a slice of runtime.Object (IngressRoute and Middlewares)

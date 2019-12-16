@@ -1,0 +1,45 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: traefik
+  creationTimestamp: null
+  name: dev-protected
+  namespace: dev
+spec:
+  entryPoints: []
+  routes:
+  - kind: Rule
+    match: Host(`svc.test.migrate.traefik.to.v2.com`)
+    middlewares:
+    - name: auth-17336954697674599267
+      namespace: dev
+    - name: headers-6046864781780367409
+      namespace: dev
+    priority: 0
+    services:
+    - kind: Service
+      name: v2
+      namespace: dev
+      port: 80
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  creationTimestamp: null
+  name: auth-17336954697674599267
+  namespace: dev
+spec:
+  basicAuth:
+    secret: basic-auth-document-db
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  creationTimestamp: null
+  name: headers-6046864781780367409
+  namespace: dev
+spec:
+  headers:
+    customRequestHeaders:
+      Xyz-My-Custom-Header: dev

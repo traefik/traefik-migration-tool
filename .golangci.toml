@@ -8,7 +8,7 @@
     check-shadowing = true
 
   [linters-settings.gocyclo]
-    min-complexity = 13.0
+    min-complexity = 14.0
 
   [linters-settings.maligned]
     suggest-new = true

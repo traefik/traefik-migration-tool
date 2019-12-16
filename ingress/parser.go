@@ -56,7 +56,7 @@ func parseYaml(content []byte) (runtime.Object, error) {
 
 	obj, _, err := decode(content, nil, nil)
 	if err != nil {
-		return nil, fmt.Errorf("error while decoding YAML object. Err was: %s", err)
+		return nil, fmt.Errorf("error while decoding YAML object. Err was: %w", err)
 	}
 
 	return obj, nil

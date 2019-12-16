@@ -136,6 +136,14 @@ func Test_convertFile(t *testing.T) {
 			objectCount: 1,
 		},
 		{
+			ingressFile: "items_ingress.yml",
+			objectCount: 1,
+		},
+		{
+			ingressFile: "items_mix.yml",
+			objectCount: 1,
+		},
+		{
 			ingressFile: "ingress_extensions.yml",
 			objectCount: 1,
 		},
