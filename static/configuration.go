@@ -13,15 +13,15 @@ import (
 
 func migrateConfiguration(oldCfg Configuration) static.Configuration {
 	if oldCfg.Retry != nil {
-		fmt.Println("Retry must be converted manually. See https://docs.traefik.io/v2.0/middlewares/retry/")
+		fmt.Println("Retry must be converted manually. See https://docs.traefik.io/middlewares/retry/")
 	}
 
 	if oldCfg.Constraints != nil {
-		fmt.Println("Global Constraints must be converted manually to provider constraints. See https://docs.traefik.io/v2.0/providers/docker/#constraints")
+		fmt.Println("Global Constraints must be converted manually to provider constraints. See https://docs.traefik.io/providers/docker/#constraints")
 	}
 
 	if oldCfg.Web != nil {
-		fmt.Println("Web must be converted manually. See https://docs.traefik.io/v2.0/operations/api/")
+		fmt.Println("Web must be converted manually. See https://docs.traefik.io/operations/api/")
 	}
 
 	return static.Configuration{
@@ -59,7 +59,7 @@ func migrateAPI(oldCfg Configuration) *static.API {
 	}
 
 	if oldCfg.API.EntryPoint != "" {
-		fmt.Printf("The entry point (%s) defined in API must be converted manually. See https://docs.traefik.io/v2.0/operations/api/\n", oldCfg.API.EntryPoint)
+		fmt.Printf("The entry point (%s) defined in API must be converted manually. See https://docs.traefik.io/operations/api/\n", oldCfg.API.EntryPoint)
 	}
 
 	return &static.API{
@@ -77,19 +77,19 @@ func migrateEntryPoints(oldCfg Configuration) static.EntryPoints {
 	eps := static.EntryPoints{}
 	for name, entryPoint := range *oldCfg.EntryPoints {
 		if entryPoint.Compress {
-			fmt.Printf("Compress on entry point %q must be converted manually. See https://docs.traefik.io/v2.0/middlewares/compress/\n", name)
+			fmt.Printf("Compress on entry point %q must be converted manually. See https://docs.traefik.io/middlewares/compress/\n", name)
 		}
 		if entryPoint.TLS != nil {
-			fmt.Printf("TLS on entry point %q must be converted manually. See https://docs.traefik.io/v2.0/routing/routers/#tls\n", name)
+			fmt.Printf("TLS on entry point %q must be converted manually. See https://docs.traefik.io/routing/routers/#tls\n", name)
 		}
 		if entryPoint.Redirect != nil {
-			fmt.Printf("Redirect on entry point %q must be converted manually. See https://docs.traefik.io/v2.0/middlewares/redirectscheme/\n", name)
+			fmt.Printf("Redirect on entry point %q must be converted manually. See https://docs.traefik.io/middlewares/redirectscheme/\n", name)
 		}
 		if entryPoint.WhiteList != nil {
-			fmt.Printf("WhiteList on entry point %q must be converted manually. See https://docs.traefik.io/v2.0/middlewares/ipwhitelist/\n", name)
+			fmt.Printf("WhiteList on entry point %q must be converted manually. See https://docs.traefik.io/middlewares/ipwhitelist/\n", name)
 		}
 		if len(entryPoint.WhitelistSourceRange) != 0 {
-			fmt.Printf("WhitelistSourceRange on entry point %q must be converted manually. See https://docs.traefik.io/v2.0/middlewares/ipwhitelist/\n", name)
+			fmt.Printf("WhitelistSourceRange on entry point %q must be converted manually. See https://docs.traefik.io/middlewares/ipwhitelist/\n", name)
 		}
 
 		eps[name] = &static.EntryPoint{

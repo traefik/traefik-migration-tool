@@ -65,7 +65,7 @@ func migrateRancher(oldCfg Configuration) *rancher.Provider {
 	}
 
 	if len(oldCfg.Rancher.Constraints) != 0 {
-		fmt.Println("The constraints on the Rancher provider must be converted manually. https://docs.traefik.io/v2.0/providers/rancher/#constraints")
+		fmt.Println("The constraints on the Rancher provider must be converted manually. https://docs.traefik.io/providers/rancher/#constraints")
 	}
 
 	rancherCfg := &rancher.Provider{
@@ -121,11 +121,11 @@ func migrateMarathon(oldCfg Configuration) *marathon.Provider {
 	}
 
 	if len(oldCfg.Marathon.Constraints) != 0 {
-		fmt.Println("The constraints on the Marathon provider must be converted manually. https://docs.traefik.io/v2.0/providers/marathon/#constraints")
+		fmt.Println("The constraints on the Marathon provider must be converted manually. https://docs.traefik.io/providers/marathon/#constraints")
 	}
 
 	if len(oldCfg.Marathon.Domain) != 0 {
-		fmt.Printf("The domain (%s) defined the Marathon provider must be converted manually. See https://docs.traefik.io/v2.0/providers/marathon/#defaultrule\n", oldCfg.Marathon.Domain)
+		fmt.Printf("The domain (%s) defined the Marathon provider must be converted manually. See https://docs.traefik.io/providers/marathon/#defaultrule\n", oldCfg.Marathon.Domain)
 	}
 
 	return &marathon.Provider{
@@ -164,7 +164,7 @@ func migrateFile(oldCfg Configuration) *file.Provider {
 	}
 
 	if oldCfg.File.Directory == "" && oldCfg.File.Filename == "" {
-		fmt.Println("All the elements related to dynamic configuration (backends, frontends, ...) must be converted manually. See https://docs.traefik.io/v2.0/routing/overview/")
+		fmt.Println("All the elements related to dynamic configuration (backends, frontends, ...) must be converted manually. See https://docs.traefik.io/routing/overview/")
 	}
 
 	return &file.Provider{
@@ -181,11 +181,11 @@ func migrateDocker(oldCfg Configuration) *docker.Provider {
 	}
 
 	if len(oldCfg.Docker.Constraints) != 0 {
-		fmt.Println("The constraints defined in the Docker provider must be converted manually. See https://docs.traefik.io/v2.0/providers/docker/#constraints")
+		fmt.Println("The constraints defined in the Docker provider must be converted manually. See https://docs.traefik.io/providers/docker/#constraints")
 	}
 
 	if len(oldCfg.Docker.Domain) != 0 {
-		fmt.Printf("The domain (%s) defined in the Docker provider must be converted manually. See https://docs.traefik.io/v2.0/providers/docker/#defaultrule\n", oldCfg.Docker.Domain)
+		fmt.Printf("The domain (%s) defined in the Docker provider must be converted manually. See https://docs.traefik.io/providers/docker/#defaultrule\n", oldCfg.Docker.Domain)
 	}
 
 	swarmModeRefreshSeconds := types.Duration(15 * time.Second)
@@ -213,7 +213,7 @@ func migrateRest(oldCfg Configuration) *rest.Provider {
 	}
 
 	if oldCfg.Rest.EntryPoint != "" {
-		fmt.Printf("The entry point (%s) defined in the REST provider must be converted manually. See https://docs.traefik.io/v2.0/operations/api/\n", oldCfg.Rest.EntryPoint)
+		fmt.Printf("The entry point (%s) defined in the REST provider must be converted manually. See https://docs.traefik.io/operations/api/\n", oldCfg.Rest.EntryPoint)
 	}
 	return &rest.Provider{
 		Insecure: true,
