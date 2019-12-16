@@ -72,17 +72,17 @@ func convertFile(srcDir, dstDir, filename string) error {
 		return err
 	}
 
-	files := strings.Split(string(content), separator)
+	parts := strings.Split(string(content), separator)
 	var ymlBytes []string
-	for _, file := range files {
-		if file == "\n" || file == "" {
+	for _, part := range parts {
+		if part == "\n" || part == "" {
 			continue
 		}
 
-		object, err := parseYaml([]byte(file))
+		object, err := parseYaml([]byte(part))
 		if err != nil {
 			log.Printf("err while reading yaml: %v", err)
-			ymlBytes = append(ymlBytes, file)
+			ymlBytes = append(ymlBytes, part)
 			continue
 		}
 
@@ -97,7 +97,7 @@ func convertFile(srcDir, dstDir, filename string) error {
 			ingress = i
 		default:
 			log.Printf("object is not an ingress ignore it: %T", object)
-			ymlBytes = append(ymlBytes, file)
+			ymlBytes = append(ymlBytes, part)
 			continue
 		}
 
