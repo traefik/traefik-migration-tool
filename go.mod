@@ -1,21 +1,21 @@
 module github.com/containous/traefik-migration-tool
 
-go 1.13
+go 1.14
 
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/containous/flaeg v1.4.1
-	github.com/containous/traefik/v2 v2.1.2
-	github.com/go-acme/lego/v3 v3.2.0
-	github.com/gogo/protobuf v1.2.0
+	github.com/containous/traefik/v2 v2.1.4
+	github.com/go-acme/lego/v3 v3.4.0
+	github.com/gogo/protobuf v1.2.1
 	github.com/mitchellh/hashstructure v1.0.0
-	github.com/spf13/cobra v0.0.5
-	github.com/stretchr/testify v1.4.0
-	gopkg.in/yaml.v2 v2.2.7
+	github.com/spf13/cobra v0.0.6
+	github.com/stretchr/testify v1.5.1
+	gopkg.in/yaml.v2 v2.2.8
 	k8s.io/api v0.0.0-20190718183219-b59d8169aab5
 	k8s.io/apimachinery v0.0.0-20190612205821-1799e75a0719
 	k8s.io/client-go v0.0.0-20190718183610-8e956561bbf5
-	sigs.k8s.io/yaml v1.1.0
+	sigs.k8s.io/yaml v1.2.0
 )
 
 replace (
