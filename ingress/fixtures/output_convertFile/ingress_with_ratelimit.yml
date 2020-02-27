@@ -11,9 +11,9 @@ spec:
   - kind: Rule
     match: Host(`rate-limit`) && PathPrefix(`/ratelimit`)
     middlewares:
-    - name: middleware-bar-13887641360379292014
+    - name: middleware-bar-17009375545375373055
       namespace: testing
-    - name: middleware-foo-7085608951494226983
+    - name: middleware-foo-5684249717850680246
       namespace: testing
     priority: 0
     services:
@@ -26,7 +26,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   creationTimestamp: null
-  name: middleware-bar-13887641360379292014
+  name: middleware-bar-17009375545375373055
   namespace: testing
 spec:
   rateLimit:
@@ -37,7 +37,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   creationTimestamp: null
-  name: middleware-foo-7085608951494226983
+  name: middleware-foo-5684249717850680246
   namespace: testing
 spec:
   rateLimit:

@@ -10,7 +10,7 @@ spec:
   - kind: Rule
     match: Host(`traefik.tchouk`) && PathPrefix(`/`)
     middlewares:
-    - name: redirect-11872931355678822360
+    - name: redirect-9832062658577944649
       namespace: testing
     priority: 0
     services:

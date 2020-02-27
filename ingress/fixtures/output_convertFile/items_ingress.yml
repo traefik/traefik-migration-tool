@@ -12,7 +12,7 @@ spec:
   - kind: Rule
     match: Host(`svc.test.migrate.traefik.to.v2.com`)
     middlewares:
-    - name: auth-17336954697674599267
+    - name: auth-15865790876691313906
       namespace: dev
     - name: headers-6046864781780367409
       namespace: dev
@@ -27,7 +27,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   creationTimestamp: null
-  name: auth-17336954697674599267
+  name: auth-15865790876691313906
   namespace: dev
 spec:
   basicAuth:

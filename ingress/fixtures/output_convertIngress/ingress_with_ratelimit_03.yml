@@ -2,7 +2,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   creationTimestamp: null
-  name: middleware-foo-7085608951494226983
+  name: middleware-foo-5684249717850680246
   namespace: testing
 spec:
   rateLimit:
