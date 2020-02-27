@@ -25,7 +25,7 @@
   disable = [
     "maligned",
     "lll",
-    "gas",
+    "gosec",
     "dupl",
     "prealloc",
     "scopelint",
@@ -33,6 +33,7 @@
     "godox",
     "stylecheck",
     "wsl",
+    "gomnd",
   ]
 
 [issues]
