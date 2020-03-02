@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/containous/flaeg v1.4.1
-	github.com/containous/traefik/v2 v2.1.4
+	github.com/containous/traefik/v2 v2.1.6
 	github.com/go-acme/lego/v3 v3.4.0
 	github.com/gogo/protobuf v1.2.1
 	github.com/mitchellh/hashstructure v1.0.0
