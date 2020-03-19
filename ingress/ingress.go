@@ -33,13 +33,13 @@ const (
 	ruleTypeReplacePathRegex = "ReplacePathRegex"
 )
 
-//used as a key to uniquely identify a service
+// ServiceKey is used to uniquely identify a service when grouping routes
 type ServiceKey struct {
 	v1alpha1.LoadBalancerSpec
 	MiRefKey string
 }
 
-//defines a host and path rule pair, derived from IngressRule
+// ServiceRule defines a host and path rule pair, derived from IngressRule
 type ServiceRule struct {
 	Host string
 	Path string
@@ -377,7 +377,7 @@ func createRoutes(namespace string, rules []networking.IngressRule, annotations 
 	return routes, mis, nil
 }
 
-//creates routes by groping them by service when possible
+// creates routes by grouping them by service when possible
 func createRoutesPerService(services map[ServiceKey][]ServiceRule, ruleType string, annotations map[string]string, miRefsPerService map[ServiceKey][]v1alpha1.MiddlewareRef) []*v1alpha1.Route {
 	var routes []*v1alpha1.Route
 	for serviceKey, serviceRules := range services {
@@ -409,7 +409,6 @@ func createRoutesPerService(services map[ServiceKey][]ServiceRule, ruleType stri
 		}
 
 		routes = append(routes, buildRoutes(resultingMatches, annotations, serviceKey, miRefsPerService)...)
-
 	}
 
 	sort.SliceStable(routes, func(i, j int) bool {
