@@ -326,7 +326,6 @@ func createRoutes(namespace string, rules []networking.IngressRule, annotations 
 			miRefs = append(miRefs, middlewareRefs...)
 
 			if len(path.Path) > 0 {
-
 				if stripPrefix {
 					mi := getStripPrefix(path, rule.Host+path.Path, namespace)
 					mis = append(mis, mi)
@@ -381,7 +380,6 @@ func createRoutes(namespace string, rules []networking.IngressRule, annotations 
 func createRoutesPerService(services map[ServiceKey][]ServiceRule, ruleType string, annotations map[string]string, miRefsPerService map[ServiceKey][]v1alpha1.MiddlewareRef) []*v1alpha1.Route {
 	var routes []*v1alpha1.Route
 	for serviceKey, serviceRules := range services {
-
 		// group paths by host like this
 		// H1 -> P1, P2
 		// H2 -> P1, P2
