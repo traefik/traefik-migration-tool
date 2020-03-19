@@ -8,7 +8,7 @@ spec:
   entryPoints: []
   routes:
   - kind: Rule
-    match: Host(`traefik.tchouk`) && PathPrefix(`/`)
+    match: Host(`traefik.tchouk`) && PathPrefix(`/`,`/bar`)
     middlewares:
     - name: redirect-16681949244266672583
       namespace: testing
@@ -18,14 +18,4 @@ spec:
       name: service1
       namespace: testing
       port: 80
-  - kind: Rule
-    match: Host(`traefik.tchouk`) && PathPrefix(`/bar`)
-    middlewares:
-    - name: redirect-16681949244266672583
-      namespace: testing
-    priority: 0
-    services:
-    - kind: Service
-      name: service1
-      namespace: testing
-      port: 80
+

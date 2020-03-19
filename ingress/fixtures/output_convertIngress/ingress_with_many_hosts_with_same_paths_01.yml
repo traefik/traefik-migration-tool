@@ -1,0 +1,21 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: internal
+  creationTimestamp: null
+  name: test
+  namespace: testing
+spec:
+  entryPoints: []
+  routes:
+    - kind: Rule
+      match: Host(`preview.traefik.tchouk.com`,`preview.traefik.tchouk.io`,`test.traefik.tchouk`,`traefik.tchouk.com`)
+        && PathPrefix(`/rest/path1`,`/rest/path10`,`/rest/path2`,`/rest/path3`,`/rest/path4`,`/rest/path5`,`/rest/path6`,`/rest/path7`,`/rest/path8`,`/rest/path9`)
+      middlewares: []
+      priority: 0
+      services:
+        - kind: Service
+          name: service1
+          namespace: testing
+          port: 80

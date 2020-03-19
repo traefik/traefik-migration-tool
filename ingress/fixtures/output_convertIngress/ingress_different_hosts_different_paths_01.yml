@@ -9,7 +9,7 @@ spec:
   - web
   routes:
   - kind: Rule
-    match: Host(`traefik.tchouk`) && PathPrefix(`/bar`,`/foo`)
+    match: Host(`traefik.host1`) && PathPrefix(`/foo`)
     middlewares: []
     priority: 10
     services:
@@ -18,7 +18,7 @@ spec:
       namespace: testing
       port: 80
   - kind: Rule
-    match: Host(`traefik.zz`) && PathPrefix(`/baz`)
+    match: Host(`traefik.host2`) && PathPrefix(`/bar`)
     middlewares: []
     priority: 10
     services:

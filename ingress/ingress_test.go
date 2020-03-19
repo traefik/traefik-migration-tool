@@ -28,6 +28,18 @@ func Test_convertIngress(t *testing.T) {
 			objectCount: 1,
 		},
 		{
+			ingressFile: "ingress_different_hosts_different_paths.yml",
+			objectCount: 1,
+		},
+		{
+			ingressFile: "ingress_different_hosts_same_paths.yml",
+			objectCount: 1,
+		},
+		{
+			ingressFile: "ingress_different_hosts_multiple_paths.yml",
+			objectCount: 1,
+		},
+		{
 			ingressFile: "ingress_with_protocol.yml",
 			objectCount: 1,
 		},

@@ -8,18 +8,7 @@ spec:
   entryPoints: []
   routes:
   - kind: Rule
-    match: Host(`traefik.tchouk`) && PathPrefix(`/`)
-    middlewares:
-    - name: redirect-16681949244266672583
-      namespace: testing
-    priority: 0
-    services:
-    - kind: Service
-      name: service1
-      namespace: testing
-      port: 80
-  - kind: Rule
-    match: Host(`traefik.tchouk`) && PathPrefix(`/bar`)
+    match: Host(`traefik.tchouk`) && PathPrefix(`/`,`/bar`)
     middlewares:
     - name: redirect-16681949244266672583
       namespace: testing
@@ -41,15 +30,4 @@ spec:
     permanent: true
     regex: foo
     replacement: bar
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: Middleware
-metadata:
-  creationTimestamp: null
-  name: redirect-16681949244266672583
-  namespace: testing
-spec:
-  redirectRegex:
-    permanent: true
-    regex: foo
-    replacement: bar
+

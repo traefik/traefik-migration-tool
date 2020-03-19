@@ -33,6 +33,18 @@ const (
 	ruleTypeReplacePathRegex = "ReplacePathRegex"
 )
 
+//used as a key to uniquely identify a service
+type ServiceKey struct {
+	v1alpha1.LoadBalancerSpec
+	MiRefKey string
+}
+
+//defines a host and path rule pair, derived from IngressRule
+type ServiceRule struct {
+	Host string
+	Path string
+}
+
 // Convert converts all ingress in a src into a dstDir
 func Convert(src, dstDir string) error {
 	info, err := os.Stat(src)
@@ -280,7 +292,11 @@ func convertIngress(ingress *networking.Ingress) []runtime.Object {
 		log.Println(err)
 		return nil
 	}
-	ingressRoute.Spec.Routes = routes
+	var routeVals []v1alpha1.Route
+	for _, routePtr := range routes {
+		routeVals = append(routeVals, *routePtr)
+	}
+	ingressRoute.Spec.Routes = routeVals
 
 	middlewares = append(middlewares, mi...)
 
@@ -294,29 +310,22 @@ func convertIngress(ingress *networking.Ingress) []runtime.Object {
 	return objects
 }
 
-func createRoutes(namespace string, rules []networking.IngressRule, annotations map[string]string, middlewareRefs []v1alpha1.MiddlewareRef) ([]v1alpha1.Route, []*v1alpha1.Middleware, error) {
+func createRoutes(namespace string, rules []networking.IngressRule, annotations map[string]string, middlewareRefs []v1alpha1.MiddlewareRef) ([]*v1alpha1.Route, []*v1alpha1.Middleware, error) {
 	ruleType, stripPrefix, err := extractRuleType(annotations)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	var mis []*v1alpha1.Middleware
-
-	var routes []v1alpha1.Route
+	var services = map[ServiceKey][]ServiceRule{}
+	var miRefsPerService = map[ServiceKey][]v1alpha1.MiddlewareRef{}
 
 	for _, rule := range rules {
 		for _, path := range rule.HTTP.Paths {
 			var miRefs = make([]v1alpha1.MiddlewareRef, 0, 1)
 			miRefs = append(miRefs, middlewareRefs...)
 
-			var rules []string
-
-			if len(rule.Host) > 0 {
-				rules = append(rules, fmt.Sprintf("Host(`%s`)", rule.Host))
-			}
-
 			if len(path.Path) > 0 {
-				rules = append(rules, fmt.Sprintf("%s(`%s`)", ruleType, path.Path))
 
 				if stripPrefix {
 					mi := getStripPrefix(path, rule.Host+path.Path, namespace)
@@ -342,31 +351,118 @@ func createRoutes(namespace string, rules []networking.IngressRule, annotations 
 				miRefs = append(miRefs, toRef(redirect))
 			}
 
-			if len(rules) > 0 {
-				sort.Slice(miRefs, func(i, j int) bool { return miRefs[i].Name < miRefs[j].Name })
+			sort.Slice(miRefs, func(i, j int) bool { return miRefs[i].Name < miRefs[j].Name })
 
-				routes = append(routes, v1alpha1.Route{
-					Match:    strings.Join(rules, " && "),
-					Kind:     "Rule",
-					Priority: getIntValue(annotations, annotationKubernetesPriority, 0),
-					Services: []v1alpha1.Service{
-						{
-							LoadBalancerSpec: v1alpha1.LoadBalancerSpec{
-								Name:      path.Backend.ServiceName,
-								Namespace: namespace,
-								Kind:      "Service",
-								// TODO pas de port en string dans ingressRoute ?
-								Port:   path.Backend.ServicePort.IntVal,
-								Scheme: getStringValue(annotations, annotationKubernetesProtocol, ""),
-							},
-						}},
-					Middlewares: miRefs,
-				})
+			serviceKey := ServiceKey{
+				LoadBalancerSpec: v1alpha1.LoadBalancerSpec{
+					Name:      path.Backend.ServiceName,
+					Namespace: namespace,
+					Kind:      "Service",
+					Port:      path.Backend.ServicePort.IntVal,
+					Scheme:    getStringValue(annotations, annotationKubernetesProtocol, ""),
+				},
+				MiRefKey: createMiddewareRefsKey(miRefs),
 			}
+
+			services[serviceKey] = append(services[serviceKey], ServiceRule{
+				Host: rule.Host,
+				Path: path.Path,
+			})
+			miRefsPerService[serviceKey] = miRefs
 		}
 	}
 
+	routes := createRoutesPerService(services, ruleType, annotations, miRefsPerService)
+
 	return routes, mis, nil
+}
+
+//creates routes by groping them by service when possible
+func createRoutesPerService(services map[ServiceKey][]ServiceRule, ruleType string, annotations map[string]string, miRefsPerService map[ServiceKey][]v1alpha1.MiddlewareRef) []*v1alpha1.Route {
+	var routes []*v1alpha1.Route
+	for serviceKey, serviceRules := range services {
+
+		// group paths by host like this
+		// H1 -> P1, P2
+		// H2 -> P1, P2
+		// H3 -> P3
+		pathsPerHost := map[string][]string{}
+		for _, serviceRule := range serviceRules {
+			pathsPerHost[serviceRule.Host] = append(pathsPerHost[serviceRule.Host], serviceRule.Path)
+		}
+
+		// group hosts by paths, because host rules with the same set of paths can be merged together
+		// "PathPrefix(P1, P2)" -> H1, H2
+		// "PathPrefix(P3)" -> H3
+		var hostsPerPathRule = map[string][]string{}
+		for host, paths := range pathsPerHost {
+			match := createMatchRule(paths, ruleType)
+			hostsPerPathRule[match] = append(hostsPerPathRule[match], host)
+		}
+
+		// create host rules from hostsPerPathRule and copy the path rules
+		// "Host(H1,H2)" -> "PathPrefix(P1, P2)"
+		// "Host(H3)" -> "PathPrefix(P3)"
+		resultingMatches := map[string]string{}
+		for pathRule, hosts := range hostsPerPathRule {
+			resultingMatches[createMatchRule(hosts, "Host")] = pathRule
+		}
+
+		routes = append(routes, buildRoutes(resultingMatches, annotations, serviceKey, miRefsPerService)...)
+
+	}
+
+	sort.SliceStable(routes, func(i, j int) bool {
+		return routes[i].Match < routes[j].Match
+	})
+	return routes
+}
+
+func buildRoutes(hostPathRules map[string]string, annotations map[string]string, serviceKey ServiceKey, miRefsPerService map[ServiceKey][]v1alpha1.MiddlewareRef) []*v1alpha1.Route {
+	var routes []*v1alpha1.Route
+	for hosts, paths := range hostPathRules {
+		var match []string
+		if len(hosts) > 0 {
+			match = append(match, hosts)
+		}
+		if len(paths) > 0 {
+			match = append(match, paths)
+		}
+		routes = append(routes, &v1alpha1.Route{
+			Match:    strings.Join(match, " && "),
+			Kind:     "Rule",
+			Priority: getIntValue(annotations, annotationKubernetesPriority, 0),
+			Services: []v1alpha1.Service{
+				{
+					LoadBalancerSpec: serviceKey.LoadBalancerSpec,
+				}},
+			Middlewares: miRefsPerService[serviceKey],
+		})
+	}
+	return routes
+}
+
+func createMiddewareRefsKey(miRefs []v1alpha1.MiddlewareRef) string {
+	var miNames []string
+	for _, miRef := range miRefs {
+		miNames = append(miNames, miRef.Name)
+	}
+	sort.Strings(miNames)
+	return fmt.Sprintf("%q", miNames)
+}
+
+func createMatchRule(ruleValues []string, ruleType string) string {
+	sort.Strings(ruleValues)
+	var ticked []string
+	for _, ruleValue := range ruleValues {
+		if ruleValue != "" {
+			ticked = append(ticked, "`"+ruleValue+"`")
+		}
+	}
+	if len(ticked) == 0 {
+		return ""
+	}
+	return fmt.Sprintf("%s(%s)", ruleType, strings.Join(ticked, ","))
 }
 
 func extractRuleType(annotations map[string]string) (string, bool, error) {

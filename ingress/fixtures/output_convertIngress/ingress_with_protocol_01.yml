@@ -8,17 +8,7 @@ spec:
   entryPoints: []
   routes:
   - kind: Rule
-    match: Host(`traefik.tchouk`) && PathPrefix(`/bar`)
-    middlewares: []
-    priority: 0
-    services:
-    - kind: Service
-      name: service1
-      namespace: testing
-      port: 80
-      scheme: h2c
-  - kind: Rule
-    match: Host(`traefik.tchouk`) && PathPrefix(`/foo`)
+    match: Host(`traefik.tchouk`) && PathPrefix(`/bar`,`/foo`)
     middlewares: []
     priority: 0
     services:

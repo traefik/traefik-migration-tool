@@ -5,17 +5,15 @@ metadata:
   name: test
   namespace: testing
 spec:
-  entryPoints: []
+  entryPoints:
+  - web
   routes:
   - kind: Rule
-    match: Host(`traefik.tchouk`) && PathPrefix(`/bar`,`/foo`)
-    middlewares:
-    - name: requestmodifier-963234829265067723
-      namespace: testing
-    priority: 0
+    match: Host(`traefik.host1`,`traefik.host2`) && PathPrefix(`/foo`)
+    middlewares: []
+    priority: 10
     services:
     - kind: Service
       name: service1
       namespace: testing
       port: 80
-
