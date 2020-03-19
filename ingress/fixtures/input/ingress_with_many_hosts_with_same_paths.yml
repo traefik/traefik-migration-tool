@@ -1,0 +1,40 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: test
+  namespace: testing
+  annotations:
+    kubernetes.io/ingress.class: internal
+spec:
+  rules:
+    - host: "traefik.tchouk.com"
+      http: &http
+        paths:
+          - path: /rest/path1
+            backend: &backend
+              serviceName: service1
+              servicePort: 80
+          - path: /rest/path2
+            backend: *backend
+          - path: /rest/path3
+            backend: *backend
+          - path: /rest/path4
+            backend: *backend
+          - path: /rest/path5
+            backend: *backend
+          - path: /rest/path6
+            backend: *backend
+          - path: /rest/path7
+            backend: *backend
+          - path: /rest/path8
+            backend: *backend
+          - path: /rest/path9
+            backend: *backend
+          - path: /rest/path10
+            backend: *backend
+    - host: "test.traefik.tchouk"
+      http: *http
+    - host: "preview.traefik.tchouk.com"
+      http: *http
+    - host: "preview.traefik.tchouk.io"
+      http: *http

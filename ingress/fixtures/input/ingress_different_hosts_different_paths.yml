@@ -8,21 +8,19 @@ metadata:
     ingress.kubernetes.io/priority: "10"
 spec:
   rules:
-  - host: traefik.tchouk
+  - host: traefik.host1
+    http:
+      paths:
+      - path: /foo
+        backend:
+          serviceName: service1
+          servicePort: 80
+  - host: traefik.host2
     http:
       paths:
       - path: /bar
         backend:
           serviceName: service1
           servicePort: 80
-      - path: /foo
-        backend:
-          serviceName: service1
-          servicePort: 80
-  - host: traefik.zz
-    http:
-      paths:
-      - path: /baz
-        backend:
-          serviceName: service1
-          servicePort: 80
+
+
