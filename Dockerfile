@@ -22,6 +22,7 @@ RUN apk --no-cache --no-progress add ca-certificates tzdata\
     && rm -rf /var/cache/apk/*
 
 COPY --from=builder /go/traefik-migration-tool/traefik-migration-tool .
+WORKDIR /data
 
 ENTRYPOINT ["/traefik-migration-tool"]
 CMD ["-h"]
