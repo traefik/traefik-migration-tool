@@ -25,6 +25,10 @@ func migrateConfiguration(oldCfg Configuration) static.Configuration {
 	}
 
 	return static.Configuration{
+		if oldCfg.Global == nil {
+			return nil
+		}
+			
 		Global: &static.Global{
 			CheckNewVersion:    oldCfg.CheckNewVersion,
 			SendAnonymousUsage: oldCfg.SendAnonymousUsage,
