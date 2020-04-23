@@ -24,10 +24,12 @@ func migrateConfiguration(oldCfg Configuration) static.Configuration {
 		fmt.Println("Web must be converted manually. See https://docs.traefik.io/operations/api/")
 	}
 
+	if oldCfg.Global == nil {
+		return nil
+	}
+
 	return static.Configuration{
-		if oldCfg.Global == nil {
-			return nil
-		}
+		
 			
 		Global: &static.Global{
 			CheckNewVersion:    oldCfg.CheckNewVersion,
