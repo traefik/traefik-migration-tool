@@ -18,7 +18,7 @@ const (
 	mapValueSeparator = ":"
 )
 
-// GetStringValue get string value associated to a label
+// GetStringValue get string value associated to a label.
 func GetStringValue(labels map[string]string, labelName string, defaultValue string) string {
 	if value, ok := labels[labelName]; ok && len(value) > 0 {
 		return value
@@ -26,7 +26,7 @@ func GetStringValue(labels map[string]string, labelName string, defaultValue str
 	return defaultValue
 }
 
-// GetBoolValue get bool value associated to a label
+// GetBoolValue get bool value associated to a label.
 func GetBoolValue(labels map[string]string, labelName string, defaultValue bool) bool {
 	rawValue, ok := labels[labelName]
 	if ok {
@@ -39,7 +39,7 @@ func GetBoolValue(labels map[string]string, labelName string, defaultValue bool)
 	return defaultValue
 }
 
-// GetIntValue get int value associated to a label
+// GetIntValue get int value associated to a label.
 func GetIntValue(labels map[string]string, labelName string, defaultValue int) int {
 	if rawValue, ok := labels[labelName]; ok {
 		value, err := strconv.Atoi(rawValue)
@@ -51,7 +51,7 @@ func GetIntValue(labels map[string]string, labelName string, defaultValue int) i
 	return defaultValue
 }
 
-// GetInt64Value get int64 value associated to a label
+// GetInt64Value get int64 value associated to a label.
 func GetInt64Value(labels map[string]string, labelName string, defaultValue int64) int64 {
 	if rawValue, ok := labels[labelName]; ok {
 		value, err := strconv.ParseInt(rawValue, 10, 64)
@@ -63,7 +63,7 @@ func GetInt64Value(labels map[string]string, labelName string, defaultValue int6
 	return defaultValue
 }
 
-// GetSliceStringValue get a slice of string associated to a label
+// GetSliceStringValue get a slice of string associated to a label.
 func GetSliceStringValue(labels map[string]string, labelName string) []string {
 	value := make([]string, 0, 1)
 
@@ -77,7 +77,7 @@ func GetSliceStringValue(labels map[string]string, labelName string) []string {
 	return value
 }
 
-// ParseMapValue get Map value for a label value
+// ParseMapValue get Map value for a label value.
 func ParseMapValue(labelName, values string) map[string]string {
 	mapValue := make(map[string]string)
 
@@ -97,7 +97,7 @@ func ParseMapValue(labelName, values string) map[string]string {
 	return mapValue
 }
 
-// GetMapValue get Map value associated to a label
+// GetMapValue get Map value associated to a label.
 func GetMapValue(labels map[string]string, labelName string) map[string]string {
 	if values, ok := labels[labelName]; ok {
 		if len(values) == 0 {
@@ -111,8 +111,8 @@ func GetMapValue(labels map[string]string, labelName string) map[string]string {
 	return nil
 }
 
-// GetStringMultipleStrict get multiple string values associated to several labels
-// Fail if one label is missing
+// GetStringMultipleStrict get multiple string values associated to several labels.
+// Fail if one label is missing.
 func GetStringMultipleStrict(labels map[string]string, labelNames ...string) (map[string]string, error) {
 	foundLabels := map[string]string{}
 	for _, name := range labelNames {
@@ -126,13 +126,13 @@ func GetStringMultipleStrict(labels map[string]string, labelNames ...string) (ma
 	return foundLabels, nil
 }
 
-// Has Check if a value is associated to a label
+// Has Check if a value is associated to a label.
 func Has(labels map[string]string, labelName string) bool {
 	value, ok := labels[labelName]
 	return ok && len(value) > 0
 }
 
-// HasPrefix Check if a value is associated to a less one label with a prefix
+// HasPrefix Check if a value is associated to a less one label with a prefix.
 func HasPrefix(labels map[string]string, prefix string) bool {
 	for name, value := range labels {
 		if strings.HasPrefix(name, prefix) && len(value) > 0 {
@@ -142,9 +142,8 @@ func HasPrefix(labels map[string]string, prefix string) bool {
 	return false
 }
 
-// SplitAndTrimString splits separatedString at the separator character and trims each
-// piece, filtering out empty pieces. Returns the list of pieces or nil if the input
-// did not contain a non-empty piece.
+// SplitAndTrimString splits separatedString at the separator character and trims each piece, filtering out empty pieces.
+// Returns the list of pieces or nil if the input did not contain a non-empty piece.
 func SplitAndTrimString(base string, sep string) []string {
 	var trimmedStrings []string
 
@@ -158,28 +157,28 @@ func SplitAndTrimString(base string, sep string) []string {
 	return trimmedStrings
 }
 
-// GetFuncString a func related to GetStringValue
+// GetFuncString a func related to GetStringValue.
 func GetFuncString(labelName string, defaultValue string) func(map[string]string) string {
 	return func(labels map[string]string) string {
 		return GetStringValue(labels, labelName, defaultValue)
 	}
 }
 
-// GetFuncInt a func related to GetIntValue
+// GetFuncInt a func related to GetIntValue.
 func GetFuncInt(labelName string, defaultValue int) func(map[string]string) int {
 	return func(labels map[string]string) int {
 		return GetIntValue(labels, labelName, defaultValue)
 	}
 }
 
-// GetFuncBool a func related to GetBoolValue
+// GetFuncBool a func related to GetBoolValue.
 func GetFuncBool(labelName string, defaultValue bool) func(map[string]string) bool {
 	return func(labels map[string]string) bool {
 		return GetBoolValue(labels, labelName, defaultValue)
 	}
 }
 
-// GetFuncSliceString a func related to GetSliceStringValue
+// GetFuncSliceString a func related to GetSliceStringValue.
 func GetFuncSliceString(labelName string) func(map[string]string) []string {
 	return func(labels map[string]string) []string {
 		return GetSliceStringValue(labels, labelName)

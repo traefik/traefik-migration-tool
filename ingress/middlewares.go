@@ -15,14 +15,14 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// Rate holds a rate limiting configuration for a specific time period
+// Rate holds a rate limiting configuration for a specific time period.
 type Rate struct {
 	Period  time.Duration `json:"period,omitempty"`
 	Average int64         `json:"average,omitempty"`
 	Burst   int64         `json:"burst,omitempty"`
 }
 
-// RateLimit holds a rate limiting configuration for a given frontend
+// RateLimit holds a rate limiting configuration for a given frontend.
 type RateLimit struct {
 	RateSet       map[string]*Rate `json:"rateset,omitempty"`
 	ExtractorFunc string           `json:"extractorFunc,omitempty"`
@@ -70,7 +70,7 @@ func (t *TLSClientHeaders) getPassTLSCert() *dynamic.PassTLSClientCert {
 	return passTLS
 }
 
-// TLSClientCertificateInfos holds the client TLS certificate infos configuration
+// TLSClientCertificateInfos holds the client TLS certificate infos configuration.
 type TLSClientCertificateInfos struct {
 	NotAfter  bool                         `description:"Add NotAfter info in header" json:"notAfter"`
 	NotBefore bool                         `description:"Add NotBefore info in header" json:"notBefore"`
@@ -79,7 +79,7 @@ type TLSClientCertificateInfos struct {
 	Issuer    *TLSCLientCertificateDNInfos `description:"Add Issuer info in header" json:"issuer,omitempty"`
 }
 
-// TLSCLientCertificateDNInfos holds the client TLS certificate distinguished name infos configuration
+// TLSCLientCertificateDNInfos holds the client TLS certificate distinguished name infos configuration.
 // cf https://tools.ietf.org/html/rfc3739
 type TLSCLientCertificateDNInfos struct {
 	Country         bool `description:"Add Country info in header" json:"country"`

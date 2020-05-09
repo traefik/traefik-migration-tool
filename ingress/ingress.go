@@ -1,4 +1,4 @@
-// Package ingress convert Ingress to IngressRoute
+// Package ingress convert Ingress to IngressRoute.
 package ingress
 
 import (
@@ -33,7 +33,7 @@ const (
 	ruleTypeReplacePathRegex = "ReplacePathRegex"
 )
 
-// Convert converts all ingress in a src into a dstDir
+// Convert converts all ingress in a src into a dstDir.
 func Convert(src, dstDir string) error {
 	info, err := os.Stat(src)
 	if err != nil {
@@ -215,7 +215,7 @@ func extractItems(items []interface{}) ([]interface{}, []unstructured.Unstructur
 	return toKeep, toConvert
 }
 
-// convertIngress converts an *networking.Ingress to a slice of runtime.Object (IngressRoute and Middlewares)
+// convertIngress converts an *networking.Ingress to a slice of runtime.Object (IngressRoute and Middlewares).
 func convertIngress(ingress *networking.Ingress) []runtime.Object {
 	logUnsupported(ingress)
 
