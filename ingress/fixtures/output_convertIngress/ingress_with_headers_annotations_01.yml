@@ -11,7 +11,7 @@ spec:
   - kind: Rule
     match: Host(`custom-headers`) && PathPrefix(`/customheaders`)
     middlewares:
-    - name: headers-4656452034294353894
+    - name: headers-11269227965516138364
       namespace: testing
     priority: 0
     services:

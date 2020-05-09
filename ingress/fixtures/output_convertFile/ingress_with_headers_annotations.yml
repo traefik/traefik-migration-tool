@@ -11,7 +11,7 @@ spec:
   - kind: Rule
     match: Host(`custom-headers`) && PathPrefix(`/customheaders`)
     middlewares:
-    - name: headers-4656452034294353894
+    - name: headers-11269227965516138364
       namespace: testing
     priority: 0
     services:
@@ -24,7 +24,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   creationTimestamp: null
-  name: headers-4656452034294353894
+  name: headers-11269227965516138364
   namespace: testing
 spec:
   headers:

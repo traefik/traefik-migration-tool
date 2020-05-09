@@ -11,9 +11,9 @@ spec:
   - kind: Rule
     match: Host(`rate-limit`) && PathPrefix(`/ratelimit`)
     middlewares:
-    - name: middleware-bar-17009375545375373055
+    - name: middleware-bar-8096153277603422959
       namespace: testing
-    - name: middleware-foo-5684249717850680246
+    - name: middleware-foo-15290186382285107442
       namespace: testing
     priority: 0
     services:
