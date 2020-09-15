@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/containous/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
+	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
 	"github.com/gogo/protobuf/proto"
 	networking "k8s.io/api/networking/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"

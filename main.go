@@ -7,9 +7,9 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/containous/traefik-migration-tool/acme"
-	"github.com/containous/traefik-migration-tool/ingress"
-	"github.com/containous/traefik-migration-tool/static"
+	"github.com/traefik/traefik-migration-tool/acme"
+	"github.com/traefik/traefik-migration-tool/ingress"
+	"github.com/traefik/traefik-migration-tool/static"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 )

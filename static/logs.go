@@ -1,6 +1,6 @@
 package static
 
-import "github.com/containous/traefik/v2/pkg/types"
+import "github.com/traefik/traefik/v2/pkg/types"
 
 func migrateAccessLog(oldCfg Configuration) *types.AccessLog {
 	if oldCfg.AccessLog == nil {

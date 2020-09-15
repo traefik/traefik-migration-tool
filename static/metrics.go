@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/containous/traefik/v2/pkg/types"
+	"github.com/traefik/traefik/v2/pkg/types"
 )
 
 func migrateMetrics(oldCfg Configuration) *types.Metrics {

@@ -3,8 +3,8 @@ package static
 import (
 	"fmt"
 
-	"github.com/containous/traefik/v2/pkg/config/static"
-	"github.com/containous/traefik/v2/pkg/provider/acme"
+	"github.com/traefik/traefik/v2/pkg/config/static"
+	"github.com/traefik/traefik/v2/pkg/provider/acme"
 )
 
 func migrateACME(oldCfg Configuration) map[string]static.CertificateResolver {

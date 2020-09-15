@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"github.com/containous/flaeg/parse"
-	"github.com/containous/traefik/v2/pkg/config/static"
-	"github.com/containous/traefik/v2/pkg/ping"
-	"github.com/containous/traefik/v2/pkg/tls"
-	"github.com/containous/traefik/v2/pkg/types"
+	"github.com/traefik/traefik/v2/pkg/config/static"
+	"github.com/traefik/traefik/v2/pkg/ping"
+	"github.com/traefik/traefik/v2/pkg/tls"
+	"github.com/traefik/traefik/v2/pkg/types"
 )
 
 func migrateConfiguration(oldCfg Configuration) static.Configuration {

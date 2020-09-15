@@ -5,14 +5,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/containous/traefik/v2/pkg/config/static"
-	"github.com/containous/traefik/v2/pkg/provider/docker"
-	"github.com/containous/traefik/v2/pkg/provider/file"
-	"github.com/containous/traefik/v2/pkg/provider/kubernetes/ingress"
-	"github.com/containous/traefik/v2/pkg/provider/marathon"
-	"github.com/containous/traefik/v2/pkg/provider/rancher"
-	"github.com/containous/traefik/v2/pkg/provider/rest"
-	"github.com/containous/traefik/v2/pkg/types"
+	"github.com/traefik/traefik/v2/pkg/config/static"
+	"github.com/traefik/traefik/v2/pkg/provider/docker"
+	"github.com/traefik/traefik/v2/pkg/provider/file"
+	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/ingress"
+	"github.com/traefik/traefik/v2/pkg/provider/marathon"
+	"github.com/traefik/traefik/v2/pkg/provider/rancher"
+	"github.com/traefik/traefik/v2/pkg/provider/rest"
+	"github.com/traefik/traefik/v2/pkg/types"
 )
 
 func migrateProviders(oldCfg Configuration) *static.Providers {

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/containous/traefik/v2/pkg/config/dynamic"
-	"github.com/containous/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
 	"github.com/mitchellh/hashstructure"
 	"gopkg.in/yaml.v2"
 	networking "k8s.io/api/networking/v1beta1"

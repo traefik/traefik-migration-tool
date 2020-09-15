@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/containous/traefik/v2/pkg/provider/acme"
-	"github.com/containous/traefik/v2/pkg/types"
+	"github.com/traefik/traefik/v2/pkg/provider/acme"
+	"github.com/traefik/traefik/v2/pkg/types"
 )
 
 // Convert a acme.json file.
