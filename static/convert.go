@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/BurntSushi/toml"
-	"github.com/containous/traefik/v2/pkg/config/static"
+	"github.com/traefik/traefik/v2/pkg/config/static"
 	"gopkg.in/yaml.v2"
 )
 

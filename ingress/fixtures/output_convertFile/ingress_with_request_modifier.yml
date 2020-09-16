@@ -10,7 +10,7 @@ spec:
   - kind: Rule
     match: Host(`traefik.tchouk`) && PathPrefix(`/bar`)
     middlewares:
-    - name: requestmodifier-963234829265067723
+    - name: requestmodifier-8146275261313797339
       namespace: testing
     priority: 0
     services:
@@ -21,7 +21,7 @@ spec:
   - kind: Rule
     match: Host(`traefik.tchouk`) && PathPrefix(`/foo`)
     middlewares:
-    - name: requestmodifier-963234829265067723
+    - name: requestmodifier-8146275261313797339
       namespace: testing
     priority: 0
     services:
@@ -34,7 +34,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   creationTimestamp: null
-  name: requestmodifier-963234829265067723
+  name: requestmodifier-8146275261313797339
   namespace: testing
 spec:
   addPrefix:

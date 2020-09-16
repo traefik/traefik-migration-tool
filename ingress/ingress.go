@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/containous/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
+	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
 	extensions "k8s.io/api/extensions/v1beta1"
 	networking "k8s.io/api/networking/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -306,7 +306,7 @@ func createRoutes(namespace string, rules []networking.IngressRule, annotations 
 
 	for _, rule := range rules {
 		for _, path := range rule.HTTP.Paths {
-			var miRefs = make([]v1alpha1.MiddlewareRef, 0, 1)
+			miRefs := make([]v1alpha1.MiddlewareRef, 0, 1)
 			miRefs = append(miRefs, middlewareRefs...)
 
 			var rules []string
@@ -359,7 +359,8 @@ func createRoutes(namespace string, rules []networking.IngressRule, annotations 
 								Port:   path.Backend.ServicePort.IntVal,
 								Scheme: getStringValue(annotations, annotationKubernetesProtocol, ""),
 							},
-						}},
+						},
+					},
 					Middlewares: miRefs,
 				})
 			}

@@ -1,7 +1,7 @@
 # traefik-migration-tool
 
-[![GitHub release](https://img.shields.io/github/release/containous/traefik-migration-tool.svg)](https://github.com/containous/traefik-migration-tool/releases/latest)
-[![Build Status](https://travis-ci.com/containous/traefik-migration-tool.svg?branch=master)](https://travis-ci.com/containous/traefik-migration-tool)
+[![GitHub release](https://img.shields.io/github/release/traefik/traefik-migration-tool.svg)](https://github.com/traefik/traefik-migration-tool/releases/latest)
+[![Build Status](https://travis-ci.com/traefik/traefik-migration-tool.svg?branch=master)](https://travis-ci.com/traefik/traefik-migration-tool)
 
 A migration tool from Traefik v1 to Traefik v2.
 
@@ -21,7 +21,7 @@ Features:
 
 You can use pre-compiled binaries:
 
-* To get the binary just download the latest release for your OS/Arch from [the releases page](https://github.com/containous/traefik-migration-tool/releases)
+* To get the binary just download the latest release for your OS/Arch from [the releases page](https://github.com/traefik/traefik-migration-tool/releases)
 * Unzip the archive.
 * Add `traefik-migration-tool` in your `PATH`.
 
@@ -30,7 +30,7 @@ You can use pre-compiled binaries:
 You can use a Docker image:
 
 ```sh
-docker run --rm -v ${PWD}:/data containous/traefik-migration-tool <options here>
+docker run --rm -v ${PWD}:/data traefik/traefik-migration-tool <options here>
 ```
 
 ## Limits

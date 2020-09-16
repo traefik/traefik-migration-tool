@@ -10,7 +10,7 @@ spec:
   - kind: Rule
     match: Host(`traefik.tchouk`) && PathPrefix(`/`)
     middlewares:
-    - name: redirect-16681949244266672583
+    - name: redirect-11227837511975166935
       namespace: testing
     priority: 0
     services:
@@ -21,7 +21,7 @@ spec:
   - kind: Rule
     match: Host(`traefik.tchouk`) && PathPrefix(`/bar`)
     middlewares:
-    - name: redirect-16681949244266672583
+    - name: redirect-11227837511975166935
       namespace: testing
     priority: 0
     services:
@@ -34,7 +34,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   creationTimestamp: null
-  name: redirect-16681949244266672583
+  name: redirect-11227837511975166935
   namespace: testing
 spec:
   redirectRegex:
@@ -46,7 +46,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   creationTimestamp: null
-  name: redirect-16681949244266672583
+  name: redirect-11227837511975166935
   namespace: testing
 spec:
   redirectRegex:

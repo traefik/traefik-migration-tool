@@ -7,9 +7,9 @@ import (
 	"testing"
 
 	"github.com/BurntSushi/toml"
-	"github.com/containous/traefik/v2/pkg/config/static"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/traefik/traefik/v2/pkg/config/static"
 	"gopkg.in/yaml.v2"
 )
 

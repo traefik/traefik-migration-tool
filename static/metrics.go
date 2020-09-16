@@ -4,7 +4,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/containous/traefik/v2/pkg/types"
+	ptypes "github.com/traefik/paerser/types"
+	"github.com/traefik/traefik/v2/pkg/types"
 )
 
 func migrateMetrics(oldCfg Configuration) *types.Metrics {
@@ -77,9 +78,9 @@ func migratePrometheus(oldCfg Configuration) *types.Prometheus {
 	}
 }
 
-func parsePushInterval(value string) types.Duration {
+func parsePushInterval(value string) ptypes.Duration {
 	if value == "" {
-		return types.Duration(10 * time.Second)
+		return ptypes.Duration(10 * time.Second)
 	}
 
 	pushInternal, err := time.ParseDuration(value)
@@ -87,5 +88,5 @@ func parsePushInterval(value string) types.Duration {
 		log.Fatal(err)
 	}
 
-	return types.Duration(pushInternal)
+	return ptypes.Duration(pushInternal)
 }

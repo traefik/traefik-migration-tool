@@ -3,7 +3,7 @@ package ingress
 import (
 	"strconv"
 
-	"github.com/containous/traefik-migration-tool/label"
+	"github.com/traefik/traefik-migration-tool/label"
 )
 
 const (
@@ -14,7 +14,7 @@ const (
 	annotationKubernetesPriority            = "ingress.kubernetes.io/priority"
 	annotationKubernetesRewriteTarget       = "ingress.kubernetes.io/rewrite-target"
 
-	// CustomHeadersMiddleware
+	// CustomHeadersMiddleware.
 	annotationKubernetesSSLForceHost            = "ingress.kubernetes.io/ssl-force-host"
 	annotationKubernetesSSLRedirect             = "ingress.kubernetes.io/ssl-redirect"
 	annotationKubernetesHSTSMaxAge              = "ingress.kubernetes.io/hsts-max-age"
@@ -38,11 +38,11 @@ const (
 	annotationKubernetesReferrerPolicy          = "ingress.kubernetes.io/referrer-policy"
 	annotationKubernetesIsDevelopment           = "ingress.kubernetes.io/is-development"
 
-	// WhitelistMiddleware
+	// WhitelistMiddleware.
 	annotationKubernetesWhiteListSourceRange      = "ingress.kubernetes.io/whitelist-source-range"
 	annotationKubernetesWhiteListUseXForwardedFor = "ingress.kubernetes.io/whitelist-x-forwarded-for"
 
-	// AuthMiddleware
+	// AuthMiddleware.
 	annotationKubernetesAuthType                   = "ingress.kubernetes.io/auth-type"
 	annotationKubernetesAuthHeaderField            = "ingress.kubernetes.io/auth-header-field"
 	annotationKubernetesAuthForwardResponseHeaders = "ingress.kubernetes.io/auth-response-headers"
@@ -53,42 +53,42 @@ const (
 	annotationKubernetesAuthForwardTLSSecret       = "ingress.kubernetes.io/auth-tls-secret"
 	annotationKubernetesAuthForwardTLSInsecure     = "ingress.kubernetes.io/auth-tls-insecure"
 
-	// PassTLSCertMiddleware
+	// PassTLSCertMiddleware.
 	annotationKubernetesPassTLSCert       = "ingress.kubernetes.io/pass-tls-cert" // Deprecated
 	annotationKubernetesPassTLSClientCert = "ingress.kubernetes.io/pass-client-tls-cert"
 
-	// RedirectMiddleware
+	// RedirectMiddleware.
 	annotationKubernetesAppRoot             = "ingress.kubernetes.io/app-root"
 	annotationKubernetesRedirectEntryPoint  = "ingress.kubernetes.io/redirect-entry-point"
 	annotationKubernetesRedirectPermanent   = "ingress.kubernetes.io/redirect-permanent"
 	annotationKubernetesRedirectRegex       = "ingress.kubernetes.io/redirect-regex"
 	annotationKubernetesRedirectReplacement = "ingress.kubernetes.io/redirect-replacement"
 
-	// RateLimitMiddleware
+	// RateLimitMiddleware.
 	annotationKubernetesRateLimit = "ingress.kubernetes.io/rate-limit"
 
-	// Modifiers Middlewares
+	// Modifiers Middlewares.
 	annotationKubernetesRequestModifier = "ingress.kubernetes.io/request-modifier"
 
-	// TODO ErrorPagesMiddleware
+	// TODO ErrorPagesMiddleware.
 	annotationKubernetesErrorPages = "ingress.kubernetes.io/error-pages"
 
-	// TODO service annotation
+	// TODO service annotation.
 
-	// TODO BufferingMiddleware
+	// TODO BufferingMiddleware.
 	annotationKubernetesBuffering = "ingress.kubernetes.io/buffering"
 
-	// TODO CircuitBreakMiddleware
+	// TODO CircuitBreakMiddleware.
 	annotationKubernetesCircuitBreakerExpression = "ingress.kubernetes.io/circuit-breaker-expression"
 
-	// TODO InFlightReqMiddleware
+	// TODO InFlightReqMiddleware.
 	annotationKubernetesMaxConnAmount        = "ingress.kubernetes.io/max-conn-amount"
 	annotationKubernetesMaxConnExtractorFunc = "ingress.kubernetes.io/max-conn-extractor-func"
 
 	annotationKubernetesResponseForwardingFlushInterval = "ingress.kubernetes.io/responseforwarding-flushinterval"
 	annotationKubernetesLoadBalancerMethod              = "ingress.kubernetes.io/load-balancer-method"
 
-	// FIXME Not possible yet
+	// FIXME Not possible yet.
 	annotationKubernetesPreserveHost      = "ingress.kubernetes.io/preserve-host"
 	annotationKubernetesSessionCookieName = "ingress.kubernetes.io/session-cookie-name"
 	annotationKubernetesAffinity          = "ingress.kubernetes.io/affinity"
@@ -97,7 +97,7 @@ const (
 	annotationKubernetesAuthRealm      = "ingress.kubernetes.io/auth-realm"
 	annotationKubernetesServiceWeights = "ingress.kubernetes.io/service-weights"
 
-	// FIXME global backend
+	// FIXME global backend.
 )
 
 var compatibilityMapping = map[string]string{

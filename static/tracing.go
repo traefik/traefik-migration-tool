@@ -1,10 +1,10 @@
 package static
 
 import (
-	"github.com/containous/traefik/v2/pkg/config/static"
-	"github.com/containous/traefik/v2/pkg/tracing/datadog"
-	"github.com/containous/traefik/v2/pkg/tracing/jaeger"
-	"github.com/containous/traefik/v2/pkg/tracing/zipkin"
+	"github.com/traefik/traefik/v2/pkg/config/static"
+	"github.com/traefik/traefik/v2/pkg/tracing/datadog"
+	"github.com/traefik/traefik/v2/pkg/tracing/jaeger"
+	"github.com/traefik/traefik/v2/pkg/tracing/zipkin"
 )
 
 func migrateTracing(oldCfg Configuration) *static.Tracing {

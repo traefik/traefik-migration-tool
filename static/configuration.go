@@ -5,10 +5,11 @@ import (
 	"time"
 
 	"github.com/containous/flaeg/parse"
-	"github.com/containous/traefik/v2/pkg/config/static"
-	"github.com/containous/traefik/v2/pkg/ping"
-	"github.com/containous/traefik/v2/pkg/tls"
-	"github.com/containous/traefik/v2/pkg/types"
+	ptypes "github.com/traefik/paerser/types"
+	"github.com/traefik/traefik/v2/pkg/config/static"
+	"github.com/traefik/traefik/v2/pkg/ping"
+	"github.com/traefik/traefik/v2/pkg/tls"
+	"github.com/traefik/traefik/v2/pkg/types"
 )
 
 func migrateConfiguration(oldCfg Configuration) static.Configuration {
@@ -209,10 +210,10 @@ func migrateServersTransport(oldCfg Configuration) *static.ServersTransport {
 	return serversTransport
 }
 
-func convertDuration(value parse.Duration, defaultDuration time.Duration) types.Duration {
+func convertDuration(value parse.Duration, defaultDuration time.Duration) ptypes.Duration {
 	if value == 0 {
-		return types.Duration(defaultDuration)
+		return ptypes.Duration(defaultDuration)
 	}
 
-	return types.Duration(value)
+	return ptypes.Duration(value)
 }

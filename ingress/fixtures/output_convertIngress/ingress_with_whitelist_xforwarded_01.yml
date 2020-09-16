@@ -9,7 +9,7 @@ spec:
   - kind: Rule
     match: Host(`test`) && PathPrefix(`/whitelist-source-range-x-forwarded`)
     middlewares:
-    - name: whitelist-2194223418228743827
+    - name: whitelist-7070660606098377859
       namespace: testing
     priority: 0
     services:
