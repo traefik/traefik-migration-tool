@@ -1,5 +1,5 @@
 # Building app with golang container
-FROM golang:1.13-alpine as builder
+FROM golang:1.15-alpine as builder
 
 RUN apk --no-cache --no-progress add git make ca-certificates tzdata\
     && rm -rf /var/cache/apk/*
@@ -16,7 +16,7 @@ COPY . .
 RUN make build
 
 ## IMAGE
-FROM alpine:3.10
+FROM alpine:3.12
 
 RUN apk --no-cache --no-progress add ca-certificates tzdata\
     && rm -rf /var/cache/apk/*
