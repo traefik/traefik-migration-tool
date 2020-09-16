@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	ptypes "github.com/traefik/paerser/types"
 	"github.com/traefik/traefik/v2/pkg/config/static"
 	"github.com/traefik/traefik/v2/pkg/provider/docker"
 	"github.com/traefik/traefik/v2/pkg/provider/file"
@@ -188,9 +189,9 @@ func migrateDocker(oldCfg Configuration) *docker.Provider {
 		fmt.Printf("The domain (%s) defined in the Docker provider must be converted manually. See https://docs.traefik.io/providers/docker/#defaultrule\n", oldCfg.Docker.Domain)
 	}
 
-	swarmModeRefreshSeconds := types.Duration(15 * time.Second)
+	swarmModeRefreshSeconds := ptypes.Duration(15 * time.Second)
 	if oldCfg.Docker.SwarmModeRefreshSeconds > 0 {
-		swarmModeRefreshSeconds = types.Duration(time.Duration(oldCfg.Docker.SwarmModeRefreshSeconds) * time.Second)
+		swarmModeRefreshSeconds = ptypes.Duration(time.Duration(oldCfg.Docker.SwarmModeRefreshSeconds) * time.Second)
 	}
 
 	return &docker.Provider{

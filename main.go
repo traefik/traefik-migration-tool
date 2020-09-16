@@ -7,16 +7,18 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/spf13/cobra"
+	"github.com/spf13/cobra/doc"
 	"github.com/traefik/traefik-migration-tool/acme"
 	"github.com/traefik/traefik-migration-tool/ingress"
 	"github.com/traefik/traefik-migration-tool/static"
-	"github.com/spf13/cobra"
-	"github.com/spf13/cobra/doc"
 )
 
-var Version = "dev"
-var ShortCommit = ""
-var Date = ""
+var (
+	Version     = "dev"
+	ShortCommit = ""
+	Date        = ""
+)
 
 type acmeConfig struct {
 	input        string

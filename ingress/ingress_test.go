@@ -10,9 +10,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
 	networking "k8s.io/api/networking/v1beta1"
 )
 
