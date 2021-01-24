@@ -33,10 +33,14 @@
     "godox",
     "stylecheck",
     "wsl",
+    "nlreturn",
     "gomnd",
     "goerr113",
+    "wrapcheck",
     "testpackage",
-    "nlreturn",
+    "paralleltest",
+    "exhaustivestruct",
+    "forbidigo",
   ]
 
 [issues]
@@ -46,15 +50,15 @@
   exclude = []
   [[issues.exclude-rules]]
     path = "annotations.go"
-    text = "`(compatibilityMapping)` is a global variable"
+    text = "(compatibilityMapping) is a global variable"
 
   [[issues.exclude-rules]]
     path = ".*_test.go"
-    text = "`(updateExpected)` is a global variable"
+    text = "(updateExpected) is a global variable"
 
   [[issues.exclude-rules]]
     path = "main.go"
-    text = "`(Version|ShortCommit|Date)` is a global variable"
+    text = "(Version|ShortCommit|Date) is a global variable"
 
   [[issues.exclude-rules]]
     path = "main.go"
