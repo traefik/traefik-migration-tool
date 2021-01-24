@@ -24,7 +24,7 @@ func TestConvert(t *testing.T) {
 			dir, err := ioutil.TempDir("", "traefik-migration-tool-static")
 			require.NoError(t, err)
 
-			defer func() { _ = os.RemoveAll(dir) }()
+			t.Cleanup(func() { _ = os.RemoveAll(dir) })
 
 			err = Convert(test, dir)
 			require.NoError(t, err)

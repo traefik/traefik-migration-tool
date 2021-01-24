@@ -22,7 +22,7 @@ func TestConvert(t *testing.T) {
 	dir, err := ioutil.TempDir("", "traefik-migration-tool-acme")
 	require.NoError(t, err)
 
-	defer func() { _ = os.RemoveAll(dir) }()
+	t.Cleanup(func() { _ = os.RemoveAll(dir) })
 
 	dstFile := filepath.Join(dir, "new-acme.json")
 
