@@ -113,7 +113,7 @@ spec:
     middlewares:
     - name: auth-11564652807627220706
       namespace: dev
-    - name: headers-10309190551943573675
+    - name: headers-9890129332148415812
       namespace: dev
     priority: 0
     services:
@@ -136,7 +136,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   creationTimestamp: null
-  name: headers-10309190551943573675
+  name: headers-9890129332148415812
   namespace: dev
 spec:
   headers:

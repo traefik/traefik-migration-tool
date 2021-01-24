@@ -92,15 +92,14 @@ func migrateKubernetes(oldCfg Configuration) *ingress.Provider {
 	}
 
 	return &ingress.Provider{
-		Endpoint:               oldCfg.Kubernetes.Endpoint,
-		Token:                  oldCfg.Kubernetes.Token,
-		CertAuthFilePath:       oldCfg.Kubernetes.CertAuthFilePath,
-		DisablePassHostHeaders: oldCfg.Kubernetes.DisablePassHostHeaders,
-		Namespaces:             oldCfg.Kubernetes.Namespaces,
-		LabelSelector:          oldCfg.Kubernetes.LabelSelector,
-		IngressClass:           oldCfg.Kubernetes.IngressClass,
-		ThrottleDuration:       convertDuration(oldCfg.Kubernetes.ThrottleDuration, 0),
-		IngressEndpoint:        migrateIngressEndpoint(oldCfg),
+		Endpoint:         oldCfg.Kubernetes.Endpoint,
+		Token:            oldCfg.Kubernetes.Token,
+		CertAuthFilePath: oldCfg.Kubernetes.CertAuthFilePath,
+		Namespaces:       oldCfg.Kubernetes.Namespaces,
+		LabelSelector:    oldCfg.Kubernetes.LabelSelector,
+		IngressClass:     oldCfg.Kubernetes.IngressClass,
+		ThrottleDuration: convertDuration(oldCfg.Kubernetes.ThrottleDuration, 0),
+		IngressEndpoint:  migrateIngressEndpoint(oldCfg),
 	}
 }
 
