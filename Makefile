@@ -27,6 +27,9 @@ doc:
 image:
 	docker build -t traefik-migration-tool .
 
+publish-images:
+	seihon publish -v "$(TAG_NAME)" -v "latest" --image-name traefik/traefik-migration-tool --dry-run=false
+
 package:
 	goreleaser --skip-publish --skip-validate --rm-dist
 

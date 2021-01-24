@@ -16,7 +16,7 @@ COPY . .
 RUN make build
 
 ## IMAGE
-FROM alpine:3.12
+FROM alpine:3.13
 
 RUN apk --no-cache --no-progress add ca-certificates tzdata\
     && rm -rf /var/cache/apk/*
