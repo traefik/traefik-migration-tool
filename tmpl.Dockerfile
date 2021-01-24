@@ -3,7 +3,7 @@ FROM golang:1-alpine as builder
 RUN apk --update upgrade \
     && apk --no-cache --no-progress add git make gcc musl-dev ca-certificates tzdata
 
-WORKDIR /go/traefik-certs-dumper
+WORKDIR /go/traefik-migration-tool
 
 ENV GO111MODULE on
 COPY go.mod go.sum ./
@@ -19,6 +19,6 @@ FROM {{ .RuntimeImage }}
 #    && apk --no-cache --no-progress add ca-certificates
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder /go/traefik-certs-dumper/traefik-certs-dumper .
+COPY --from=builder /go/traefik-migration-tool/traefik-migration-tool .
 
 ENTRYPOINT ["/traefik-migration-tool"]
