@@ -319,7 +319,9 @@ func createRoutes(namespace string, rules []networking.IngressRule, annotations 
 				rules = append(rules, fmt.Sprintf("%s(`%s`)", ruleType, path.Path))
 
 				if stripPrefix {
-					mi := getStripPrefix(path, strings.ReplaceAll(rule.Host+path.Path, "/", ""), namespace)
+					middlewareName := strings.TrimPrefix(rule.Host+path.Path, `/`)
+					middlewareName = strings.ReplaceAll(middlewareName, "/", "-")
+					mi := getStripPrefix(path, middlewareName, namespace)
 					mis = append(mis, mi)
 					miRefs = append(miRefs, toRef(mi))
 				}
