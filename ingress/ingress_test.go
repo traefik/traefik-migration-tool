@@ -200,6 +200,10 @@ func Test_convertFile(t *testing.T) {
 			ingressFile: "ingress_with_request_modifier.yml",
 			objectCount: 2,
 		},
+		{
+			ingressFile: "ingress_with_middleware_name.yml",
+			objectCount: 1,
+		},
 	}
 
 	fixturesDir := filepath.Join("fixtures", "output_convertFile")

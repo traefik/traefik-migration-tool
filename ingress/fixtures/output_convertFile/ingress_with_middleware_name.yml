@@ -1,0 +1,32 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  creationTimestamp: null
+  name: test
+  namespace: testing
+spec:
+  entryPoints:
+  - web
+  routes:
+  - kind: Rule
+    match: PathPrefix(`/bar`)
+    middlewares:
+    - name: bar
+      namespace: testing
+    priority: 0
+    services:
+    - kind: Service
+      name: service1
+      namespace: testing
+      port: 80
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  creationTimestamp: null
+  name: bar
+  namespace: testing
+spec:
+  stripPrefix:
+    prefixes:
+    - /bar
