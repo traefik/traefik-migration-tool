@@ -2,7 +2,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   creationTimestamp: null
-  name: traefik.tchouk/foo
+  name: traefik.tchouk-foo
   namespace: testing
 spec:
   stripPrefix:

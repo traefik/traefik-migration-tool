@@ -11,7 +11,7 @@ spec:
   - kind: Rule
     match: Host(`traefik.tchouk`) && PathPrefix(`/bar`)
     middlewares:
-    - name: traefik.tchouk/bar
+    - name: traefik.tchouk-bar
       namespace: testing
     priority: 0
     services:
@@ -22,7 +22,7 @@ spec:
   - kind: Rule
     match: Host(`traefik.tchouk`) && PathPrefix(`/foo`)
     middlewares:
-    - name: traefik.tchouk/foo
+    - name: traefik.tchouk-foo
       namespace: testing
     priority: 0
     services:
@@ -35,7 +35,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   creationTimestamp: null
-  name: traefik.tchouk/bar
+  name: traefik.tchouk-bar
   namespace: testing
 spec:
   stripPrefix:
@@ -46,7 +46,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   creationTimestamp: null
-  name: traefik.tchouk/foo
+  name: traefik.tchouk-foo
   namespace: testing
 spec:
   stripPrefix:

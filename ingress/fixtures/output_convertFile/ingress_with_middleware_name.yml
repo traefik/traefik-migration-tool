@@ -2,14 +2,16 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   creationTimestamp: null
+  name: test
   namespace: testing
 spec:
-  entryPoints: []
+  entryPoints:
+  - web
   routes:
   - kind: Rule
-    match: Host(`rewrite`) && PathPrefix(`/api`)
+    match: PathPrefix(`/bar`)
     middlewares:
-    - name: replace-path-rewrite-api
+    - name: bar
       namespace: testing
     priority: 0
     services:
@@ -22,9 +24,9 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   creationTimestamp: null
-  name: replace-path-rewrite-api
+  name: bar
   namespace: testing
 spec:
-  replacePathRegex:
-    regex: ^/api(.*)
-    replacement: $1
+  stripPrefix:
+    prefixes:
+    - /bar

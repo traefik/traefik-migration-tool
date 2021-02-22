@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"unicode"
 
 	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
 	extensions "k8s.io/api/extensions/v1beta1"
@@ -419,4 +420,13 @@ func logUnsupported(ingress *networking.Ingress) {
 			fmt.Printf("%s/%s: The annotation %s must be converted manually. %s", ingress.GetNamespace(), ingress.GetName(), annot, msg)
 		}
 	}
+}
+
+// https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+func normalizeObjectName(name string) string {
+	fn := func(c rune) bool {
+		return !unicode.IsLetter(c) && !unicode.IsNumber(c) && c != '.' && c != '-'
+	}
+
+	return strings.Join(strings.FieldsFunc(name, fn), "-")
 }
