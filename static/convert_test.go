@@ -1,7 +1,6 @@
 package static
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -21,12 +20,9 @@ func TestConvert(t *testing.T) {
 
 	for _, test := range testCases {
 		t.Run(test, func(t *testing.T) {
-			dir, err := ioutil.TempDir("", "traefik-migration-tool-static")
-			require.NoError(t, err)
+			dir := t.TempDir()
 
-			t.Cleanup(func() { _ = os.RemoveAll(dir) })
-
-			err = Convert(test, dir)
+			err := Convert(test, dir)
 			require.NoError(t, err)
 
 			cfgToml := static.Configuration{}

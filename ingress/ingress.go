@@ -3,7 +3,6 @@ package ingress
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -48,7 +47,7 @@ func Convert(src, dstDir string) error {
 	}
 
 	dir := info.Name()
-	infos, err := ioutil.ReadDir(src)
+	infos, err := os.ReadDir(src)
 	if err != nil {
 		return err
 	}
@@ -124,11 +123,11 @@ func convertFile(srcDir, dstDir, filename string) error {
 		}
 	}
 
-	return ioutil.WriteFile(filepath.Join(dstDir, filename), []byte(strings.Join(fragments, separator+"\n")), 0666)
+	return os.WriteFile(filepath.Join(dstDir, filename), []byte(strings.Join(fragments, separator+"\n")), 0666)
 }
 
 func expandFileContent(filePath string) ([]byte, error) {
-	content, err := ioutil.ReadFile(filePath)
+	content, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}

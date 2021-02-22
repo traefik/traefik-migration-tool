@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -19,17 +18,14 @@ func TestConvert(t *testing.T) {
 	srcFile := "./fixtures/acme.json"
 	fixtureFile := "./fixtures/new-acme.json"
 
-	dir, err := ioutil.TempDir("", "traefik-migration-tool-acme")
-	require.NoError(t, err)
-
-	t.Cleanup(func() { _ = os.RemoveAll(dir) })
+	dir := t.TempDir()
 
 	dstFile := filepath.Join(dir, "new-acme.json")
 
-	err = Convert(srcFile, dstFile, "myresolver")
+	err := Convert(srcFile, dstFile, "myresolver")
 	require.NoError(t, err)
 
-	actual, err := ioutil.ReadFile(dstFile)
+	actual, err := os.ReadFile(dstFile)
 	require.NoError(t, err)
 
 	fmt.Println(dstFile)
@@ -46,7 +42,7 @@ func TestConvert(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	expected, err := ioutil.ReadFile(fixtureFile)
+	expected, err := os.ReadFile(fixtureFile)
 	require.NoError(t, err)
 
 	assert.JSONEq(t, string(expected), string(actual))

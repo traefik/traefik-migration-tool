@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -90,7 +89,7 @@ func Test_convertIngress(t *testing.T) {
 
 	for _, test := range testCases {
 		t.Run(test.ingressFile, func(t *testing.T) {
-			bytes, err := ioutil.ReadFile(filepath.Join("fixtures", "input", test.ingressFile))
+			bytes, err := os.ReadFile(filepath.Join("fixtures", "input", test.ingressFile))
 			require.NoError(t, err)
 
 			objectIngress, err := parseYaml(bytes)
@@ -110,10 +109,10 @@ func Test_convertIngress(t *testing.T) {
 				fixtureFile := filepath.Join(outputDir, filename)
 
 				if *updateExpected {
-					require.NoError(t, ioutil.WriteFile(fixtureFile, []byte(s), 0666))
+					require.NoError(t, os.WriteFile(fixtureFile, []byte(s), 0666))
 				}
 
-				file, err := ioutil.ReadFile(fixtureFile)
+				file, err := os.ReadFile(fixtureFile)
 				require.NoError(t, err)
 
 				assert.YAMLEq(t, string(file), s)
@@ -123,9 +122,7 @@ func Test_convertIngress(t *testing.T) {
 }
 
 func Test_convertFile(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "traefik-migration-tool")
-	require.NoError(t, err)
-	t.Cleanup(func() { _ = os.RemoveAll(tempDir) })
+	tempDir := t.TempDir()
 
 	testCases := []struct {
 		ingressFile string
@@ -230,10 +227,10 @@ func Test_convertFile(t *testing.T) {
 				require.NoError(t, err)
 			}
 
-			fixture, err := ioutil.ReadFile(filepath.Join(fixturesDir, test.ingressFile))
+			fixture, err := os.ReadFile(filepath.Join(fixturesDir, test.ingressFile))
 			require.NoError(t, err)
 
-			output, err := ioutil.ReadFile(filepath.Join(tempDir, test.ingressFile))
+			output, err := os.ReadFile(filepath.Join(tempDir, test.ingressFile))
 			require.NoError(t, err)
 
 			assert.YAMLEq(t, string(fixture), string(output))
