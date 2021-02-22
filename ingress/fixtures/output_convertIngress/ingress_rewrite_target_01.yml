@@ -9,7 +9,7 @@ spec:
   - kind: Rule
     match: Host(`rewrite`) && PathPrefix(`/api`)
     middlewares:
-    - name: replace-path-rewrite/api
+    - name: replace-path-rewrite-api
       namespace: testing
     priority: 0
     services:

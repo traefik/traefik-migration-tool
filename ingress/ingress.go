@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"unicode"
 
 	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
 	extensions "k8s.io/api/extensions/v1beta1"
@@ -319,9 +320,7 @@ func createRoutes(namespace string, rules []networking.IngressRule, annotations 
 				rules = append(rules, fmt.Sprintf("%s(`%s`)", ruleType, path.Path))
 
 				if stripPrefix {
-					middlewareName := strings.Trim(rule.Host+path.Path, `/`)
-					middlewareName = strings.ReplaceAll(middlewareName, "/", "-")
-					mi := getStripPrefix(path, middlewareName, namespace)
+					mi := getStripPrefix(path, rule.Host+path.Path, namespace)
 					mis = append(mis, mi)
 					miRefs = append(miRefs, toRef(mi))
 				}
@@ -421,4 +420,13 @@ func logUnsupported(ingress *networking.Ingress) {
 			fmt.Printf("%s/%s: The annotation %s must be converted manually. %s", ingress.GetNamespace(), ingress.GetName(), annot, msg)
 		}
 	}
+}
+
+// https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+func normalizeObjectName(name string) string {
+	fn := func(c rune) bool {
+		return !unicode.IsLetter(c) && !unicode.IsNumber(c) && c != '.' && c != '-'
+	}
+
+	return strings.Join(strings.FieldsFunc(name, fn), "-")
 }

@@ -424,7 +424,7 @@ func getReplacePathRegex(rule networking.IngressRule, path networking.HTTPIngres
 	middlewareName := "replace-path-" + rule.Host + path.Path
 
 	return &v1alpha1.Middleware{
-		ObjectMeta: v1.ObjectMeta{Name: middlewareName, Namespace: namespace},
+		ObjectMeta: v1.ObjectMeta{Name: normalizeObjectName(middlewareName), Namespace: namespace},
 		Spec: v1alpha1.MiddlewareSpec{
 			ReplacePathRegex: &dynamic.ReplacePathRegex{
 				Regex:       fmt.Sprintf("^%s(.*)", path.Path),
@@ -436,7 +436,7 @@ func getReplacePathRegex(rule networking.IngressRule, path networking.HTTPIngres
 
 func getStripPrefix(path networking.HTTPIngressPath, middlewareName, namespace string) *v1alpha1.Middleware {
 	return &v1alpha1.Middleware{
-		ObjectMeta: v1.ObjectMeta{Name: middlewareName, Namespace: namespace},
+		ObjectMeta: v1.ObjectMeta{Name: normalizeObjectName(middlewareName), Namespace: namespace},
 		Spec: v1alpha1.MiddlewareSpec{
 			StripPrefix: &dynamic.StripPrefix{Prefixes: []string{path.Path}},
 		},
