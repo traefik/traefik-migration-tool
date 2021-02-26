@@ -24,11 +24,7 @@ jobs:
       - name: Set up Go ${{ matrix.go-version }}
         uses: actions/setup-go@v2
         with:
-          # just a hack to force go1.16 for '1.x'
-          # TODO: must be restored when 1.x will be 1.6 in GitHub Actions
-          # related to https://github.com/actions/virtual-environments
-#          go-version: ${{ matrix.go-version }}
-          go-version: 1.16
+          go-version: ${{ matrix.go-version }}
 
       # https://github.com/marketplace/actions/checkout
       - name: Checkout code
