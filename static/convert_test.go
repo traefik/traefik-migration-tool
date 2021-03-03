@@ -19,7 +19,10 @@ func TestConvert(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test, func(t *testing.T) {
+			t.Parallel()
+
 			dir := t.TempDir()
 
 			err := Convert(test, dir)
@@ -32,6 +35,10 @@ func TestConvert(t *testing.T) {
 			cfgYaml := static.Configuration{}
 			ymlFile, err := os.Open(filepath.Join(dir, "new-traefik.yml"))
 			require.NoError(t, err)
+
+			t.Cleanup(func() {
+				_ = ymlFile.Close()
+			})
 
 			err = yaml.NewDecoder(ymlFile).Decode(&cfgYaml)
 			require.NoError(t, err)
