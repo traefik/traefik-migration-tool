@@ -1,8 +1,5 @@
 project_name: traefik-migration-tool
 
-release:
-  timeout: 60m
-
 builds:
   - binary: traefik-migration-tool
     main: ./main.go
