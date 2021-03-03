@@ -136,7 +136,7 @@ func getHeadersMiddleware(ingress *networking.Ingress) *v1alpha1.Middleware {
 
 func getAuthMiddleware(ingress *networking.Ingress) *v1alpha1.Middleware {
 	authType := getStringValue(ingress.GetAnnotations(), annotationKubernetesAuthType, "")
-	if len(authType) == 0 {
+	if authType == "" {
 		return nil
 	}
 
@@ -189,7 +189,7 @@ func getDigestAuthConfig(annotations map[string]string) *v1alpha1.DigestAuth {
 
 func getForwardAuthConfig(annotations map[string]string) (*v1alpha1.ForwardAuth, error) {
 	authURL := getStringValue(annotations, annotationKubernetesAuthForwardURL, "")
-	if len(authURL) == 0 {
+	if authURL == "" {
 		return nil, fmt.Errorf("forward authentication requires a url")
 	}
 
@@ -237,7 +237,7 @@ func getPassTLSClientCert(ingress *networking.Ingress) *v1alpha1.Middleware {
 	var passTLSClientCert *TLSClientHeaders
 
 	passRaw := getStringValue(ingress.GetAnnotations(), annotationKubernetesPassTLSClientCert, "")
-	if len(passRaw) == 0 {
+	if passRaw == "" {
 		return nil
 	}
 
@@ -299,7 +299,7 @@ func getFrontendRedirect(namespace string, annotations map[string]string, baseNa
 	return nil
 }
 
-func getRedirectMiddleware(namespace string, regex string, replacement string, permanent bool) *v1alpha1.Middleware {
+func getRedirectMiddleware(namespace, regex, replacement string, permanent bool) *v1alpha1.Middleware {
 	middleware := v1alpha1.MiddlewareSpec{
 		RedirectRegex: &dynamic.RedirectRegex{
 			Regex:       regex,
@@ -371,7 +371,7 @@ func parseRequestModifier(namespace, requestModifier string) (*v1alpha1.Middlewa
 
 func getRateLimit(i *networking.Ingress) []*v1alpha1.Middleware {
 	rateRaw := getStringValue(i.GetAnnotations(), annotationKubernetesRateLimit, "")
-	if len(rateRaw) == 0 {
+	if rateRaw == "" {
 		return nil
 	}
 	rateLimit := &RateLimit{}

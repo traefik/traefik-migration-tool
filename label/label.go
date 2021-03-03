@@ -19,7 +19,7 @@ const (
 )
 
 // GetStringValue get string value associated to a label.
-func GetStringValue(labels map[string]string, labelName string, defaultValue string) string {
+func GetStringValue(labels map[string]string, labelName, defaultValue string) string {
 	if value, ok := labels[labelName]; ok && len(value) > 0 {
 		return value
 	}
@@ -100,7 +100,7 @@ func ParseMapValue(labelName, values string) map[string]string {
 // GetMapValue get Map value associated to a label.
 func GetMapValue(labels map[string]string, labelName string) map[string]string {
 	if values, ok := labels[labelName]; ok {
-		if len(values) == 0 {
+		if values == "" {
 			log.Printf("Missing value for %q, skipping...", labelName)
 			return nil
 		}
@@ -118,7 +118,7 @@ func GetStringMultipleStrict(labels map[string]string, labelNames ...string) (ma
 	for _, name := range labelNames {
 		value := GetStringValue(labels, name, "")
 		// Error out only if one of them is not defined.
-		if len(value) == 0 {
+		if value == "" {
 			return nil, fmt.Errorf("label not found: %s", name)
 		}
 		foundLabels[name] = value
@@ -144,7 +144,7 @@ func HasPrefix(labels map[string]string, prefix string) bool {
 
 // SplitAndTrimString splits separatedString at the separator character and trims each piece, filtering out empty pieces.
 // Returns the list of pieces or nil if the input did not contain a non-empty piece.
-func SplitAndTrimString(base string, sep string) []string {
+func SplitAndTrimString(base, sep string) []string {
 	var trimmedStrings []string
 
 	for _, s := range strings.Split(base, sep) {
@@ -158,7 +158,7 @@ func SplitAndTrimString(base string, sep string) []string {
 }
 
 // GetFuncString a func related to GetStringValue.
-func GetFuncString(labelName string, defaultValue string) func(map[string]string) string {
+func GetFuncString(labelName, defaultValue string) func(map[string]string) string {
 	return func(labels map[string]string) string {
 		return GetStringValue(labels, labelName, defaultValue)
 	}

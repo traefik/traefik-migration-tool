@@ -10,7 +10,7 @@ import (
 )
 
 // Convert a acme.json file.
-func Convert(srcFile, dstFile string, resolverName string) error {
+func Convert(srcFile, dstFile, resolverName string) error {
 	src, err := os.Open(srcFile)
 	if err != nil {
 		return err

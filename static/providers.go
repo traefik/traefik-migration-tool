@@ -124,7 +124,7 @@ func migrateMarathon(oldCfg Configuration) *marathon.Provider {
 		fmt.Println("The constraints on the Marathon provider must be converted manually. https://docs.traefik.io/providers/marathon/#constraints")
 	}
 
-	if len(oldCfg.Marathon.Domain) != 0 {
+	if oldCfg.Marathon.Domain != "" {
 		fmt.Printf("The domain (%s) defined the Marathon provider must be converted manually. See https://docs.traefik.io/providers/marathon/#defaultrule\n", oldCfg.Marathon.Domain)
 	}
 
@@ -184,7 +184,7 @@ func migrateDocker(oldCfg Configuration) *docker.Provider {
 		fmt.Println("The constraints defined in the Docker provider must be converted manually. See https://docs.traefik.io/providers/docker/#constraints")
 	}
 
-	if len(oldCfg.Docker.Domain) != 0 {
+	if oldCfg.Docker.Domain != "" {
 		fmt.Printf("The domain (%s) defined in the Docker provider must be converted manually. See https://docs.traefik.io/providers/docker/#defaultrule\n", oldCfg.Docker.Domain)
 	}
 

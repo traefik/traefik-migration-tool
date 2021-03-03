@@ -33,14 +33,10 @@ func TestConvert(t *testing.T) {
 			require.NoError(t, err)
 
 			cfgYaml := static.Configuration{}
-			ymlFile, err := os.Open(filepath.Join(dir, "new-traefik.yml"))
+			ymlData, err := os.ReadFile(filepath.Join(dir, "new-traefik.yml"))
 			require.NoError(t, err)
 
-			t.Cleanup(func() {
-				_ = ymlFile.Close()
-			})
-
-			err = yaml.NewDecoder(ymlFile).Decode(&cfgYaml)
+			err = yaml.Unmarshal(ymlData, &cfgYaml)
 			require.NoError(t, err)
 
 			assert.Equal(t, &cfgToml, &cfgYaml)

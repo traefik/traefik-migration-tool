@@ -1,0 +1,95 @@
+run:
+  timeout: 5m
+  skip-files: []
+
+linters-settings:
+  govet:
+    check-shadowing: true
+  gocyclo:
+    min-complexity: 16
+  maligned:
+    suggest-new: true
+  goconst:
+    min-len: 3
+    min-occurrences: 3
+  misspell:
+    locale: US
+  gofumpt:
+    extra-rules: true
+  depguard:
+    list-type: blacklist
+    include-go-root: false
+    packages:
+      - github.com/pkg/errors
+#  godox:
+#    keywords:
+#      - FIXME
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - style
+      - performance
+    disabled-checks:
+      - unnamedResult
+      - hugeParam
+      - sloppyReassign
+      - rangeValCopy
+      - octalLiteral
+      - paramTypeCombine # already handle by gofumpt.extra-rules²
+  forbidigo:
+    forbid:
+      - '^print(ln)?$'
+#      - '^fmt\.Print(f|ln)?$'
+#      - '^panic$'
+      - '^spew\.Print(f|ln)?$'
+      - '^spew\.Dump$'
+
+linters:
+  enable-all: true
+  disable:
+    - maligned # deprecated
+    - interfacer # deprecated
+    - sqlclosecheck # not relevant (SQL)
+    - rowserrcheck # not relevant (SQL)
+    - cyclop # duplicate of gocyclo
+    - funlen
+    - gosec
+    - lll
+    - dupl
+    - prealloc
+    - scopelint
+    - bodyclose
+    - wsl
+    - nlreturn
+    - gomnd
+    - testpackage
+    - paralleltest
+    - tparallel
+    - goerr113
+    - wrapcheck
+    - exhaustive
+    - exhaustivestruct
+    - makezero
+    - godox
+
+issues:
+  exclude-use-default: false
+  max-per-linter: 0
+  max-same-issues: 0
+  exclude:
+    - 'ST1000: at least one file in a package should have a package comment'
+  exclude-rules:
+    - path: annotations.go
+      text: (compatibilityMapping) is a global variable
+    - path: .*_test.go
+      text: (updateExpected) is a global variable
+    - path: main.go
+      text: (Version|ShortCommit|Date) is a global variable
+    - path: main.go
+      text: >-
+        exported var `(Version|ShortCommit|Date)` should have comment or be
+        unexported
+    - path: ingress/annotations.go
+      text: '`getBoolValue` - `defaultValue` always receives `false`'
+    - path: static/v1.go
+      text: exported type `(.+)` should have comment or be unexported

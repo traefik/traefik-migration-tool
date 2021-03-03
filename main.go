@@ -55,7 +55,7 @@ func main() {
 		PreRunE: func(_ *cobra.Command, _ []string) error {
 			fmt.Printf("Traefik Migration: %s - %s - %s\n", Version, Date, ShortCommit)
 
-			if len(ingressCfg.input) == 0 || len(ingressCfg.output) == 0 {
+			if ingressCfg.input == "" || ingressCfg.output == "" {
 				return errors.New("input and output flags are requires")
 			}
 
