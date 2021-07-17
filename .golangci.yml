@@ -21,9 +21,9 @@ linters-settings:
     include-go-root: false
     packages:
       - github.com/pkg/errors
-#  godox:
-#    keywords:
-#      - FIXME
+  godox:
+    keywords:
+      - FIXME
   gocritic:
     enabled-tags:
       - diagnostic
@@ -35,7 +35,7 @@ linters-settings:
       - sloppyReassign
       - rangeValCopy
       - octalLiteral
-      - paramTypeCombine # already handle by gofumpt.extra-rules²
+      - paramTypeCombine # already handle by gofumpt.extra-rules
   forbidigo:
     forbid:
       - '^print(ln)?$'
@@ -43,10 +43,21 @@ linters-settings:
 #      - '^panic$'
       - '^spew\.Print(f|ln)?$'
       - '^spew\.Dump$'
+  gomoddirectives:
+    replace-local: false
+    replace-allow-list:
+      - github.com/abbot/go-http-auth
+      - github.com/go-check/check
+      - github.com/gorilla/mux
+      - github.com/mailgun/minheap
+      - github.com/mailgun/multibuf
+      - github.com/docker/docker
 
 linters:
   enable-all: true
   disable:
+    - golint # deprecated
+    - scopelint # deprecated
     - maligned # deprecated
     - interfacer # deprecated
     - sqlclosecheck # not relevant (SQL)
@@ -57,7 +68,6 @@ linters:
     - lll
     - dupl
     - prealloc
-    - scopelint
     - bodyclose
     - wsl
     - nlreturn
@@ -78,6 +88,7 @@ issues:
   max-same-issues: 0
   exclude:
     - 'ST1000: at least one file in a package should have a package comment'
+    - 'exported: exported type (.+) should have comment or be unexported'
   exclude-rules:
     - path: annotations.go
       text: (compatibilityMapping) is a global variable
@@ -86,9 +97,7 @@ issues:
     - path: main.go
       text: (Version|ShortCommit|Date) is a global variable
     - path: main.go
-      text: >-
-        exported var `(Version|ShortCommit|Date)` should have comment or be
-        unexported
+      text: exported var (Version|ShortCommit|Date) should have comment or be unexported
     - path: ingress/annotations.go
       text: '`getBoolValue` - `defaultValue` always receives `false`'
     - path: static/v1.go

@@ -15,8 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GO_VERSION: 1.16
-      GOLANGCI_LINT_VERSION: v1.37.1
-      SEIHON_VERSION: v0.6.0
+      GOLANGCI_LINT_VERSION: v1.41.1
+      SEIHON_VERSION: v0.8.3
       CGO_ENABLED: 0
 
     steps:
@@ -44,7 +44,6 @@ jobs:
 
       - name: Check and get dependencies
         run: |
-          go mod download
           go mod tidy
           git diff --exit-code go.mod
           git diff --exit-code go.sum
