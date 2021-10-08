@@ -6,7 +6,6 @@ metadata:
   creationTimestamp: null
   namespace: testing
 spec:
-  entryPoints: []
   routes:
   - kind: Rule
     match: Host(`rate-limit`) && PathPrefix(`/ratelimit`)
@@ -15,7 +14,6 @@ spec:
       namespace: testing
     - name: middleware-foo-12133503655065674466
       namespace: testing
-    priority: 0
     services:
     - kind: Service
       name: service1

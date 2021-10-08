@@ -4,14 +4,12 @@ metadata:
   creationTimestamp: null
   namespace: testing
 spec:
-  entryPoints: []
   routes:
   - kind: Rule
     match: Host(`test`) && PathPrefix(`/whitelist-source-range`)
     middlewares:
     - name: whitelist-18383239725786710617
       namespace: testing
-    priority: 0
     services:
     - kind: Service
       name: service1

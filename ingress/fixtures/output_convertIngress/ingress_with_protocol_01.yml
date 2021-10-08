@@ -5,12 +5,9 @@ metadata:
   name: test
   namespace: testing
 spec:
-  entryPoints: []
   routes:
   - kind: Rule
     match: Host(`traefik.tchouk`) && PathPrefix(`/bar`)
-    middlewares: []
-    priority: 0
     services:
     - kind: Service
       name: service1
@@ -19,8 +16,6 @@ spec:
       scheme: h2c
   - kind: Rule
     match: Host(`traefik.tchouk`) && PathPrefix(`/foo`)
-    middlewares: []
-    priority: 0
     services:
     - kind: Service
       name: service1

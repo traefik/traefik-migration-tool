@@ -5,14 +5,12 @@ metadata:
   name: test
   namespace: testing
 spec:
-  entryPoints: []
   routes:
   - kind: Rule
     match: Host(`traefik.tchouk`) && PathPrefix(`/`)
     middlewares:
     - name: redirect-11227837511975166935
       namespace: testing
-    priority: 0
     services:
     - kind: Service
       name: service1
@@ -23,7 +21,6 @@ spec:
     middlewares:
     - name: redirect-11227837511975166935
       namespace: testing
-    priority: 0
     services:
     - kind: Service
       name: service1
