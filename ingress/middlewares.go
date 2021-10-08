@@ -75,13 +75,13 @@ type TLSClientCertificateInfos struct {
 	NotAfter  bool                         `description:"Add NotAfter info in header" json:"notAfter"`
 	NotBefore bool                         `description:"Add NotBefore info in header" json:"notBefore"`
 	Sans      bool                         `description:"Add Sans info in header" json:"sans"`
-	Subject   *TLSCLientCertificateDNInfos `description:"Add Subject info in header" json:"subject,omitempty"`
-	Issuer    *TLSCLientCertificateDNInfos `description:"Add Issuer info in header" json:"issuer,omitempty"`
+	Subject   *TLSClientCertificateDNInfos `description:"Add Subject info in header" json:"subject,omitempty"`
+	Issuer    *TLSClientCertificateDNInfos `description:"Add Issuer info in header" json:"issuer,omitempty"`
 }
 
-// TLSCLientCertificateDNInfos holds the client TLS certificate distinguished name infos configuration.
+// TLSClientCertificateDNInfos holds the client TLS certificate distinguished name infos configuration.
 // cf https://tools.ietf.org/html/rfc3739
-type TLSCLientCertificateDNInfos struct {
+type TLSClientCertificateDNInfos struct {
 	Country         bool `description:"Add Country info in header" json:"country"`
 	Province        bool `description:"Add Province info in header" json:"province"`
 	Locality        bool `description:"Add Locality info in header" json:"locality"`
