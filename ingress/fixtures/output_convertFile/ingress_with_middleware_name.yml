@@ -13,7 +13,6 @@ spec:
     middlewares:
     - name: bar
       namespace: testing
-    priority: 0
     services:
     - kind: Service
       name: service1

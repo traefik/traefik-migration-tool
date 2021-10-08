@@ -4,14 +4,12 @@ metadata:
   creationTimestamp: null
   namespace: testing
 spec:
-  entryPoints: []
   routes:
   - kind: Rule
     match: Host(`rewrite`) && PathPrefix(`/api`)
     middlewares:
     - name: replace-path-rewrite-api
       namespace: testing
-    priority: 0
     services:
     - kind: Service
       name: service1

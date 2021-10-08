@@ -387,9 +387,9 @@ func getRateLimit(i *networking.Ingress) []*v1alpha1.Middleware {
 			continue
 		}
 		rateLimitMiddleware := v1alpha1.MiddlewareSpec{
-			RateLimit: &dynamic.RateLimit{
+			RateLimit: &v1alpha1.RateLimit{
 				Average: rateSet.Average / int64(rateSet.Period/time.Second),
-				Burst:   rateSet.Burst,
+				Burst:   &rateSet.Burst,
 			},
 		}
 

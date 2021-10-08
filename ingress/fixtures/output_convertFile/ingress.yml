@@ -10,7 +10,6 @@ spec:
   routes:
   - kind: Rule
     match: Host(`traefik.tchouk`) && PathPrefix(`/bar`)
-    middlewares: []
     priority: 10
     services:
     - kind: Service
@@ -19,7 +18,6 @@ spec:
       port: 80
   - kind: Rule
     match: Host(`traefik.tchouk`) && PathPrefix(`/foo`)
-    middlewares: []
     priority: 10
     services:
     - kind: Service

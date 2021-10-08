@@ -6,18 +6,17 @@ require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/containous/flaeg v1.4.1
 	github.com/go-acme/lego/v4 v4.4.0
-	github.com/gogo/protobuf v1.3.1
-	github.com/hashicorp/go-retryablehttp v0.6.7 // indirect
+	github.com/gogo/protobuf v1.3.2
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/spf13/cobra v1.1.1
 	github.com/stretchr/testify v1.7.0
 	github.com/traefik/paerser v0.1.4
-	github.com/traefik/traefik/v2 v2.4.13
+	github.com/traefik/traefik/v2 v2.5.3
 	gopkg.in/jcmturner/goidentity.v3 v3.0.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
-	k8s.io/api v0.20.2
-	k8s.io/apimachinery v0.20.2
-	k8s.io/client-go v0.20.2
+	k8s.io/api v0.21.0
+	k8s.io/apimachinery v0.21.0
+	k8s.io/client-go v0.21.0
 	sigs.k8s.io/yaml v1.2.0
 )
 

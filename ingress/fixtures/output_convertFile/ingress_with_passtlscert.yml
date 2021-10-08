@@ -6,14 +6,12 @@ metadata:
   creationTimestamp: null
   namespace: testing
 spec:
-  entryPoints: []
   routes:
   - kind: Rule
     match: Host(`other`) && PathPrefix(`/sslstuff`)
     middlewares:
     - name: passtlscert-15379227705390368640
       namespace: testing
-    priority: 0
     services:
     - kind: Service
       name: service1
