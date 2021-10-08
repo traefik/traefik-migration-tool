@@ -1,4 +1,4 @@
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: test
@@ -7,14 +7,18 @@ metadata:
     ingress.kubernetes.io/protocol: "h2c"
 spec:
   rules:
-  - host: traefik.tchouk
-    http:
-      paths:
-      - path: /bar
-        backend:
-          serviceName: service1
-          servicePort: 80
-      - path: /foo
-        backend:
-          serviceName: service1
-          servicePort: 80
+    - host: traefik.tchouk
+      http:
+        paths:
+          - path: /bar
+            backend:
+              service:
+                name: service1
+                port:
+                  number: 80
+          - path: /foo
+            backend:
+              service:
+                name: service1
+                port:
+                  number: 80

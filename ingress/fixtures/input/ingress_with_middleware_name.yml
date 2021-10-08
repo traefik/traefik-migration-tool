@@ -1,4 +1,4 @@
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: test
@@ -8,9 +8,11 @@ metadata:
     ingress.kubernetes.io/rule-type: "PathPrefixStrip"
 spec:
   rules:
-  - http:
-      paths:
-      - path: /bar
-        backend:
-          serviceName: service1
-          servicePort: 80
+    - http:
+        paths:
+          - path: /bar
+            backend:
+              service:
+                name: service1
+                port:
+                  number: 80

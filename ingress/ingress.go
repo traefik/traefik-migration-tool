@@ -11,11 +11,13 @@ import (
 	"unicode"
 
 	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
-	extensions "k8s.io/api/extensions/v1beta1"
-	networking "k8s.io/api/networking/v1beta1"
+	extv1beta1 "k8s.io/api/extensions/v1beta1"
+	netv1 "k8s.io/api/networking/v1"
+	netv1beta1 "k8s.io/api/networking/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/yaml"
 )
 
@@ -98,14 +100,19 @@ func convertFile(srcDir, dstDir, filename string) error {
 			continue
 		}
 
-		var ingress *networking.Ingress
+		var ingress *netv1.Ingress
 		switch obj := object.(type) {
-		case *extensions.Ingress:
-			ingress, err = extensionsToNetworking(obj)
+		case *extv1beta1.Ingress:
+			ingress, err = extensionsToNetworkingV1(obj)
 			if err != nil {
 				return err
 			}
-		case *networking.Ingress:
+		case *netv1beta1.Ingress:
+			ingress, err = networkingV1beta1ToV1(obj)
+			if err != nil {
+				return err
+			}
+		case *netv1.Ingress:
 			ingress = obj
 		default:
 			log.Printf("the object is skipped because is not an Ingress: %T", object)
@@ -205,7 +212,9 @@ func extractItems(items []interface{}) ([]interface{}, []unstructured.Unstructur
 
 	for _, elt := range items {
 		obj := unstructured.Unstructured{Object: elt.(map[string]interface{})}
-		if (obj.GetAPIVersion() == "extensions/v1beta1" || obj.GetAPIVersion() == "networking.k8s.io/v1beta1") && obj.GetKind() == "Ingress" {
+		apiVersion := obj.GetAPIVersion()
+
+		if (apiVersion == "extensions/v1beta1" || apiVersion == "networking.k8s.io/v1beta1" || apiVersion == "networking.k8s.io/v1") && obj.GetKind() == "Ingress" {
 			toConvert = append(toConvert, obj)
 		} else {
 			toKeep = append(toKeep, elt)
@@ -216,7 +225,7 @@ func extractItems(items []interface{}) ([]interface{}, []unstructured.Unstructur
 }
 
 // convertIngress converts an *networking.Ingress to a slice of runtime.Object (IngressRoute and Middlewares).
-func convertIngress(ingress *networking.Ingress) []runtime.Object {
+func convertIngress(ingress *netv1.Ingress) []runtime.Object {
 	logUnsupported(ingress)
 
 	ingressRoute := &v1alpha1.IngressRoute{
@@ -294,7 +303,7 @@ func convertIngress(ingress *networking.Ingress) []runtime.Object {
 	return objects
 }
 
-func createRoutes(namespace string, rules []networking.IngressRule, annotations map[string]string, middlewareRefs []v1alpha1.MiddlewareRef) ([]v1alpha1.Route, []*v1alpha1.Middleware, error) {
+func createRoutes(namespace string, rules []netv1.IngressRule, annotations map[string]string, middlewareRefs []v1alpha1.MiddlewareRef) ([]v1alpha1.Route, []*v1alpha1.Middleware, error) {
 	ruleType, stripPrefix, err := extractRuleType(annotations)
 	if err != nil {
 		return nil, nil, err
@@ -352,10 +361,10 @@ func createRoutes(namespace string, rules []networking.IngressRule, annotations 
 					Services: []v1alpha1.Service{
 						{
 							LoadBalancerSpec: v1alpha1.LoadBalancerSpec{
-								Name:      path.Backend.ServiceName,
+								Name:      path.Backend.Service.Name,
 								Namespace: namespace,
 								Kind:      "Service",
-								Port:      path.Backend.ServicePort,
+								Port:      toPort(path.Backend.Service.Port),
 								Scheme:    getStringValue(annotations, annotationKubernetesProtocol, ""),
 							},
 						},
@@ -397,7 +406,14 @@ func toRef(mi *v1alpha1.Middleware) v1alpha1.MiddlewareRef {
 	}
 }
 
-func logUnsupported(ingress *networking.Ingress) {
+func toPort(p netv1.ServiceBackendPort) intstr.IntOrString {
+	if p.Name != "" {
+		return intstr.FromString(p.Name)
+	}
+	return intstr.FromInt(int(p.Number))
+}
+
+func logUnsupported(ingress *netv1.Ingress) {
 	unsupportedAnnotations := map[string]string{
 		annotationKubernetesErrorPages:                      "See https://docs.traefik.io/middlewares/errorpages/",
 		annotationKubernetesBuffering:                       "See https://docs.traefik.io/middlewares/buffering/",

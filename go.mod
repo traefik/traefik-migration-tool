@@ -6,7 +6,6 @@ require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/containous/flaeg v1.4.1
 	github.com/go-acme/lego/v4 v4.4.0
-	github.com/gogo/protobuf v1.3.2
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/spf13/cobra v1.1.1
 	github.com/stretchr/testify v1.7.0
