@@ -1,7 +1,7 @@
 # traefik-migration-tool
 
 [![GitHub release](https://img.shields.io/github/release/traefik/traefik-migration-tool.svg)](https://github.com/traefik/traefik-migration-tool/releases/latest)
-[![Build Status](https://travis-ci.com/traefik/traefik-migration-tool.svg?branch=master)](https://travis-ci.com/traefik/traefik-migration-tool)
+[![Build Status](https://github.com/traefik/traefik-migration-tool/actions/workflows/main.yml/badge.svg)](https://github.com/traefik/traefik-migration-tool/actions)
 
 A migration tool from Traefik v1 to Traefik v2.
 
