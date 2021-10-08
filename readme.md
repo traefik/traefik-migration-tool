@@ -30,7 +30,7 @@ You can use pre-compiled binaries:
 You can use a Docker image:
 
 ```sh
-docker run --rm -v ${PWD}:/data traefik/traefik-migration-tool <options here>
+docker run --rm -w /data -v ${PWD}:/data traefik/traefik-migration-tool <options here>
 ```
 
 ## Limits
