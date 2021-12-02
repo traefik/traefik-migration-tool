@@ -34,21 +34,21 @@ func Convert(srcFile, dstFile, resolverName string) error {
 		}
 	}
 
-	for _, v := range oldData.Certificates {
+	for _, certificate := range oldData.Certificates {
 		data.Certificates = append(data.Certificates, &acme.CertAndStore{
 			Certificate: acme.Certificate{
 				Domain: types.Domain{
-					Main: v.Domain.Main,
-					SANs: v.Domain.SANs,
+					Main: certificate.Domain.Main,
+					SANs: certificate.Domain.SANs,
 				},
-				Certificate: v.Certificate,
-				Key:         v.Key,
+				Certificate: certificate.Certificate,
+				Key:         certificate.Key,
 			},
 			Store: "default",
 		})
 	}
 
-	err = os.MkdirAll(filepath.Dir(dstFile), 0755)
+	err = os.MkdirAll(filepath.Dir(dstFile), 0o755)
 	if err != nil {
 		return err
 	}

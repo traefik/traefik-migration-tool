@@ -52,35 +52,48 @@ linters-settings:
       - github.com/mailgun/minheap
       - github.com/mailgun/multibuf
       - github.com/docker/docker
+  funlen:
+    lines: 120 # default 60
+    statements: 50 # default 40
 
 linters:
   enable-all: true
   disable:
-    - golint # deprecated
-    - scopelint # deprecated
-    - maligned # deprecated
-    - interfacer # deprecated
-    - sqlclosecheck # not relevant (SQL)
-    - rowserrcheck # not relevant (SQL)
-    - cyclop # duplicate of gocyclo
-    - funlen
-    - gosec
-    - lll
-    - dupl
-    - prealloc
-    - bodyclose
-    - wsl
-    - nlreturn
-    - gomnd
-    - testpackage
-    - paralleltest
-    - tparallel
-    - goerr113
-    - wrapcheck
-    - exhaustive
-    - exhaustivestruct
-    - makezero
-    - godox
+    - bodyclose # Too many false-positive and panics.
+    - cyclop # Duplicate of gocyclo
+    - dupl # Too strict
+    - exhaustive # Not relevant
+    - exhaustivestruct # Not relevant
+    - forcetypeassert # Too strict
+    - gochecknoglobals
+    - gochecknoinits
+    - gocognit # Too strict
+    - gocyclo # FIXME must be fixed
+    - godox # Too strict
+    - goerr113 # Too strict
+    - golint # Deprecated
+    - gomnd # Too strict
+    - gosec # Too strict
+    - ifshort # Not relevant
+    - interfacer # Deprecated
+    - lll # Not relevant
+    - makezero # Not relevant
+    - maligned # Deprecated
+    - nestif # Too many false-positive.
+    - nlreturn # Not relevant
+    - noctx # Too strict
+    - paralleltest # Not relevant
+    - prealloc # Too many false-positive.
+    - rowserrcheck # Not relevant (SQL)
+    - scopelint # Deprecated
+    - sqlclosecheck # Not relevant (SQL)
+    - stylecheck # skip because report issues related to some generated files.
+    - tagliatelle # Not compatible with current tags.
+    - testpackage # Too strict
+    - tparallel # Not relevant
+    - unparam # Too strict
+    - wrapcheck # Too strict
+    - wsl # Too strict
 
 issues:
   exclude-use-default: false
@@ -94,6 +107,9 @@ issues:
       text: (compatibilityMapping) is a global variable
     - path: .*_test.go
       text: (updateExpected) is a global variable
+    - path: .*_test.go
+      linters:
+        - varnamelen
     - path: main.go
       text: (Version|ShortCommit|Date) is a global variable
     - path: main.go
@@ -102,3 +118,7 @@ issues:
       text: '`getBoolValue` - `defaultValue` always receives `false`'
     - path: static/v1.go
       text: exported type `(.+)` should have comment or be unexported
+    - path: acme/acme.go
+      text: Error return value of `(.+).Encode` is not checked
+    - path: ingress/parser.go
+      text: parseYaml returns interface (.+)

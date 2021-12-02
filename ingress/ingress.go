@@ -71,7 +71,7 @@ func convertFile(srcDir, dstDir, filename string) error {
 		return err
 	}
 
-	err = os.MkdirAll(dstDir, 0755)
+	err = os.MkdirAll(dstDir, 0o755)
 	if err != nil {
 		return err
 	}
@@ -130,7 +130,7 @@ func convertFile(srcDir, dstDir, filename string) error {
 		}
 	}
 
-	return os.WriteFile(filepath.Join(dstDir, filename), []byte(strings.Join(fragments, separator+"\n")), 0666)
+	return os.WriteFile(filepath.Join(dstDir, filename), []byte(strings.Join(fragments, separator+"\n")), 0o666)
 }
 
 func expandFileContent(filePath string) ([]byte, error) {
@@ -284,14 +284,14 @@ func convertIngress(ingress *netv1.Ingress) []runtime.Object {
 		miRefs = append(miRefs, toRef(mi))
 	}
 
-	routes, mi, err := createRoutes(ingress.GetNamespace(), ingress.Spec.Rules, ingress.GetAnnotations(), miRefs)
+	routes, mis, err := createRoutes(ingress.GetNamespace(), ingress.Spec.Rules, ingress.GetAnnotations(), miRefs)
 	if err != nil {
 		log.Println(err)
 		return nil
 	}
 	ingressRoute.Spec.Routes = routes
 
-	middlewares = append(middlewares, mi...)
+	middlewares = append(middlewares, mis...)
 
 	sort.Slice(middlewares, func(i, j int) bool { return middlewares[i].Name < middlewares[j].Name })
 

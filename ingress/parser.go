@@ -35,13 +35,13 @@ func networkingV1beta1ToV1(ing *netv1beta1.Ingress) (*netv1.Ingress, error) {
 		return nil, err
 	}
 
-	ni := &netv1.Ingress{}
-	if err := ni.Unmarshal(data); err != nil {
+	ingress := &netv1.Ingress{}
+	if err := ingress.Unmarshal(data); err != nil {
 		return nil, err
 	}
 
 	if ing.Spec.Backend != nil {
-		ni.Spec.DefaultBackend = &netv1.IngressBackend{
+		ingress.Spec.DefaultBackend = &netv1.IngressBackend{
 			Resource: ing.Spec.Backend.Resource,
 			Service: &netv1.IngressServiceBackend{
 				Name: ing.Spec.Backend.ServiceName,
@@ -52,7 +52,7 @@ func networkingV1beta1ToV1(ing *netv1beta1.Ingress) (*netv1.Ingress, error) {
 
 	for ri, rule := range ing.Spec.Rules {
 		for pi, path := range rule.HTTP.Paths {
-			ni.Spec.Rules[ri].HTTP.Paths[pi].Backend = netv1.IngressBackend{
+			ingress.Spec.Rules[ri].HTTP.Paths[pi].Backend = netv1.IngressBackend{
 				Service: &netv1.IngressServiceBackend{
 					Name: path.Backend.ServiceName,
 					Port: toServiceBackendPort(path.Backend.ServicePort),
@@ -61,16 +61,16 @@ func networkingV1beta1ToV1(ing *netv1beta1.Ingress) (*netv1.Ingress, error) {
 		}
 	}
 
-	return ni, nil
+	return ingress, nil
 }
 
-func toServiceBackendPort(p intstr.IntOrString) netv1.ServiceBackendPort {
+func toServiceBackendPort(portRaw intstr.IntOrString) netv1.ServiceBackendPort {
 	var port netv1.ServiceBackendPort
-	switch p.Type {
+	switch portRaw.Type {
 	case intstr.Int:
-		port.Number = p.IntVal
+		port.Number = portRaw.IntVal
 	case intstr.String:
-		port.Name = p.StrVal
+		port.Name = portRaw.StrVal
 	}
 
 	return port
@@ -87,13 +87,13 @@ func encodeYaml(object runtime.Object, groupName string) (string, error) {
 		return "", errors.New("unsupported media type application/yaml")
 	}
 
-	gv, err := schema.ParseGroupVersion(groupName)
+	groupVersion, err := schema.ParseGroupVersion(groupName)
 	if err != nil {
 		return "", err
 	}
 
 	buffer := bytes.NewBuffer([]byte{})
-	err = scheme.Codecs.EncoderForVersion(info.Serializer, gv).Encode(object, buffer)
+	err = scheme.Codecs.EncoderForVersion(info.Serializer, groupVersion).Encode(object, buffer)
 	if err != nil {
 		return "", err
 	}
