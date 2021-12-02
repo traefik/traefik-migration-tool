@@ -34,15 +34,15 @@ func Convert(srcFile, dstFile, resolverName string) error {
 		}
 	}
 
-	for _, certificate := range oldData.Certificates {
+	for _, c := range oldData.Certificates {
 		data.Certificates = append(data.Certificates, &acme.CertAndStore{
 			Certificate: acme.Certificate{
 				Domain: types.Domain{
-					Main: certificate.Domain.Main,
-					SANs: certificate.Domain.SANs,
+					Main: c.Domain.Main,
+					SANs: c.Domain.SANs,
 				},
-				Certificate: certificate.Certificate,
-				Key:         certificate.Key,
+				Certificate: c.Certificate,
+				Key:         c.Key,
 			},
 			Store: "default",
 		})
