@@ -410,6 +410,7 @@ func toPort(p netv1.ServiceBackendPort) intstr.IntOrString {
 	if p.Name != "" {
 		return intstr.FromString(p.Name)
 	}
+
 	return intstr.FromInt(int(p.Number))
 }
 

@@ -11,12 +11,16 @@ spec:
         paths:
           - path: /bar
             backend:
-              serviceName: service1
-              servicePort: 80
+              service:
+                name: service1
+                port:
+                  number: 80
           - path: /foo
             backend:
-              serviceName: service1
-              servicePort: 80
+              service:
+                name: service1
+                port:
+                  number: 80
 ---
 kind: Service
 apiVersion: v1
@@ -27,4 +31,4 @@ metadata:
 spec:
   ports:
     - port: 80
-  clusterIp: 10.0.0.1
+  clusterIP: 10.0.0.1
