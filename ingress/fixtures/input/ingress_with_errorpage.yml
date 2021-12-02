@@ -1,4 +1,4 @@
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
@@ -20,10 +20,12 @@ metadata:
   namespace: testing
 spec:
   rules:
-  - host: error-pages
-    http:
-      paths:
-      - backend:
-          serviceName: service1
-          servicePort: 80
-        path: /errorpages
+    - host: error-pages
+      http:
+        paths:
+          - backend:
+              service:
+                name: service1
+                port:
+                  number: 80
+            path: /errorpages

@@ -11,7 +11,7 @@ import (
 	"github.com/traefik/traefik/v2/pkg/config/dynamic"
 	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
 	"gopkg.in/yaml.v2"
-	networking "k8s.io/api/networking/v1beta1"
+	netv1 "k8s.io/api/networking/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -75,13 +75,13 @@ type TLSClientCertificateInfos struct {
 	NotAfter  bool                         `description:"Add NotAfter info in header" json:"notAfter"`
 	NotBefore bool                         `description:"Add NotBefore info in header" json:"notBefore"`
 	Sans      bool                         `description:"Add Sans info in header" json:"sans"`
-	Subject   *TLSCLientCertificateDNInfos `description:"Add Subject info in header" json:"subject,omitempty"`
-	Issuer    *TLSCLientCertificateDNInfos `description:"Add Issuer info in header" json:"issuer,omitempty"`
+	Subject   *TLSClientCertificateDNInfos `description:"Add Subject info in header" json:"subject,omitempty"`
+	Issuer    *TLSClientCertificateDNInfos `description:"Add Issuer info in header" json:"issuer,omitempty"`
 }
 
-// TLSCLientCertificateDNInfos holds the client TLS certificate distinguished name infos configuration.
+// TLSClientCertificateDNInfos holds the client TLS certificate distinguished name infos configuration.
 // cf https://tools.ietf.org/html/rfc3739
-type TLSCLientCertificateDNInfos struct {
+type TLSClientCertificateDNInfos struct {
 	Country         bool `description:"Add Country info in header" json:"country"`
 	Province        bool `description:"Add Province info in header" json:"province"`
 	Locality        bool `description:"Add Locality info in header" json:"locality"`
@@ -91,7 +91,7 @@ type TLSCLientCertificateDNInfos struct {
 	DomainComponent bool `description:"Add Domain Component info in header" json:"domainComponent"`
 }
 
-func getHeadersMiddleware(ingress *networking.Ingress) *v1alpha1.Middleware {
+func getHeadersMiddleware(ingress *netv1.Ingress) *v1alpha1.Middleware {
 	annotations := ingress.GetAnnotations()
 
 	headers := &dynamic.Headers{
@@ -134,7 +134,7 @@ func getHeadersMiddleware(ingress *networking.Ingress) *v1alpha1.Middleware {
 	}
 }
 
-func getAuthMiddleware(ingress *networking.Ingress) *v1alpha1.Middleware {
+func getAuthMiddleware(ingress *netv1.Ingress) *v1alpha1.Middleware {
 	authType := getStringValue(ingress.GetAnnotations(), annotationKubernetesAuthType, "")
 	if authType == "" {
 		return nil
@@ -206,7 +206,7 @@ func getForwardAuthConfig(annotations map[string]string) (*v1alpha1.ForwardAuth,
 	}, nil
 }
 
-func getWhiteList(ingress *networking.Ingress) *v1alpha1.Middleware {
+func getWhiteList(ingress *netv1.Ingress) *v1alpha1.Middleware {
 	ranges := getSliceStringValue(ingress.GetAnnotations(), annotationKubernetesWhiteListSourceRange)
 	if len(ranges) == 0 {
 		return nil
@@ -233,7 +233,7 @@ func getWhiteList(ingress *networking.Ingress) *v1alpha1.Middleware {
 	}
 }
 
-func getPassTLSClientCert(ingress *networking.Ingress) *v1alpha1.Middleware {
+func getPassTLSClientCert(ingress *netv1.Ingress) *v1alpha1.Middleware {
 	var passTLSClientCert *TLSClientHeaders
 
 	passRaw := getStringValue(ingress.GetAnnotations(), annotationKubernetesPassTLSClientCert, "")
@@ -369,7 +369,7 @@ func parseRequestModifier(namespace, requestModifier string) (*v1alpha1.Middlewa
 	}, nil
 }
 
-func getRateLimit(i *networking.Ingress) []*v1alpha1.Middleware {
+func getRateLimit(i *netv1.Ingress) []*v1alpha1.Middleware {
 	rateRaw := getStringValue(i.GetAnnotations(), annotationKubernetesRateLimit, "")
 	if rateRaw == "" {
 		return nil
@@ -420,7 +420,7 @@ func getRateLimit(i *networking.Ingress) []*v1alpha1.Middleware {
 	return mids
 }
 
-func getReplacePathRegex(rule networking.IngressRule, path networking.HTTPIngressPath, namespace, rewriteTarget string) *v1alpha1.Middleware {
+func getReplacePathRegex(rule netv1.IngressRule, path netv1.HTTPIngressPath, namespace, rewriteTarget string) *v1alpha1.Middleware {
 	middlewareName := "replace-path-" + rule.Host + path.Path
 
 	return &v1alpha1.Middleware{
@@ -434,7 +434,7 @@ func getReplacePathRegex(rule networking.IngressRule, path networking.HTTPIngres
 	}
 }
 
-func getStripPrefix(path networking.HTTPIngressPath, middlewareName, namespace string) *v1alpha1.Middleware {
+func getStripPrefix(path netv1.HTTPIngressPath, middlewareName, namespace string) *v1alpha1.Middleware {
 	return &v1alpha1.Middleware{
 		ObjectMeta: v1.ObjectMeta{Name: normalizeObjectName(middlewareName), Namespace: namespace},
 		Spec: v1alpha1.MiddlewareSpec{
