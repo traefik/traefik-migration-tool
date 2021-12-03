@@ -7,8 +7,6 @@ linters-settings:
     check-shadowing: true
   gocyclo:
     min-complexity: 16
-  maligned:
-    suggest-new: true
   goconst:
     min-len: 3
     min-occurrences: 3
@@ -52,35 +50,56 @@ linters-settings:
       - github.com/mailgun/minheap
       - github.com/mailgun/multibuf
       - github.com/docker/docker
+  funlen:
+    lines: 120 # default 60
+    statements: 50 # default 40
 
 linters:
   enable-all: true
   disable:
-    - golint # deprecated
-    - scopelint # deprecated
-    - maligned # deprecated
-    - interfacer # deprecated
-    - sqlclosecheck # not relevant (SQL)
-    - rowserrcheck # not relevant (SQL)
-    - cyclop # duplicate of gocyclo
-    - funlen
-    - gosec
-    - lll
+    # Deprecated
+    - interfacer
+    - golint
+    - maligned
+    - scopelint
+
+    # Too strict
     - dupl
-    - prealloc
-    - bodyclose
-    - wsl
-    - nlreturn
-    - gomnd
-    - testpackage
-    - paralleltest
-    - tparallel
+    - forcetypeassert
+    - gochecknoglobals
+    - gochecknoinits
+    - gocognit
+    - godox
     - goerr113
+    - gomnd
+    - gosec
+    - noctx
+    - testpackage
+    - unparam
     - wrapcheck
+    - wsl
+
+    # Not relevant
     - exhaustive
     - exhaustivestruct
+    - ifshort
+    - lll
     - makezero
-    - godox
+    - nlreturn
+    - paralleltest
+    - rowserrcheck # SQL
+    - sqlclosecheck # SQL
+    - tparallel
+    - varnamelen
+    - ireturn
+    - nilnil
+
+    # Too many false-positive.
+    - nestif
+    - prealloc
+    - bodyclose
+
+    - cyclop # Duplicate of gocyclo
 
 issues:
   exclude-use-default: false

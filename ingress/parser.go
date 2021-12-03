@@ -35,13 +35,13 @@ func networkingV1beta1ToV1(ing *netv1beta1.Ingress) (*netv1.Ingress, error) {
 		return nil, err
 	}
 
-	ni := &netv1.Ingress{}
-	if err := ni.Unmarshal(data); err != nil {
+	in := &netv1.Ingress{}
+	if err := in.Unmarshal(data); err != nil {
 		return nil, err
 	}
 
 	if ing.Spec.Backend != nil {
-		ni.Spec.DefaultBackend = &netv1.IngressBackend{
+		in.Spec.DefaultBackend = &netv1.IngressBackend{
 			Resource: ing.Spec.Backend.Resource,
 			Service: &netv1.IngressServiceBackend{
 				Name: ing.Spec.Backend.ServiceName,
@@ -52,7 +52,7 @@ func networkingV1beta1ToV1(ing *netv1beta1.Ingress) (*netv1.Ingress, error) {
 
 	for ri, rule := range ing.Spec.Rules {
 		for pi, path := range rule.HTTP.Paths {
-			ni.Spec.Rules[ri].HTTP.Paths[pi].Backend = netv1.IngressBackend{
+			in.Spec.Rules[ri].HTTP.Paths[pi].Backend = netv1.IngressBackend{
 				Service: &netv1.IngressServiceBackend{
 					Name: path.Backend.ServiceName,
 					Port: toServiceBackendPort(path.Backend.ServicePort),
@@ -61,7 +61,7 @@ func networkingV1beta1ToV1(ing *netv1beta1.Ingress) (*netv1.Ingress, error) {
 		}
 	}
 
-	return ni, nil
+	return in, nil
 }
 
 func toServiceBackendPort(p intstr.IntOrString) netv1.ServiceBackendPort {

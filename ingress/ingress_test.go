@@ -84,7 +84,7 @@ func Test_convertIngress(t *testing.T) {
 	outputDir := filepath.Join("fixtures", "output_convertIngress")
 	if *updateExpected {
 		require.NoError(t, os.RemoveAll(outputDir))
-		require.NoError(t, os.MkdirAll(outputDir, 0755))
+		require.NoError(t, os.MkdirAll(outputDir, 0o755))
 	}
 
 	for _, test := range testCases {
@@ -109,7 +109,7 @@ func Test_convertIngress(t *testing.T) {
 				fixtureFile := filepath.Join(outputDir, filename)
 
 				if *updateExpected {
-					require.NoError(t, os.WriteFile(fixtureFile, []byte(s), 0666))
+					require.NoError(t, os.WriteFile(fixtureFile, []byte(s), 0o666))
 				}
 
 				file, err := os.ReadFile(fixtureFile)
@@ -210,7 +210,7 @@ func Test_convertFile(t *testing.T) {
 	fixturesDir := filepath.Join("fixtures", "output_convertFile")
 	if *updateExpected {
 		require.NoError(t, os.RemoveAll(fixturesDir))
-		require.NoError(t, os.MkdirAll(fixturesDir, 0755))
+		require.NoError(t, os.MkdirAll(fixturesDir, 0o755))
 	}
 
 	for _, test := range testCases {

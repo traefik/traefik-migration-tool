@@ -64,7 +64,7 @@ func main() {
 				if !os.IsNotExist(err) {
 					return err
 				}
-				err = os.MkdirAll(ingressCfg.output, 0755)
+				err = os.MkdirAll(ingressCfg.output, 0o755)
 				if err != nil {
 					return err
 				}

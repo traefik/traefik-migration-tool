@@ -369,8 +369,8 @@ func parseRequestModifier(namespace, requestModifier string) (*v1alpha1.Middlewa
 	}, nil
 }
 
-func getRateLimit(i *netv1.Ingress) []*v1alpha1.Middleware {
-	rateRaw := getStringValue(i.GetAnnotations(), annotationKubernetesRateLimit, "")
+func getRateLimit(ing *netv1.Ingress) []*v1alpha1.Middleware {
+	rateRaw := getStringValue(ing.GetAnnotations(), annotationKubernetesRateLimit, "")
 	if rateRaw == "" {
 		return nil
 	}
@@ -412,7 +412,7 @@ func getRateLimit(i *netv1.Ingress) []*v1alpha1.Middleware {
 		}
 
 		mids = append(mids, &v1alpha1.Middleware{
-			ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%s-%d", "middleware", rateSetKey, hash), Namespace: i.GetNamespace()},
+			ObjectMeta: v1.ObjectMeta{Name: fmt.Sprintf("%s-%s-%d", "middleware", rateSetKey, hash), Namespace: ing.GetNamespace()},
 			Spec:       rateLimitMiddleware,
 		})
 	}

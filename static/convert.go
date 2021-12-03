@@ -16,7 +16,7 @@ type encoder interface {
 
 // Convert old static configuration file to the Traefik v2 static configuration files.
 func Convert(oldFilename, outputDir string) error {
-	err := os.MkdirAll(outputDir, 0755)
+	err := os.MkdirAll(outputDir, 0o755)
 	if err != nil {
 		return err
 	}
