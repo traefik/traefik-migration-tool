@@ -14,7 +14,7 @@ import (
 
 func migrateConfiguration(oldCfg Configuration) static.Configuration {
 	if oldCfg.Retry != nil {
-		fmt.Println("Retry must be converted manually. See https://docs.traefik.io/middlewares/retry/")
+		fmt.Println("Retry must be converted manually. See https://docs.traefik.io/middlewares/http/retry/")
 	}
 
 	if oldCfg.Constraints != nil {
@@ -78,19 +78,19 @@ func migrateEntryPoints(oldCfg Configuration) static.EntryPoints {
 	eps := static.EntryPoints{}
 	for name, entryPoint := range *oldCfg.EntryPoints {
 		if entryPoint.Compress {
-			fmt.Printf("Compress on entry point %q must be converted manually. See https://docs.traefik.io/middlewares/compress/\n", name)
+			fmt.Printf("Compress on entry point %q must be converted manually. See https://docs.traefik.io/middlewares/http/compress/\n", name)
 		}
 		if entryPoint.TLS != nil {
 			fmt.Printf("TLS on entry point %q must be converted manually. See https://docs.traefik.io/routing/routers/#tls\n", name)
 		}
 		if entryPoint.Redirect != nil {
-			fmt.Printf("Redirect on entry point %q must be converted manually. See https://docs.traefik.io/middlewares/redirectscheme/\n", name)
+			fmt.Printf("Redirect on entry point %q must be converted manually. See https://docs.traefik.io/middlewares/http/redirectscheme/\n", name)
 		}
 		if entryPoint.WhiteList != nil {
-			fmt.Printf("WhiteList on entry point %q must be converted manually. See https://docs.traefik.io/middlewares/ipwhitelist/\n", name)
+			fmt.Printf("WhiteList on entry point %q must be converted manually. See https://docs.traefik.io/middlewares/http/ipwhitelist/\n", name)
 		}
 		if len(entryPoint.WhitelistSourceRange) != 0 {
-			fmt.Printf("WhitelistSourceRange on entry point %q must be converted manually. See https://docs.traefik.io/middlewares/ipwhitelist/\n", name)
+			fmt.Printf("WhitelistSourceRange on entry point %q must be converted manually. See https://docs.traefik.io/middlewares/http/ipwhitelist/\n", name)
 		}
 
 		eps[name] = &static.EntryPoint{
