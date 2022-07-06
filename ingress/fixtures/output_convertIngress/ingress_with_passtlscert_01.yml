@@ -10,7 +10,7 @@ spec:
   - kind: Rule
     match: Host(`other`) && PathPrefix(`/sslstuff`)
     middlewares:
-    - name: passtlscert-15379227705390368640
+    - name: passtlscert-3246125301495933582
       namespace: testing
     services:
     - kind: Service

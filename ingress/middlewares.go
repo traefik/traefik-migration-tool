@@ -45,7 +45,7 @@ func (t *TLSClientHeaders) getPassTLSCert() *dynamic.PassTLSClientCert {
 			Sans:      t.Infos.Sans,
 		}
 		if t.Infos.Issuer != nil {
-			passTLS.Info.Issuer = &dynamic.TLSCLientCertificateDNInfo{
+			passTLS.Info.Issuer = &dynamic.TLSClientCertificateIssuerDNInfo{
 				Country:         t.Infos.Issuer.Country,
 				Province:        t.Infos.Issuer.Province,
 				Locality:        t.Infos.Issuer.Locality,
@@ -55,7 +55,7 @@ func (t *TLSClientHeaders) getPassTLSCert() *dynamic.PassTLSClientCert {
 				DomainComponent: t.Infos.Issuer.DomainComponent,
 			}
 			if t.Infos.Subject != nil {
-				passTLS.Info.Subject = &dynamic.TLSCLientCertificateDNInfo{
+				passTLS.Info.Subject = &dynamic.TLSClientCertificateSubjectDNInfo{
 					Country:         t.Infos.Subject.Country,
 					Province:        t.Infos.Subject.Province,
 					Locality:        t.Infos.Subject.Locality,

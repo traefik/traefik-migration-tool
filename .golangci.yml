@@ -82,6 +82,7 @@ linters:
     # Not relevant
     - exhaustive
     - exhaustivestruct
+    - exhaustruct
     - ifshort
     - lll
     - makezero

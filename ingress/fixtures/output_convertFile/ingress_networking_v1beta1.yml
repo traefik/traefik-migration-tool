@@ -6,21 +6,21 @@ metadata:
   namespace: testing
 spec:
   entryPoints:
-    - web
+  - web
   routes:
-    - kind: Rule
-      match: Host(`traefik.tchouk`) && PathPrefix(`/bar`)
-      priority: 10
-      services:
-        - kind: Service
-          name: service1
-          namespace: testing
-          port: 80
-    - kind: Rule
-      match: Host(`traefik.tchouk`) && PathPrefix(`/foo`)
-      priority: 10
-      services:
-        - kind: Service
-          name: service1
-          namespace: testing
-          port: 80
+  - kind: Rule
+    match: Host(`traefik.tchouk`) && PathPrefix(`/bar`)
+    priority: 10
+    services:
+    - kind: Service
+      name: service1
+      namespace: testing
+      port: 80
+  - kind: Rule
+    match: Host(`traefik.tchouk`) && PathPrefix(`/foo`)
+    priority: 10
+    services:
+    - kind: Service
+      name: service1
+      namespace: testing
+      port: 80
